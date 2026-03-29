@@ -5,26 +5,31 @@ A **Angry AC** é uma plataforma de próxima geração para a emissão e gestão
 
 Este repositório consolidado (`angry-ac`) contém o motor de validação e emissão de alta performance.
 
-## 🛠️ Stack Tecnológica (Modern Architecture)
+## 🏛️ Arquitetura de Software (Elite Engineering)
 
-O projeto utiliza o que há de mais moderno no ecossistema de desenvolvimento web para garantir performance, segurança e escalabilidade:
-
-### Frontend (User Interface)
-- **Next.js 15+ (App Router)**: Framework React de última geração para roteamento otimizado, CSR e SSR.
+### Frontend & Core Interface
+- **Next.js 15+ (App Router)**: Framework React de última geração para roteamento otimizado, Server Components e alto desempenho biográfico.
 - **TypeScript**: Superset tipado do JavaScript que elimina erros de runtime e facilita a manutenção em larga escala.
-- **Tailwind CSS**: Design system utilitário para interfaces responsivas de baixa latência e alta fidelidade visual.
-- **Lucide Icons**: Biblioteca de ícones vetoriais ultra-leves e consistentes.
-- **Framer Motion**: Engine de animações complexas para transições de estado e micro-interações premiu.
+- **Tailwind CSS & Framer Motion**: Design system de luxo com interfaces responsivas e animações glassmorphism premium.
 
-### Backend & Persistência (Serverless Infrastructure)
+### Backend & Persistência (Serverless & Cloud)
 - **Supabase (PostgreSQL)**: Banco de dados relacional (SQL) com capacidades de Real-Time e segurança de nível bancário.
-- **Next.js API Routes**: Endpoints serverless que orquestram a lógica biográfica e biométrica.
-- **WebSocket (Hardware Bridge)**: Canal binário de baixa latência para integração direta com periféricos USB (Leitores biométricos e Câmeras).
+- **Next.js API Routes**: Endpoints serverless que orquestram a lógica biográfica e biométrica em ambiente isolado.
 
-### Segurança e Governança
-- **Cloud PKI Integration**: Rito de assinatura digital integrado a HSMs (Hardware Security Modules) via API Rest.
-- **Audit Trail Engine**: Motor de auditoria que registra cada interação (AGR, IP, Timestamp) de forma imutável.
-- **Conformidade LGPD**: Criptografia de dados sensíveis e governança de acesso granular (Lock-Down).
+## 🔐 Padrões de Criptografia Conformes (ICP-Brasil)
+
+A **AC ANGRY** segue as normativas mais rigorosas para garantir a inviolabilidade das identidades digitais:
+
+### Certificados Digitais (.pfx / .p12)
+- **Algoritmo de Assinatura**: RSA de **2048 bits** (mínimo) a **4096 bits** para segurança extrema.
+- **ECC (Elliptic Curve Cryptography)**: Suporte a curvas **NIST P-256** e **P-384** para maior performance com menor uso de hardware.
+- **Hashing Algorithm**: **SHA-256** ou **SHA-384** em conformidade com o DOC-ICP-01.
+- **Container PFX**: Criptografado com **AES-256-CBC**, protegendo o par de chaves biográficas.
+
+### Segurança de Dados e Infraestrutura
+- **Transmissão**: Todo o tráfego é protegido por **TLS 1.3** (End-to-End Encryption).
+- **Encryption at Rest**: Dados sensíveis no banco de dados são cifrados em **AES-256**.
+- **Hardware Security Module (HSM)**: Recomendação estratégica para a custódia das Chaves Mestras da AC em hardware inviolável conforme ritos ICP-Brasil.
 
 ## 📡 Engenharia de Conformidade (Compliance)
 - **LGPD**: Proteção rigorosa de dados pessoais e ritos de exclusão segura.
