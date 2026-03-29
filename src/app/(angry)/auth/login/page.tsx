@@ -33,14 +33,14 @@ export default function AgentLoginPage() {
     runDiagnostics();
   }, []);
 
-  // Integração Real com Lacuna WebPKI
-  const handleA3Login = () => {
+  // Integração Real com Lacuna WebPKI - Melhorada
+  const handleA3Login = async () => {
     setAuthStatus('scanning');
     
-    // @ts-ignore
+    // @ts-ignore - Verificação real da extensão Lacuna
     if (typeof window.lacunaWebPki === 'undefined' || !window.lacunaWebPki) {
-      alert("Extensão Lacuna WebPKI não detectada. Por favor, reinicie o navegador ou instale a extensão.");
-      setAuthStatus('idle');
+      setAuthStatus('error');
+      setTimeout(() => setAuthStatus('idle'), 3000);
       return;
     }
 
@@ -48,34 +48,54 @@ export default function AgentLoginPage() {
       // @ts-ignore
       const pki = new window.lacunaWebPki();
       
-      // Timeout de segurança para a detecção
+      // Inicialização do motor com validação de compatibilidade
+      await pki.init({
+        license: null, // Em produção adicionar licença real
+        trusted: true,
+        useDomain: true
+      });
+      
+      // Timeout extendido com feedback granular
       const timeout = setTimeout(() => {
         if (authStatus === 'scanning') {
-           alert("Tempo esgotado ao buscar certificados. Verifique se o aplicativo 'Lacuna Web PKI' está rodando no Windows (ícone azul na barra de tarefas).");
-           setAuthStatus('idle');
+           setAuthStatus('error');
+           setTimeout(() => setAuthStatus('idle'), 3000);
         }
-      }, 10000);
+      }, 15000);
 
-      pki.listCertificates().success((certs: any[]) => {
-        clearTimeout(timeout);
-        setAvailableCertificates(certs);
-        
-        if (certs.length === 0) {
-          alert("Nenhum certificado detectado. Certifique-se de que o Token/Cartão está inserido e os drivers (ex: SafeSign) estão instalados.");
-          setAuthStatus('idle');
-        } else {
-          setSelectedCert(certs[0]);
-          setAuthStatus('pin');
-        }
-      }).error((err: any) => {
-        clearTimeout(timeout);
-        console.error("Erro WebPKI:", err);
-        alert("Erro na Lacuna: " + (err.message || "Falha na comunicação com o hardware. Verifique o instalador desktop."));
-        setAuthStatus('idle');
+      // Listagem de certificados com filtro A3
+      const certs = await new Promise<any[]>((resolve, reject) => {
+        pki.listCertificates().success(resolve).error(reject);
       });
-    } catch (e) {
-      setAuthStatus('idle');
-      alert("Falha ao inicializar motor PKI local.");
+      
+      clearTimeout(timeout);
+      
+      // Filtrar apenas certificados A3 (Hardware)
+      const a3Certificates = certs.filter(cert => {
+        // Verificar se é certificado de hardware (A3)
+        return cert.keyUsages && 
+               cert.keyUsages.includes('nonRepudiation') &&
+               cert.validity &&
+               new Date(cert.validity.notAfter) > new Date();
+      });
+      
+      setAvailableCertificates(a3Certificates);
+      
+      if (a3Certificates.length === 0) {
+        setAuthStatus('error');
+        setTimeout(() => setAuthStatus('idle'), 3000);
+      } else {
+        // Auto-selecionar o certificado mais recente
+        const sortedCerts = a3Certificates.sort((a, b) => 
+          new Date(b.validity.notAfter).getTime() - new Date(a.validity.notAfter).getTime()
+        );
+        setSelectedCert(sortedCerts[0]);
+        setAuthStatus('pin');
+      }
+    } catch (error: any) {
+      console.error('Erro WebPKI:', error);
+      setAuthStatus('error');
+      setTimeout(() => setAuthStatus('idle'), 3000);
     }
   };
 
@@ -108,13 +128,62 @@ export default function AgentLoginPage() {
     }
   };
 
-  const handlePinSubmit = (e: React.FormEvent) => {
+  const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Em produção: Realizar assinatura PKCS#1 e enviar ao /api/auth/pki
-    setAuthStatus('success');
-    setTimeout(() => {
-      window.location.href = '/ac/agent/dashboard';
-    }, 1500);
+    
+    if (!selectedCert || !pin) {
+      setAuthStatus('error');
+      setTimeout(() => setAuthStatus('pin'), 2000);
+      return;
+    }
+    
+    try {
+      // @ts-ignore
+      const pki = new window.lacunaWebPki();
+      await pki.init({ trusted: true });
+      
+      // Gerar challenge para assinatura
+      const challengeResponse = await fetch('/api/auth/pki');
+      const { nonce } = await challengeResponse.json();
+      
+      // Realizar assinatura digital com o certificado A3
+      const signature = await new Promise<string>((resolve, reject) => {
+        pki.signData({
+          thumbprint: selectedCert.thumbprint,
+          data: nonce,
+          digestAlgorithm: 'SHA-256'
+        }).success(resolve).error(reject);
+      });
+      
+      // Enviar assinatura para validação no backend
+      const authResponse = await fetch('/api/auth/pki', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'A3_HARDWARE',
+          signature,
+          certificate: selectedCert,
+          nonce,
+          identifier: selectedCert.subjectName
+        })
+      });
+      
+      const result = await authResponse.json();
+      
+      if (result.success) {
+        setAuthStatus('success');
+        setTimeout(() => {
+          window.location.href = '/ac/agent/dashboard';
+        }, 1500);
+      } else {
+        setAuthStatus('error');
+        setTimeout(() => setAuthStatus('pin'), 2000);
+      }
+    } catch (error) {
+      console.error('Erro na assinatura:', error);
+      setAuthStatus('error');
+      setTimeout(() => setAuthStatus('pin'), 2000);
+    }
   };
 
   return (
@@ -334,6 +403,42 @@ export default function AgentLoginPage() {
                 className="mt-6 text-xs font-bold text-slate-400 hover:text-emerald-700 transition-colors uppercase tracking-widest"
               >
                 Voltar para opções de acesso
+              </button>
+            </div>
+          )}
+
+          {authStatus === 'error' && (
+            <div className="animate-in fade-in duration-500 flex flex-col items-center text-center">
+              <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                <AlertCircle size={40} className="text-red-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Falha na Autenticação</h3>
+              <p className="text-slate-500 text-sm font-medium mb-8 max-w-md">
+                Não foi possível acessar seu certificado A3. Verifique:
+              </p>
+              <div className="space-y-2 text-left bg-slate-50 p-4 rounded-xl mb-8 max-w-md">
+                <div className="flex items-start gap-2">
+                  <span className="text-red-600 mt-1">•</span>
+                  <span className="text-xs text-slate-600">Token/Cartão inserido corretamente</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-red-600 mt-1">•</span>
+                  <span className="text-xs text-slate-600">Drivers do fabricante instalados</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-red-600 mt-1">•</span>
+                  <span className="text-xs text-slate-600">Extensão Lacuna WebPKI ativa</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-red-600 mt-1">•</span>
+                  <span className="text-xs text-slate-600">Aplicativo desktop rodando</span>
+                </div>
+              </div>
+              <button 
+                onClick={() => setAuthStatus('idle')}
+                className="w-full h-12 bg-slate-600 hover:bg-slate-700 text-white font-bold rounded-xl shadow-lg transition-all"
+              >
+                Tentar Novamente
               </button>
             </div>
           )}

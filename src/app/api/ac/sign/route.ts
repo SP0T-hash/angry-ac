@@ -49,6 +49,11 @@ export async function POST(req: NextRequest) {
     // 4. Criar o Certificado Final assinado pela AC VEMAPI
     const cert = forge.pki.createCertificate();
     cert.serialNumber = forge.util.bytesToHex(forge.random.getBytesSync(16));
+    
+    // Verificar se a chave pública existe antes de atribuir
+    if (!csr.publicKey) {
+      throw new Error('Chave pública não encontrada no CSR');
+    }
     cert.publicKey = csr.publicKey;
     cert.validity.notBefore = new Date();
     cert.validity.notAfter = new Date();
