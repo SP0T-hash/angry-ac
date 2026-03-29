@@ -24,8 +24,9 @@ Para que o navegador confie nos certificados, instale a cadeia de raízes mais r
 
 ## 4. Middleware de Navegador (Lacuna Web PKI) 🌐
 O portal AC ANGRY utiliza a tecnologia da Lacuna para acessar o hardware:
-1. **Instale a Extensão**: Busque por "Lacuna Web PKI" na Chrome Web Store ou Microsoft Edge Add-ons.
-2. **Instale o Binário**: Ao acessar a página de login pela primeira vez, a extensão solicitará a instalação de um componente desktop. Realize a instalação e reinicie o navegador.
+1. **Instalação Direta (Recomendado)**: Acesse [https://get.webpki.com](https://get.webpki.com).
+2. **Diagnóstico Automático**: O site detectará seu sistema e fornecerá os links corretos para a Extensão e para o Componente Desktop (binário).
+3. **Pós-Instalação**: Reinicie o Chrome/Edge para ativar os drivers.
 
 ## 5. Diagnóstico de Conectividade ⚡
 Abra a página de login da AC ANGRY e verifique:
