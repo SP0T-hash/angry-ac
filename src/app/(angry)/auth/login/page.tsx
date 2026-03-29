@@ -229,12 +229,12 @@ export default function AgentLoginPage() {
                       Chrome Web Store <ArrowRight size={10} />
                     </a>
                     <a 
-                      href="https://lacuna.software/en-us/web-pki" 
+                      href="https://pki.webpkiplugin.com/LacunaWebPKISetup.exe" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-amber-700 hover:text-amber-900 underline uppercase tracking-tighter"
+                      className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-blue-700 hover:text-blue-900 underline uppercase tracking-tighter"
                     >
-                      Site de Suporte <ArrowRight size={10} />
+                      Baixar Instalador Windows (.exe) <ArrowRight size={10} />
                     </a>
                   </div>
                 </div>
