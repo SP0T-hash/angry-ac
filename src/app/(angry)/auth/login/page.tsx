@@ -9,6 +9,8 @@ export default function AgentLoginPage() {
   const [pin, setPin] = useState('');
   const [identifier, setIdentifier] = useState(''); // CPF ou E-mail para Nuvem
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [availableCertificates, setAvailableCertificates] = useState<any[]>([]);
+  const [selectedCert, setSelectedCert] = useState<any>(null);
   
   const [diagnostics, setDiagnostics] = useState({
     webPki: 'checking',
@@ -19,25 +21,46 @@ export default function AgentLoginPage() {
   // Diagnóstico de estação (Homologação)
   useEffect(() => {
     const runDiagnostics = async () => {
-      // Simulação de detecção real de WebPKI e Hardware
-      setTimeout(() => {
-        setDiagnostics({
-          webPki: 'active',
-          hwDrivers: 'active',
-          cloudApi: 'active'
-        });
-      }, 1500);
+      // @ts-ignore - Verificação real da extensão Lacuna
+      const isWebPkiInstalled = typeof window !== 'undefined' && typeof window.lacunaWebPki !== 'undefined';
+      
+      setDiagnostics({
+        webPki: isWebPkiInstalled ? 'active' : 'error',
+        hwDrivers: isWebPkiInstalled ? 'active' : 'checking', 
+        cloudApi: 'active'
+      });
     };
     runDiagnostics();
   }, []);
 
-  // Simula a biblioteca "Lacuna Web PKI" descobrindo o certificado A3 plugado
+  // Integração Real com Lacuna WebPKI
   const handleA3Login = () => {
     setAuthStatus('scanning');
-    // Em produção: window.lacunaWebPki.listCertificates(...)
-    setTimeout(() => {
-      setAuthStatus('pin');
-    }, 2000);
+    
+    // @ts-ignore - Verificação da presença da extensão
+    if (typeof window.lacunaWebPki === 'undefined') {
+      alert("Extensão Lacuna WebPKI não detectada. Por favor, instale-a para usar o certificado A3.");
+      setAuthStatus('idle');
+      return;
+    }
+
+    // @ts-ignore
+    const pki = new window.lacunaWebPki();
+    
+    pki.listCertificates().success((certs: any[]) => {
+      setAvailableCertificates(certs);
+      if (certs.length === 0) {
+        alert("Nenhum certificado A3 encontrado no leitor. Verifique se o token está plugado.");
+        setAuthStatus('idle');
+      } else {
+        // Por simplificação, pega o primeiro, mas o ideal é abrir um seletor
+        setSelectedCert(certs[0]);
+        setAuthStatus('pin');
+      }
+    }).error((err: string) => {
+      console.error("Erro WebPKI:", err);
+      setAuthStatus('error');
+    });
   };
 
   const handleCloudLogin = async (provider: PSCProvider) => {
@@ -248,7 +271,12 @@ export default function AgentLoginPage() {
                 <ShieldCheck size={40} className="text-emerald-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-1">Certificado Identificado!</h3>
-              <p className="text-slate-500 text-sm font-medium mb-8">AGR: MARCELO ANDRE DOS SANTOS (VEMAPI CERTIFICADORA)</p>
+              <p className="text-emerald-600 text-[10px] font-black uppercase tracking-widest mb-2 border border-emerald-200 px-3 py-1 rounded-full bg-emerald-50">
+                A3 Hardware / Token
+              </p>
+              <p className="text-slate-900 text-sm font-bold mb-8">
+                AGR: {selectedCert?.name || 'TITULAR NÃO IDENTIFICADO'}
+              </p>
 
               <form onSubmit={handlePinSubmit} className="w-full max-w-xs space-y-4">
                 <div>
