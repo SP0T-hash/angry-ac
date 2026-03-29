@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Angry AC - Digital Trust & Certification Platform 🛡️🔐⚡
 
-## Getting Started
+## 🚀 Visão Geral
+A **Angry AC** é uma plataforma de próxima geração para a emissão e gestão de certificados digitais, projetada para atender aos rigorosos padrões da **ICP-Brasil**, **LGPD** e normativas **ABNT**. O sistema oferece um fluxo completo desde o atendimento via videoconferência até a validação biométrica e emissão em nuvem.
 
-First, run the development server:
+Este repositório consolidado (`angry-ac`) contém o motor de validação e emissão de alta performance.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🛠️ Stack Tecnológica (Modern Architecture)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+O projeto utiliza o que há de mais moderno no ecossistema de desenvolvimento web para garantir performance, segurança e escalabilidade:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Frontend (User Interface)
+- **Next.js 15+ (App Router)**: Framework React de última geração para roteamento otimizado, CSR e SSR.
+- **TypeScript**: Superset tipado do JavaScript que elimina erros de runtime e facilita a manutenção em larga escala.
+- **Tailwind CSS**: Design system utilitário para interfaces responsivas de baixa latência e alta fidelidade visual.
+- **Lucide Icons**: Biblioteca de ícones vetoriais ultra-leves e consistentes.
+- **Framer Motion**: Engine de animações complexas para transições de estado e micro-interações premiu.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Backend & Persistência (Serverless Infrastructure)
+- **Supabase (PostgreSQL)**: Banco de dados relacional (SQL) com capacidades de Real-Time e segurança de nível bancário.
+- **Next.js API Routes**: Endpoints serverless que orquestram a lógica biográfica e biométrica.
+- **WebSocket (Hardware Bridge)**: Canal binário de baixa latência para integração direta com periféricos USB (Leitores biométricos e Câmeras).
 
-## Learn More
+### Segurança e Governança
+- **Cloud PKI Integration**: Rito de assinatura digital integrado a HSMs (Hardware Security Modules) via API Rest.
+- **Audit Trail Engine**: Motor de auditoria que registra cada interação (AGR, IP, Timestamp) de forma imutável.
+- **Conformidade LGPD**: Criptografia de dados sensíveis e governança de acesso granular (Lock-Down).
 
-To learn more about Next.js, take a look at the following resources:
+## 📡 Engenharia de Conformidade (Compliance)
+- **LGPD**: Proteção rigorosa de dados pessoais e ritos de exclusão segura.
+- **ABNT NBR 15527**: Segue os padrões brasileiros para certificados de chave pública.
+- **ICP-Brasil**: Fluxogramas de validação conformes com as normativas de videoconferência.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+**Documentação oficial mantida pela equipe de engenharia AC ANGRY.** ⚔️🚀
