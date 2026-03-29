@@ -1,13 +1,35 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
-import { Zap, ShieldCheck, MonitorSmartphone, Fingerprint, LockKeyhole, ArrowRight, CreditCard, AlertCircle } from 'lucide-react';
+import { Zap, ShieldCheck, MonitorSmartphone, Fingerprint, LockKeyhole, ArrowRight, CreditCard, AlertCircle, HardDrive, Globe } from 'lucide-react';
 import { pscAuth, PSCProvider } from '@/lib/ac-angry/psc-auth';
 
 export default function AgentLoginPage() {
-  const [isReadingA3, setIsReadingA3] = useState(false);
   const [authStatus, setAuthStatus] = useState<'idle' | 'scanning' | 'pin' | 'cloud-push' | 'success' | 'error'>('idle');
   const [pin, setPin] = useState('');
   const [identifier, setIdentifier] = useState(''); // CPF ou E-mail para Nuvem
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  
+  const [diagnostics, setDiagnostics] = useState({
+    webPki: 'checking',
+    hwDrivers: 'checking',
+    cloudApi: 'checking'
+  });
+
+  // Diagnóstico de estação (Homologação)
+  useEffect(() => {
+    const runDiagnostics = async () => {
+      // Simulação de detecção real de WebPKI e Hardware
+      setTimeout(() => {
+        setDiagnostics({
+          webPki: 'active',
+          hwDrivers: 'active',
+          cloudApi: 'active'
+        });
+      }, 1500);
+    };
+    runDiagnostics();
+  }, []);
 
   // Simula a biblioteca "Lacuna Web PKI" descobrindo o certificado A3 plugado
   const handleA3Login = () => {
@@ -86,6 +108,19 @@ export default function AgentLoginPage() {
 
         {/* Right Col - Autenticação A3 */}
         <div className="md:w-7/12 p-10 lg:p-14 flex flex-col justify-center relative">
+          
+          {/* Machine Diagnostics Widget */}
+          <div className="absolute top-4 right-4 flex gap-2">
+            <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border transition-colors ${diagnostics.webPki === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+              <Globe size={10} /> WebPKI
+            </div>
+            <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border transition-colors ${diagnostics.hwDrivers === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+              <HardDrive size={10} /> HW
+            </div>
+            <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border transition-colors ${diagnostics.cloudApi === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+              <Zap size={10} /> PSC
+            </div>
+          </div>
           
           {authStatus === 'idle' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
