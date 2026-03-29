@@ -203,9 +203,9 @@ export default function AgentLoginPage() {
               <span className="font-extrabold text-2xl tracking-tight uppercase">AC <span className="text-emerald-400">ANGRY</span></span>
             </div>
             
-            <h1 className="text-3xl font-black mb-4 leading-tight uppercase tracking-tighter">Central de Emissão Digital</h1>
+            <h1 className="text-3xl font-black mb-4 leading-tight uppercase tracking-tighter">Portal A3 Exclusivo</h1>
             <p className="text-emerald-200 text-sm leading-relaxed max-w-sm font-medium">
-              Ambiente restrito a Agentes de Registro (AGR) para auditoria, validação biométrica e emissão de certificados ICP-Brasil.
+              Ambiente restrito para Agentes de Registro (AGR) com acesso exclusivo via certificado digital A3 ICP-Brasil.
             </p>
           </div>
 
@@ -220,20 +220,20 @@ export default function AgentLoginPage() {
           {/* Machine Diagnostics Widget */}
           <div className="absolute top-4 right-4 flex gap-2">
             <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border transition-colors ${diagnostics.webPki === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-              <Globe size={10} /> WebPKI
+              <Globe size={10} /> A3-PKI
             </div>
             <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border transition-colors ${diagnostics.hwDrivers === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-              <HardDrive size={10} /> HW
+              <HardDrive size={10} /> TOKEN
             </div>
             <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border transition-colors ${diagnostics.cloudApi === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-              <Zap size={10} /> PSC
+              <Zap size={10} /> NUVEM
             </div>
           </div>
           
           {authStatus === 'idle' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h2 className="text-2xl font-bold mb-2 text-slate-900 tracking-tight">Autenticação Biométrica</h2>
-              <p className="text-slate-500 mb-8 text-sm font-medium">Insira o seu Smartcard ou Token Leitor A3 VEMAPI na porta USB.</p>
+              <h2 className="text-2xl font-bold mb-2 text-slate-900 tracking-tight">Autenticação via Certificado A3</h2>
+              <p className="text-slate-500 mb-8 text-sm font-medium">Acesso exclusivo com certificado digital ICP-Brasil.</p>
 
               <div className="space-y-4 mb-8">
                 <button 
@@ -245,15 +245,15 @@ export default function AgentLoginPage() {
                       <CreditCard size={24} className="text-white" />
                     </div>
                     <div className="text-left">
-                      <h3 className="font-bold text-emerald-950">Acessar com Certificado</h3>
-                      <p className="text-xs text-emerald-700/80 font-semibold">WebPKI via Cartão A3 ou Token USB</p>
+                      <h3 className="font-bold text-emerald-950">Token A3 Hardware</h3>
+                      <p className="text-xs text-emerald-700/80 font-semibold">Cartão/Token USB via WebPKI</p>
                     </div>
                   </div>
                   <ArrowRight size={20} className="text-emerald-600 opacity-50 group-hover:opacity-100 transition-opacity" />
                 </button>
 
                 <div className="space-y-2">
-                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Identificador (CPF / E-mail)</label>
+                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">CPF ou E-mail do Certificado</label>
                    <input 
                       type="text" 
                       placeholder="000.000.000-00"
@@ -263,39 +263,55 @@ export default function AgentLoginPage() {
                    />
                 </div>
 
-                <button 
-                  onClick={() => handleCloudLogin('vidaas')}
-                  className="w-full flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-2xl transition-all group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-200 group-hover:scale-105 transition-transform">
-                      <MonitorSmartphone size={24} className="text-white" />
+                <div className="grid grid-cols-1 gap-3">
+                  <button 
+                    onClick={() => handleCloudLogin('vidaas')}
+                    className="w-full flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-2xl transition-all group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-200 group-hover:scale-105 transition-transform">
+                        <MonitorSmartphone size={24} className="text-white" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="font-bold text-blue-950">Vidaas A3 Nuvem</h3>
+                        <p className="text-xs text-blue-700/80 font-semibold">Push no celular</p>
+                      </div>
                     </div>
-                    <div className="text-left">
-                      <h3 className="font-bold text-blue-950">Acessar via Celular / Nuvem</h3>
-                      <p className="text-xs text-blue-700/80 font-semibold">Push no Vidaas, Syngular ou BirdID</p>
-                    </div>
-                  </div>
-                  <ArrowRight size={20} className="text-blue-600 opacity-50 group-hover:opacity-100 transition-opacity" />
-                </button>
+                    <ArrowRight size={20} className="text-blue-600 opacity-50 group-hover:opacity-100 transition-opacity" />
+                  </button>
 
-                <div className="relative py-4">
-                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
-                  <div className="relative flex justify-center"><span className="px-4 bg-white text-xs font-bold text-slate-400">OU ACESSO MANUAL</span></div>
+                  <button 
+                    onClick={() => handleCloudLogin('syngular')}
+                    className="w-full flex items-center justify-between p-4 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-2xl transition-all group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center shadow-md shadow-purple-200 group-hover:scale-105 transition-transform">
+                        <MonitorSmartphone size={24} className="text-white" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="font-bold text-purple-950">Syngular A3 Nuvem</h3>
+                        <p className="text-xs text-purple-700/80 font-semibold">Push no celular</p>
+                      </div>
+                    </div>
+                    <ArrowRight size={20} className="text-purple-600 opacity-50 group-hover:opacity-100 transition-opacity" />
+                  </button>
+
+                  <button 
+                    onClick={() => handleCloudLogin('birdid')}
+                    className="w-full flex items-center justify-between p-4 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-2xl transition-all group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-orange-600 rounded-xl flex items-center justify-center shadow-md shadow-orange-200 group-hover:scale-105 transition-transform">
+                        <MonitorSmartphone size={24} className="text-white" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="font-bold text-orange-950">BirdID A3 Nuvem</h3>
+                        <p className="text-xs text-orange-700/80 font-semibold">Push no celular</p>
+                      </div>
+                    </div>
+                    <ArrowRight size={20} className="text-orange-600 opacity-50 group-hover:opacity-100 transition-opacity" />
+                  </button>
                 </div>
-
-                <button 
-                  onClick={() => { window.location.href = '/ac/agent/dashboard'; }}
-                  className="w-full flex items-center gap-4 p-4 border border-slate-200 rounded-2xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 transition-all group text-left"
-                >
-                  <div className="w-12 h-12 bg-slate-200 group-hover:bg-emerald-100 rounded-xl flex items-center justify-center transition-colors">
-                    <LockKeyhole size={24} className="text-slate-400 group-hover:text-emerald-600 transition-colors" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-slate-700 group-hover:text-emerald-900 transition-colors">Login com Senha (Suporte)</h3>
-                    <p className="text-xs text-slate-400 font-semibold">Acesso direto ao painel de operação.</p>
-                  </div>
-                </button>
               </div>
 
               <div className="flex items-start gap-3 bg-amber-50 rounded-xl p-4 border border-amber-200">
@@ -412,14 +428,18 @@ export default function AgentLoginPage() {
               <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
                 <AlertCircle size={40} className="text-red-600" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Falha na Autenticação</h3>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Falha na Autenticação A3</h3>
               <p className="text-slate-500 text-sm font-medium mb-8 max-w-md">
                 Não foi possível acessar seu certificado A3. Verifique:
               </p>
               <div className="space-y-2 text-left bg-slate-50 p-4 rounded-xl mb-8 max-w-md">
                 <div className="flex items-start gap-2">
                   <span className="text-red-600 mt-1">•</span>
-                  <span className="text-xs text-slate-600">Token/Cartão inserido corretamente</span>
+                  <span className="text-xs text-slate-600">Certificado A3 válido e não expirado</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-red-600 mt-1">•</span>
+                  <span className="text-xs text-slate-600">Token/Cartão A3 inserido corretamente</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="text-red-600 mt-1">•</span>
@@ -431,7 +451,7 @@ export default function AgentLoginPage() {
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="text-red-600 mt-1">•</span>
-                  <span className="text-xs text-slate-600">Aplicativo desktop rodando</span>
+                  <span className="text-xs text-slate-600">App Vidaas/Syngular instalado (nuvem)</span>
                 </div>
               </div>
               <button 
@@ -448,8 +468,8 @@ export default function AgentLoginPage() {
                <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-emerald-500/20">
                  <Fingerprint size={48} className="text-emerald-600 animate-pulse" />
                </div>
-               <h3 className="text-2xl font-bold mb-2">Acesso Concedido!</h3>
-               <p className="text-emerald-700/80 text-sm font-medium">Chaves validadas com sucesso. Entrando na Fila...</p>
+               <h3 className="text-2xl font-bold mb-2">Certificado A3 Validado!</h3>
+               <p className="text-emerald-700/80 text-sm font-medium">Acesso autorizado via certificado digital ICP-Brasil.</p>
             </div>
           )}
 
