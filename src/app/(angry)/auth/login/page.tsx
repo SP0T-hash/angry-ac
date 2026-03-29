@@ -219,14 +219,24 @@ export default function AgentLoginPage() {
                   <p className="text-xs text-amber-800 font-medium leading-relaxed">
                     Para utilizar a autenticação A3, certifique-se de que a extensão "Lacuna Web PKI" está ativada.
                   </p>
-                  <a 
-                    href="https://get.webpki.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-amber-700 hover:text-amber-900 underline uppercase tracking-tighter"
-                  >
-                    Instalar Extensão e Componentes <ArrowRight size={10} />
-                  </a>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                    <a 
+                      href="https://chromewebstore.google.com/detail/lacuna-web-pki/pogmhpgeicmblbepegdifneclbeebnkp" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-amber-700 hover:text-amber-900 underline uppercase tracking-tighter"
+                    >
+                      Chrome Web Store <ArrowRight size={10} />
+                    </a>
+                    <a 
+                      href="https://lacuna.software/en-us/web-pki" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-amber-700 hover:text-amber-900 underline uppercase tracking-tighter"
+                    >
+                      Site de Suporte <ArrowRight size={10} />
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
