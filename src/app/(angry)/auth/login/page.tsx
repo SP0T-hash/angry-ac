@@ -34,6 +34,28 @@ export default function AgentLoginPage() {
   }, []);
 
   // Integração Real com Lacuna WebPKI - Melhorada
+  const handleUniversalA3Login = async () => {
+    if (identifier) {
+      // Se tem CPF, tentar nuvem primeiro
+      setAuthStatus('scanning');
+      try {
+        await handleCloudLogin('vidaas');
+      } catch (error) {
+        // Se nuvem falhar, tentar hardware
+        await handleA3Login();
+      }
+    } else {
+      // Se não tem CPF, tentar hardware primeiro
+      setAuthStatus('scanning');
+      try {
+        await handleA3Login();
+      } catch (error) {
+        // Se hardware falhar, pedir CPF para nuvem
+        setAuthStatus('idle');
+      }
+    }
+  };
+
   const handleA3Login = async () => {
     setAuthStatus('scanning');
     
@@ -236,22 +258,6 @@ export default function AgentLoginPage() {
               <p className="text-slate-500 mb-8 text-sm font-medium">Acesso exclusivo com certificado digital ICP-Brasil.</p>
 
               <div className="space-y-4 mb-8">
-                <button 
-                  onClick={handleA3Login}
-                  className="w-full flex items-center justify-between p-4 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-2xl transition-all group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center shadow-md shadow-emerald-200 group-hover:scale-105 transition-transform">
-                      <CreditCard size={24} className="text-white" />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="font-bold text-emerald-950">Token A3 Hardware</h3>
-                      <p className="text-xs text-emerald-700/80 font-semibold">Cartão/Token USB via WebPKI</p>
-                    </div>
-                  </div>
-                  <ArrowRight size={20} className="text-emerald-600 opacity-50 group-hover:opacity-100 transition-opacity" />
-                </button>
-
                 <div className="space-y-2">
                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">CPF ou E-mail do Certificado</label>
                    <input 
@@ -263,55 +269,20 @@ export default function AgentLoginPage() {
                    />
                 </div>
 
-                <div className="grid grid-cols-1 gap-3">
-                  <button 
-                    onClick={() => handleCloudLogin('vidaas')}
-                    className="w-full flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-2xl transition-all group"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-200 group-hover:scale-105 transition-transform">
-                        <MonitorSmartphone size={24} className="text-white" />
-                      </div>
-                      <div className="text-left">
-                        <h3 className="font-bold text-blue-950">Vidaas A3 Nuvem</h3>
-                        <p className="text-xs text-blue-700/80 font-semibold">Push no celular</p>
-                      </div>
+                <button 
+                  onClick={handleUniversalA3Login}
+                  className="w-full flex items-center justify-center p-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl transition-all group shadow-lg shadow-emerald-600/20"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <ShieldCheck size={24} className="text-white" />
                     </div>
-                    <ArrowRight size={20} className="text-blue-600 opacity-50 group-hover:opacity-100 transition-opacity" />
-                  </button>
-
-                  <button 
-                    onClick={() => handleCloudLogin('syngular')}
-                    className="w-full flex items-center justify-between p-4 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-2xl transition-all group"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center shadow-md shadow-purple-200 group-hover:scale-105 transition-transform">
-                        <MonitorSmartphone size={24} className="text-white" />
-                      </div>
-                      <div className="text-left">
-                        <h3 className="font-bold text-purple-950">Syngular A3 Nuvem</h3>
-                        <p className="text-xs text-purple-700/80 font-semibold">Push no celular</p>
-                      </div>
+                    <div className="text-center">
+                      <h3 className="font-bold text-white text-lg">Acessar com Certificado A3</h3>
+                      <p className="text-xs text-emerald-100 font-medium">Hardware ou Nuvem (Vidaas/Syngular/BirdID)</p>
                     </div>
-                    <ArrowRight size={20} className="text-purple-600 opacity-50 group-hover:opacity-100 transition-opacity" />
-                  </button>
-
-                  <button 
-                    onClick={() => handleCloudLogin('birdid')}
-                    className="w-full flex items-center justify-between p-4 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-2xl transition-all group"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-orange-600 rounded-xl flex items-center justify-center shadow-md shadow-orange-200 group-hover:scale-105 transition-transform">
-                        <MonitorSmartphone size={24} className="text-white" />
-                      </div>
-                      <div className="text-left">
-                        <h3 className="font-bold text-orange-950">BirdID A3 Nuvem</h3>
-                        <p className="text-xs text-orange-700/80 font-semibold">Push no celular</p>
-                      </div>
-                    </div>
-                    <ArrowRight size={20} className="text-orange-600 opacity-50 group-hover:opacity-100 transition-opacity" />
-                  </button>
-                </div>
+                  </div>
+                </button>
               </div>
 
               <div className="flex items-start gap-3 bg-amber-50 rounded-xl p-4 border border-amber-200">
