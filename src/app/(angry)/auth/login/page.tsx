@@ -37,30 +37,46 @@ export default function AgentLoginPage() {
   const handleA3Login = () => {
     setAuthStatus('scanning');
     
-    // @ts-ignore - Verificação da presença da extensão
-    if (typeof window.lacunaWebPki === 'undefined') {
-      alert("Extensão Lacuna WebPKI não detectada. Por favor, instale-a para usar o certificado A3.");
+    // @ts-ignore
+    if (typeof window.lacunaWebPki === 'undefined' || !window.lacunaWebPki) {
+      alert("Extensão Lacuna WebPKI não detectada. Por favor, reinicie o navegador ou instale a extensão.");
       setAuthStatus('idle');
       return;
     }
 
-    // @ts-ignore
-    const pki = new window.lacunaWebPki();
-    
-    pki.listCertificates().success((certs: any[]) => {
-      setAvailableCertificates(certs);
-      if (certs.length === 0) {
-        alert("Nenhum certificado A3 encontrado no leitor. Verifique se o token está plugado.");
+    try {
+      // @ts-ignore
+      const pki = new window.lacunaWebPki();
+      
+      // Timeout de segurança para a detecção
+      const timeout = setTimeout(() => {
+        if (authStatus === 'scanning') {
+           alert("Tempo esgotado ao buscar certificados. Verifique se o aplicativo 'Lacuna Web PKI' está rodando no Windows (ícone azul na barra de tarefas).");
+           setAuthStatus('idle');
+        }
+      }, 10000);
+
+      pki.listCertificates().success((certs: any[]) => {
+        clearTimeout(timeout);
+        setAvailableCertificates(certs);
+        
+        if (certs.length === 0) {
+          alert("Nenhum certificado detectado. Certifique-se de que o Token/Cartão está inserido e os drivers (ex: SafeSign) estão instalados.");
+          setAuthStatus('idle');
+        } else {
+          setSelectedCert(certs[0]);
+          setAuthStatus('pin');
+        }
+      }).error((err: any) => {
+        clearTimeout(timeout);
+        console.error("Erro WebPKI:", err);
+        alert("Erro na Lacuna: " + (err.message || "Falha na comunicação com o hardware. Verifique o instalador desktop."));
         setAuthStatus('idle');
-      } else {
-        // Por simplificação, pega o primeiro, mas o ideal é abrir um seletor
-        setSelectedCert(certs[0]);
-        setAuthStatus('pin');
-      }
-    }).error((err: string) => {
-      console.error("Erro WebPKI:", err);
-      setAuthStatus('error');
-    });
+      });
+    } catch (e) {
+      setAuthStatus('idle');
+      alert("Falha ao inicializar motor PKI local.");
+    }
   };
 
   const handleCloudLogin = async (provider: PSCProvider) => {
@@ -216,30 +232,22 @@ export default function AgentLoginPage() {
               <div className="flex items-start gap-3 bg-amber-50 rounded-xl p-4 border border-amber-200">
                 <AlertCircle size={18} className="text-amber-600 mt-0.5 shrink-0" />
                 <div className="space-y-2">
-                  <p className="text-xs text-amber-800 font-medium leading-relaxed">
-                    Para utilizar a autenticação A3, certifique-se de que a extensão "Lacuna Web PKI" está ativada.
+                  <p className="text-xs text-amber-800 font-bold leading-relaxed uppercase tracking-tighter">
+                    ⚠️ Importante: Dois passos necessários para A3 Local (Hardware)
                   </p>
-                  <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2">
-                    <a 
-                      href="https://chromewebstore.google.com/detail/lacuna-web-pki/pogmhpgeicmblbepegdifneclbeebnkp" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-emerald-700 hover:text-emerald-900 underline uppercase tracking-tighter"
-                    >
-                      Opção A: Lacuna Web PKI <ArrowRight size={10} />
-                    </a>
-                    <a 
-                      href="https://chromewebstore.google.com/detail/assinatura-digital-no-nave/gbbjljjifbghdknkpgkibglnccikgngp" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-blue-700 hover:text-blue-900 underline uppercase tracking-tighter"
-                    >
-                      Opção B: BRy Assinatura <ArrowRight size={10} />
-                    </a>
+                  <div className="grid grid-cols-1 gap-3 mt-2">
+                    <div className="bg-white/50 p-3 rounded-lg border border-amber-100">
+                       <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Passo 1: Extensão</p>
+                       <a href="https://chromewebstore.google.com/detail/lacuna-web-pki/pogmhpgeicmblbepegdifneclbeebnkp" target="_blank" className="text-[11px] font-black text-emerald-700 underline">Instalar Lacuna no Chrome</a>
+                    </div>
+                    <div className="bg-white/50 p-3 rounded-lg border border-amber-100">
+                       <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Passo 2: Componente Desktop (Obrigatório!)</p>
+                       <a href="https://get.webpki.com/" target="_blank" className="text-[11px] font-black text-blue-700 underline flex items-center gap-1">Baixar Instalador Windows (.exe) <ArrowRight size={10}/></a>
+                    </div>
                   </div>
                   <div className="mt-4 pt-3 border-t border-amber-100">
                     <p className="text-[10px] text-amber-900 font-bold uppercase leading-tight">
-                      🚀 <span className="text-emerald-600">Recomendação:</span> Se não quiser instalar nada, use o botão azul **"Acessar via Celular / Nuvem"**. É instantâneo e sem plugins!
+                      🚀 <span className="text-emerald-600 underline">Alternativa:</span> Se quiser evitar instalações, use o botão azul **"Nuvem / Celular"**.
                     </p>
                   </div>
                 </div>
@@ -320,6 +328,13 @@ export default function AgentLoginPage() {
                   Confirmar Autenticação
                 </button>
               </form>
+
+              <button 
+                onClick={() => setAuthStatus('idle')}
+                className="mt-6 text-xs font-bold text-slate-400 hover:text-emerald-700 transition-colors uppercase tracking-widest"
+              >
+                Voltar para opções de acesso
+              </button>
             </div>
           )}
 
