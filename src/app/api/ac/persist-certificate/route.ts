@@ -1,0 +1,46 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { 
+      serial_number, 
+      protocol_id, 
+      titular_name, 
+      titular_cpf_cnpj, 
+      pem_content, 
+      ca_chain_pem, 
+      expires_at, 
+      product_type 
+    } = body;
+
+    const { error } = await supabase
+      .from('certificates')
+      .insert([
+        { 
+          serial_number, 
+          protocol_id, 
+          titular_name, 
+          titular_cpf_cnpj, 
+          pem_content, 
+          ca_chain_pem, 
+          expires_at, 
+          product_type,
+          issued_at: new Date().toISOString()
+        }
+      ]);
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true });
+  } catch (err: any) {
+    console.error('Certificate Save Error:', err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
