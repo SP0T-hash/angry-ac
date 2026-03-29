@@ -11,6 +11,8 @@ export default function AgentLoginPage() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [availableCertificates, setAvailableCertificates] = useState<any[]>([]);
   const [selectedCert, setSelectedCert] = useState<any>(null);
+  const [showCloudModal, setShowCloudModal] = useState(false);
+  const [cloudIdentifier, setCloudIdentifier] = useState('');
   
   const [diagnostics, setDiagnostics] = useState({
     webPki: 'checking',
@@ -261,6 +263,15 @@ export default function AgentLoginPage() {
                     </div>
                   </div>
                 </button>
+
+                <div className="text-center">
+                  <button 
+                    onClick={() => setShowCloudModal(true)}
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium underline transition-colors"
+                  >
+                    Ou acessar via Nuvem (Vidaas/Syngular/BirdID)
+                  </button>
+                </div>
               </div>
 
                           </div>
@@ -402,6 +413,47 @@ export default function AgentLoginPage() {
         </div>
 
       </div>
+
+      {/* Modal para Login via Nuvem */}
+      {showCloudModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">Acessar via Nuvem A3</h3>
+            <p className="text-sm text-slate-600 mb-4">Digite seu CPF ou E-mail do certificado em nuvem:</p>
+            
+            <div className="space-y-4">
+              <input 
+                type="text" 
+                placeholder="000.000.000-00"
+                value={cloudIdentifier}
+                onChange={(e) => setCloudIdentifier(e.target.value)}
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:border-blue-500 focus:bg-white transition-all outline-none"
+                autoFocus
+              />
+              
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => {
+                    setIdentifier(cloudIdentifier);
+                    setShowCloudModal(false);
+                    handleCloudLogin('vidaas');
+                  }}
+                  disabled={!cloudIdentifier}
+                  className="flex-1 h-10 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-bold rounded-xl transition-all"
+                >
+                  Enviar Push
+                </button>
+                <button 
+                  onClick={() => setShowCloudModal(false)}
+                  className="flex-1 h-10 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition-all"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
