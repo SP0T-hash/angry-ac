@@ -27,14 +27,25 @@ class PSCAuthAdapter {
   async initiatePush(provider: PSCProvider, identifier: string): Promise<{ session_id: string; message: string }> {
     console.log(`[PSC] Iniciando Push via ${provider} para ${identifier}...`);
     
-    // Simulação de chamada de API real do Provedor
+    // EM PRODUÇÃO: Aqui faríamos chamada real para API do provider
+    // Exemplo real para Vidaas:
+    // const response = await fetch('https://api.vidaas.com.br/v1/signature/request', {
+    //   method: 'POST',
+    //   headers: { 'Authorization': `Bearer ${this.config.vidaas.secret}` },
+    //   body: JSON.stringify({ cpf: identifier, application: 'AC_ANGRY' })
+    // });
+    
+    // Por ora, simulação com feedback detalhado
     return new Promise((resolve) => {
       setTimeout(() => {
+        const sessionId = `PSC_${provider}_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+        console.log(`[PSC] Sessão criada: ${sessionId}`);
+        
         resolve({
-          session_id: `PSC_SESS_${Math.random().toString(36).substring(7)}`,
-          message: `Solicitação de assinatura enviada para o dispositivo vinculado ao ${identifier}.`
+          session_id: sessionId,
+          message: `Push enviado para ${provider}! Verifique o app no celular.`
         });
-      }, 1500);
+      }, 1000); // Reduzido para 1 segundo para teste
     });
   }
 
@@ -44,19 +55,23 @@ class PSCAuthAdapter {
   async checkStatus(session_id: string): Promise<PSCAuthResponse> {
     console.log(`[PSC] Verificando status da sessão ${session_id}...`);
     
-    // Em produção, aqui verificaríamos via Webhook ou Poll no servidor do provedor
+    // EM PRODUÇÃO: Poll real na API do provider até aprovação/rejeição
+    // const response = await fetch(`https://api.vidaas.com.br/v1/signature/${session_id}/status`);
+    
+    // Para desenvolvimento: aprova automática após 3 segundos
     return new Promise((resolve) => {
       setTimeout(() => {
+        console.log(`[PSC] ✅ Assinatura aprovada para sessão ${session_id}`);
         resolve({
           success: true,
-          token: 'PKI_CLOUD_TOKEN_VALID',
+          token: `PKI_CLOUD_${session_id}_VALID`,
           certificate_data: {
-            subject: 'CN=MARCELO ANDRE DOS SANTOS:00000000000, OU=VEMAPI CERTIFICADORA, O=ICP-Brasil, C=BR',
-            serial: '7A8B9C1D2E3F',
-            cpf: '000.000.000-00'
+            subject: 'CN=USUARIO VEMAPI:12345678900, OU=VEMAPI CERTIFICADORA, O=ICP-Brasil, C=BR',
+            serial: 'A3CLOUD' + Math.random().toString(16).substring(2, 10).toUpperCase(),
+            cpf: '123.456.789-00'
           }
         });
-      }, 3000);
+      }, 2000); // 2 segundos para simular aprovação
     });
   }
 

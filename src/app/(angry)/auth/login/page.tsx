@@ -297,19 +297,19 @@ export default function AgentLoginPage() {
                  <div className="absolute inset-0 border-2 border-blue-200 border-dashed rounded-full animate-spin-slow"></div>
                  <MonitorSmartphone size={40} className="text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-1">Autorize no seu Celular</h3>
-              <p className="text-slate-500 text-sm font-medium mb-8">
-                 Enviamos uma solicitação de assinatura para o seu **Vidaas / Syngular**. <br/>
-                 Acesse o app e valide com sua Biometria.
+              <h3 className="text-xl font-bold text-slate-900 mb-1">Push Enviado!</h3>
+              <p className="text-slate-500 text-sm font-medium mb-2">
+                 Verifique o app <span className="font-bold text-blue-600">Vidaas</span> no seu celular
+              </p>
+              <p className="text-xs text-slate-400 mb-8">
+                 Aguardando aprovação biometrica...
               </p>
 
               <div className="flex flex-col gap-3 w-full max-w-xs">
-                <button 
-                  onClick={() => setAuthStatus('success')}
-                  className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2"
-                >
-                  <ShieldCheck size={18} /> Já autorizei no celular
-                </button>
+                <div className="bg-blue-50 p-3 rounded-xl border border-blue-200">
+                  <p className="text-xs text-blue-700 font-medium">💡 Dica: A aprovação deve chegar em até 10 segundos</p>
+                </div>
+                
                 <button 
                   onClick={() => setAuthStatus('idle')}
                   className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors"
