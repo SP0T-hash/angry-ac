@@ -137,3 +137,24 @@ export const MOCK_PROTOCOLS = [
     }
   }
 ];
+
+export const MOCK_AGENTS = [
+  {
+    id: 'AGR-001',
+    name: 'VITOR MATHEUS CASTRO',
+    cpf: '086.987.281-89',
+    certificate_serial: '7A8B9C1D2E3F', // Serial do Token A3 (Mock)
+    provider: 'vidaas',
+    status: 'ATIVO',
+    role: 'AGR_MASTER'
+  },
+  {
+    id: 'AGR-002',
+    name: 'MARCELO ANDRE DOS SANTOS',
+    cpf: '111.222.333-44',
+    certificate_serial: 'E1F2G3H4I5J6',
+    provider: 'birdid',
+    status: 'ATIVO',
+    role: 'AGR'
+  }
+];

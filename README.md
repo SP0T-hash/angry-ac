@@ -26,10 +26,11 @@ A **AC ANGRY** segue as normativas mais rigorosas para garantir a inviolabilidad
 - **Hashing Algorithm**: **SHA-256** ou **SHA-384** em conformidade com o DOC-ICP-01.
 - **Container PFX**: Criptografado com **AES-256-CBC**, protegendo o par de chaves biográficas.
 
-### Segurança de Dados e Infraestrutura
-- **Transmissão**: Todo o tráfego é protegido por **TLS 1.3** (End-to-End Encryption).
-- **Encryption at Rest**: Dados sensíveis no banco de dados são cifrados em **AES-256**.
+### Segurança e Governança
+- **Autenticação Híbrida (Hybrid Auth)**: Sistema de login de dupla face: A3 (Hardware via WebPKI) + Nuvem (PSC via OAuth2/Push).
 - **Hardware Security Module (HSM)**: Recomendação estratégica para a custódia das Chaves Mestras da AC em hardware inviolável conforme ritos ICP-Brasil.
+- **Audit Trail Engine**: Motor de auditoria que registra cada interação (AGR, IP, Timestamp) de forma imutável.
+- **Conformidade LGPD**: Criptografia de dados sensíveis e governança de acesso granular (Lock-Down).
 
 ## 📡 Engenharia de Conformidade (Compliance)
 - **LGPD**: Proteção rigorosa de dados pessoais e ritos de exclusão segura.

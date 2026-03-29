@@ -1,31 +1,55 @@
-'use client';
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Zap, ShieldCheck, MonitorSmartphone, Fingerprint, LockKeyhole, ArrowRight, CreditCard, AlertCircle } from 'lucide-react';
+import { pscAuth, PSCProvider } from '@/lib/ac-angry/psc-auth';
 
 export default function AgentLoginPage() {
   const [isReadingA3, setIsReadingA3] = useState(false);
   const [authStatus, setAuthStatus] = useState<'idle' | 'scanning' | 'pin' | 'cloud-push' | 'success' | 'error'>('idle');
   const [pin, setPin] = useState('');
+  const [identifier, setIdentifier] = useState(''); // CPF ou E-mail para Nuvem
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
 
   // Simula a biblioteca "Lacuna Web PKI" descobrindo o certificado A3 plugado
   const handleA3Login = () => {
     setAuthStatus('scanning');
+    // Em produção: window.lacunaWebPki.listCertificates(...)
     setTimeout(() => {
       setAuthStatus('pin');
     }, 2000);
   };
 
-  const handleCloudLogin = () => {
+  const handleCloudLogin = async (provider: PSCProvider) => {
+    if (!identifier) {
+      alert("Por favor, informe seu CPF ou E-mail vinculado ao certificado em nuvem.");
+      return;
+    }
+
     setAuthStatus('scanning');
-    // Simula a conexão com o Provedor (Vidaas ou Syngular)
-    setTimeout(() => {
+    try {
+      const response = await pscAuth.initiatePush(provider, identifier);
+      setCurrentSessionId(response.session_id);
       setAuthStatus('cloud-push');
-    }, 2500);
+      
+      // Inicia polling de verificação
+      checkCloudStatus(response.session_id);
+    } catch (err) {
+      setAuthStatus('error');
+    }
+  };
+
+  const checkCloudStatus = async (sessionId: string) => {
+    const result = await pscAuth.checkStatus(sessionId);
+    if (result.success) {
+      setAuthStatus('success');
+      setTimeout(() => {
+        window.location.href = '/ac/agent/dashboard';
+      }, 1500);
+    }
   };
 
   const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Em produção: Realizar assinatura PKCS#1 e enviar ao /api/auth/pki
     setAuthStatus('success');
     setTimeout(() => {
       window.location.href = '/ac/agent/dashboard';
@@ -85,8 +109,19 @@ export default function AgentLoginPage() {
                   <ArrowRight size={20} className="text-emerald-600 opacity-50 group-hover:opacity-100 transition-opacity" />
                 </button>
 
+                <div className="space-y-2">
+                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Identificador (CPF / E-mail)</label>
+                   <input 
+                      type="text" 
+                      placeholder="000.000.000-00"
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:border-emerald-500 focus:bg-white transition-all outline-none"
+                   />
+                </div>
+
                 <button 
-                  onClick={handleCloudLogin}
+                  onClick={() => handleCloudLogin('vidaas')}
                   className="w-full flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-2xl transition-all group"
                 >
                   <div className="flex items-center gap-4">
