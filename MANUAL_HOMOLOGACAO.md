@@ -22,12 +22,19 @@ Para que o navegador confie nos certificados, instale a cadeia de raízes mais r
 2. Baixe e instale a **AC Raiz Brasileira v5, v10 e v11**.
 3. Instale no repositório "Autoridades de Certificação Raiz Confiáveis".
 
-## 4. Middleware de Navegador (Lacuna Web PKI) 🌐
-O portal AC ANGRY utiliza a tecnologia da Lacuna para acessar o hardware:
-1. **Link Principal (Recomendado)**: [https://get.webpki.com](https://get.webpki.com).
-2. **Download Direto (Instalador Windows .exe)**: [Certisign Mirror](https://pki.webpkiplugin.com/LacunaWebPKISetup.exe) ou [Soluti Mirror](https://res.certificadodigital.com.br/plugins/webpki/LacunaWebPKISetup.exe).
-3. **Extensão Chrome (Link Direto)**: [https://chromewebstore.google.com/detail/lacuna-web-pki/pogmhpgeicmblbepegdifneclbeebnkp](https://chromewebstore.google.com/detail/lacuna-web-pki/pogmhpgeicmblbepegdifneclbeebnkp).
-4. **Pós-Instalação**: Instale o .exe selecionado e a extensão do Chrome. Reinicie o navegador para ativar.
+## 4. Middleware de Navegador (Instalação Exigida) 🌐
+Tokens e Cartões A3 **exigem** um programa de ponte. Se o link principal falhar, use a alternativa:
+
+### Opção A: Lacuna Web PKI (Padrão)
+- **Instalador Direto**: [https://get.webpki.com](https://get.webpki.com).
+- **Chrome Store**: [Link Direto Web PKI](https://chromewebstore.google.com/detail/lacuna-web-pki/pogmhpgeicmblbepegdifneclbeebnkp).
+
+### Opção B: BRy Assinatura Digital (Alternativa)
+- **Chrome Store**: [Link Direto BRy Assinatura](https://chromewebstore.google.com/detail/assinatura-digital-no-nave/gbbjljjifbghdknkpgkibglnccikgngp).
+- **Componente Desktop**: Baixe o "BRy Signer" no [Portal de Suporte BRy](https://atendimento.bry.com.br/).
+
+> [!TIP]
+> **Quer fugir de instalações?** Use o login **"Acessar via Celular / Nuvem (Vidaas/BirdID)"**. Ele não exige nenhuma extensão ou programa no computador! 📱☁️✅
 
 ## 5. Diagnóstico de Conectividade ⚡
 Abra a página de login da AC ANGRY e verifique:

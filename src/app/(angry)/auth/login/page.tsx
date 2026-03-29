@@ -219,23 +219,28 @@ export default function AgentLoginPage() {
                   <p className="text-xs text-amber-800 font-medium leading-relaxed">
                     Para utilizar a autenticação A3, certifique-se de que a extensão "Lacuna Web PKI" está ativada.
                   </p>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                  <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2">
                     <a 
                       href="https://chromewebstore.google.com/detail/lacuna-web-pki/pogmhpgeicmblbepegdifneclbeebnkp" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-amber-700 hover:text-amber-900 underline uppercase tracking-tighter"
+                      className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-emerald-700 hover:text-emerald-900 underline uppercase tracking-tighter"
                     >
-                      Chrome Web Store <ArrowRight size={10} />
+                      Opção A: Lacuna Web PKI <ArrowRight size={10} />
                     </a>
                     <a 
-                      href="https://pki.webpkiplugin.com/LacunaWebPKISetup.exe" 
+                      href="https://chromewebstore.google.com/detail/assinatura-digital-no-nave/gbbjljjifbghdknkpgkibglnccikgngp" 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-blue-700 hover:text-blue-900 underline uppercase tracking-tighter"
                     >
-                      Baixar Instalador Windows (.exe) <ArrowRight size={10} />
+                      Opção B: BRy Assinatura <ArrowRight size={10} />
                     </a>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-amber-100">
+                    <p className="text-[10px] text-amber-900 font-bold uppercase leading-tight">
+                      🚀 <span className="text-emerald-600">Recomendação:</span> Se não quiser instalar nada, use o botão azul **"Acessar via Celular / Nuvem"**. É instantâneo e sem plugins!
+                    </p>
                   </div>
                 </div>
               </div>
