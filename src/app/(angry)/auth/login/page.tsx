@@ -35,24 +35,14 @@ export default function AgentLoginPage() {
 
   // Integração Real com Lacuna WebPKI - Melhorada
   const handleUniversalA3Login = async () => {
-    if (identifier) {
-      // Se tem CPF, tentar nuvem primeiro
-      setAuthStatus('scanning');
-      try {
-        await handleCloudLogin('vidaas');
-      } catch (error) {
-        // Se nuvem falhar, tentar hardware
-        await handleA3Login();
-      }
-    } else {
-      // Se não tem CPF, tentar hardware primeiro
-      setAuthStatus('scanning');
-      try {
-        await handleA3Login();
-      } catch (error) {
-        // Se hardware falhar, pedir CPF para nuvem
-        setAuthStatus('idle');
-      }
+    // Tentar hardware primeiro (padrão)
+    setAuthStatus('scanning');
+    try {
+      await handleA3Login();
+    } catch (error) {
+      // Se hardware falhar, mostrar erro
+      setAuthStatus('error');
+      setTimeout(() => setAuthStatus('idle'), 3000);
     }
   };
 
@@ -258,17 +248,6 @@ export default function AgentLoginPage() {
               <p className="text-slate-500 mb-8 text-sm font-medium">Acesso exclusivo com certificado digital ICP-Brasil.</p>
 
               <div className="space-y-4 mb-8">
-                <div className="space-y-2">
-                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">CPF ou E-mail do Certificado</label>
-                   <input 
-                      type="text" 
-                      placeholder="000.000.000-00"
-                      value={identifier}
-                      onChange={(e) => setIdentifier(e.target.value)}
-                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:border-emerald-500 focus:bg-white transition-all outline-none"
-                   />
-                </div>
-
                 <button 
                   onClick={handleUniversalA3Login}
                   className="w-full flex items-center justify-center p-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl transition-all group shadow-lg shadow-emerald-600/20"
@@ -279,36 +258,12 @@ export default function AgentLoginPage() {
                     </div>
                     <div className="text-center">
                       <h3 className="font-bold text-white text-lg">Acessar com Certificado A3</h3>
-                      <p className="text-xs text-emerald-100 font-medium">Hardware ou Nuvem (Vidaas/Syngular/BirdID)</p>
                     </div>
                   </div>
                 </button>
               </div>
 
-              <div className="flex items-start gap-3 bg-amber-50 rounded-xl p-4 border border-amber-200">
-                <AlertCircle size={18} className="text-amber-600 mt-0.5 shrink-0" />
-                <div className="space-y-2">
-                  <p className="text-xs text-amber-800 font-bold leading-relaxed uppercase tracking-tighter">
-                    ⚠️ Importante: Dois passos necessários para A3 Local (Hardware)
-                  </p>
-                  <div className="grid grid-cols-1 gap-3 mt-2">
-                    <div className="bg-white/50 p-3 rounded-lg border border-amber-100">
-                       <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Passo 1: Extensão</p>
-                       <a href="https://chromewebstore.google.com/detail/lacuna-web-pki/pogmhpgeicmblbepegdifneclbeebnkp" target="_blank" className="text-[11px] font-black text-emerald-700 underline">Instalar Lacuna no Chrome</a>
-                    </div>
-                    <div className="bg-white/50 p-3 rounded-lg border border-amber-100">
-                       <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Passo 2: Componente Desktop (Obrigatório!)</p>
-                       <a href="https://get.webpki.com/" target="_blank" className="text-[11px] font-black text-blue-700 underline flex items-center gap-1">Baixar Instalador Windows (.exe) <ArrowRight size={10}/></a>
-                    </div>
-                  </div>
-                  <div className="mt-4 pt-3 border-t border-amber-100">
-                    <p className="text-[10px] text-amber-900 font-bold uppercase leading-tight">
-                      🚀 <span className="text-emerald-600 underline">Alternativa:</span> Se quiser evitar instalações, use o botão azul **"Nuvem / Celular"**.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+                          </div>
           )}
 
           {authStatus === 'scanning' && (
