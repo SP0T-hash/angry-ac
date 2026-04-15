@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 
 // Configuração Supabase com fallback robusto para produção
 const getSupabaseClient = () => {
@@ -11,14 +10,18 @@ const getSupabaseClient = () => {
     console.log('[AUDIT] Usando modo mock - variáveis Supabase não configuradas');
     return {
       from: () => ({
-        insert: () => Promise.resolve({ data: null, error: null })
-      }),
-      select: () => ({
-        eq: () => Promise.resolve({ data: [], error: null })
+        insert: () => Promise.resolve({ data: null, error: null }),
+        select: () => ({
+          eq: () => Promise.resolve({ data: [], error: null }),
+          order: () => Promise.resolve({ data: [], error: null }),
+          limit: () => Promise.resolve({ data: [], error: null })
+        })
       })
     };
   }
   
+  // Só importa e usa createClient se tiver variáveis
+  const { createClient } = require('@supabase/supabase-js');
   return createClient(supabaseUrl, supabaseKey);
 };
 

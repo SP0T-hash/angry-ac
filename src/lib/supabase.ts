@@ -1,5 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
-
+// Configuração Supabase com fallback robusto para produção
 const getSupabaseClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -24,6 +23,8 @@ const getSupabaseClient = () => {
     };
   }
   
+  // Só importa e usa createClient se tiver variáveis
+  const { createClient } = require('@supabase/supabase-js');
   return createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: true,
