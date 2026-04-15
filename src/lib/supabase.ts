@@ -1,12 +1,15 @@
-// Configuração Supabase com fallback robusto para produção
-const getSupabaseClient = () => {
+// Configuração Supabase com lazy initialization
+let supabaseInstance: any = null;
+
+const createSupabaseClient = async () => {
+  if (supabaseInstance) return supabaseInstance;
+  
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
-  // Se não tiver variáveis, retorna cliente mock para não quebrar o build
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.log('[SUPABASE] Usando modo mock - variáveis não configuradas');
-    return {
+    console.log('[SUPABASE] Usando modo mock');
+    supabaseInstance = {
       from: () => ({
         insert: () => Promise.resolve({ data: null, error: null }),
         select: () => ({
@@ -21,17 +24,26 @@ const getSupabaseClient = () => {
         onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
       }
     };
+    return supabaseInstance;
   }
   
-  // Só importa e usa createClient se tiver variáveis
-  const { createClient } = require('@supabase/supabase-js');
-  return createClient(supabaseUrl, supabaseAnonKey, {
+  const { createClient } = await import('@supabase/supabase-js');
+  supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
     }
   });
+  return supabaseInstance;
 };
 
-export const supabase = getSupabaseClient();
+// Proxy que inicializa o cliente apenas quando usado
+export const supabase = new Proxy({} as any, {
+  get: (target, prop) => {
+    return async (...args: any[]) => {
+      const client = await createSupabaseClient();
+      return client[prop](...args);
+    };
+  }
+});

@@ -1,37 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Configuração Supabase com fallback robusto para produção
-const getSupabaseClient = () => {
+// Lazy initialization - cliente criado apenas quando necessário
+let supabaseInstance: any = null;
+
+const getSupabaseClient = async () => {
+  if (supabaseInstance) return supabaseInstance;
+  
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
-  // Se não tiver variáveis, retorna cliente mock para não quebrar o build
+  // Se não tiver variáveis, retorna cliente mock
   if (!supabaseUrl || !supabaseKey) {
-    console.log('[AUDIT] Usando modo mock - variáveis Supabase não configuradas');
-    return {
+    console.log('[AUDIT] Usando modo mock');
+    supabaseInstance = {
       from: () => ({
-        insert: () => Promise.resolve({ data: null, error: null }),
-        select: () => ({
-          eq: () => Promise.resolve({ data: [], error: null }),
-          order: () => Promise.resolve({ data: [], error: null }),
-          limit: () => Promise.resolve({ data: [], error: null })
-        })
+        insert: () => Promise.resolve({ data: null, error: null })
       })
     };
+    return supabaseInstance;
   }
   
-  // Só importa e usa createClient se tiver variáveis
-  const { createClient } = require('@supabase/supabase-js');
-  return createClient(supabaseUrl, supabaseKey);
+  // Import dinâmico do Supabase
+  const { createClient } = await import('@supabase/supabase-js');
+  supabaseInstance = createClient(supabaseUrl, supabaseKey);
+  return supabaseInstance;
 };
-
-const supabase = getSupabaseClient();
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { protocol_id, action, agent_name, metadata, ip_address } = body;
 
+    const supabase = await getSupabaseClient();
+    
     const { error } = await supabase
       .from('audit_logs')
       .insert([

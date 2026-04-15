@@ -1,31 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Configuração Supabase com fallback robusto para produção
-const getSupabaseClient = () => {
+// Lazy initialization - cliente criado apenas quando necessário
+let supabaseInstance: any = null;
+
+const getSupabaseClient = async () => {
+  if (supabaseInstance) return supabaseInstance;
+  
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
-  // Se não tiver variáveis, retorna cliente mock para não quebrar o build
+  // Se não tiver variáveis, retorna cliente mock
   if (!supabaseUrl || !supabaseKey) {
-    console.log('[PERSIST-CERTIFICATE] Usando modo mock - variáveis Supabase não configuradas');
-    return {
+    console.log('[PERSIST-CERTIFICATE] Usando modo mock');
+    supabaseInstance = {
       from: () => ({
         insert: () => Promise.resolve({ data: null, error: null }),
         select: () => ({
-          eq: () => Promise.resolve({ data: [], error: null }),
-          order: () => Promise.resolve({ data: [], error: null }),
-          limit: () => Promise.resolve({ data: [], error: null })
+          eq: () => Promise.resolve({ data: [], error: null })
         })
       })
     };
+    return supabaseInstance;
   }
   
-  // Só importa e usa createClient se tiver variáveis
-  const { createClient } = require('@supabase/supabase-js');
-  return createClient(supabaseUrl, supabaseKey);
+  // Import dinâmico do Supabase
+  const { createClient } = await import('@supabase/supabase-js');
+  supabaseInstance = createClient(supabaseUrl, supabaseKey);
+  return supabaseInstance;
 };
-
-const supabase = getSupabaseClient();
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,8 +43,10 @@ export async function POST(req: NextRequest) {
       product_type 
     } = body;
 
+    const supabase = await getSupabaseClient();
+    
     const { error } = await supabase
-      .from('certificates')
+      .from('issued_certificates')
       .insert([
         { 
           serial_number, 
