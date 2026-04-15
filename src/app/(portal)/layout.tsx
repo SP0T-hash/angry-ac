@@ -11,23 +11,19 @@ export const metadata: Metadata = {
 };
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
-  // O Portal será sempre dark mode hardcoded para manter a estética premium que combinamos.
   return (
-    <html lang="pt-BR" className="dark">
-      <body className={`${inter.className} min-h-screen bg-[#020617] text-white selection:bg-[#10b981]/30 selection:text-[#10b981] font-sans antialiased`}>
-        {/* Background idêntico ao site principal para consistência */}
-        <div className="fixed inset-0 -z-50 overflow-hidden bg-[#020617]">
-          {/* Textura de Ruído (Noise) */}
+    <html lang="pt-BR">
+      <body className={`${inter.className} min-h-screen bg-slate-50 text-slate-900 selection:bg-emerald-500/30 font-sans antialiased`}>
+        {/* Background suave e minimalista */}
+        <div className="fixed inset-0 -z-50 overflow-hidden bg-slate-50">
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
                style={{ backgroundImage: `url('https://grainy-gradients.vercel.app/noise.svg')` }}></div>
-          {/* Gradiente de Fusão para Leitura */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_#020617_100%)]"></div>
         </div>
 
-        {/* MESH GRADIENTS */}
+        {/* MESH GRADIENTS SUTIS */}
         <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-          <div className="absolute top-[-15%] left-[-10%] w-[45%] h-[45%] bg-[#10b981]/5 blur-[160px] rounded-full" />
-          <div className="absolute bottom-[5%] right-[-8%] w-[35%] h-[35%] bg-[#10b981]/5 blur-[160px] rounded-full" />
+          <div className="absolute top-[-15%] left-[-10%] w-[45%] h-[45%] bg-emerald-100/50 blur-[160px] rounded-full" />
+          <div className="absolute bottom-[5%] right-[-8%] w-[35%] h-[35%] bg-blue-100/30 blur-[160px] rounded-full" />
         </div>
 
         {children}

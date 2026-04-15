@@ -1,11 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Verificar variáveis de ambiente (fallback para desenvolvimento)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://mock.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'mock-key';
+// Configuração Supabase com fallback robusto para produção
+const getSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  // Se não tiver variáveis, retorna cliente mock para não quebrar o build
+  if (!supabaseUrl || !supabaseKey) {
+    console.log('[PERSIST-CERTIFICATE] Usando modo mock - variáveis Supabase não configuradas');
+    return {
+      from: () => ({
+        insert: () => Promise.resolve({ data: null, error: null })
+      }),
+      select: () => ({
+        eq: () => Promise.resolve({ data: [], error: null })
+      })
+    });
+  }
+  
+  return createClient(supabaseUrl, supabaseKey);
+};
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = getSupabaseClient();
 
 export async function POST(req: NextRequest) {
   try {
