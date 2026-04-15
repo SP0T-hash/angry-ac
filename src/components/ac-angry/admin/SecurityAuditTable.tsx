@@ -102,7 +102,7 @@ export default function SecurityAuditTable() {
           <h3 className="text-sm font-black uppercase tracking-widest text-[#10b981]">Log de Auditoria em Tempo Real</h3>
           <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Conformidade ICP-Brasil e Segurança Transacional</p>
         </div>
-        <Badge variant="outline" color="emerald">LIVE FEED</Badge>
+        <Badge color="emerald">LIVE FEED</Badge>
       </div>
       
       <div className="overflow-x-auto">
