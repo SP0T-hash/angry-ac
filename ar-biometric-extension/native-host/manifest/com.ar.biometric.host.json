@@ -1,0 +1,9 @@
+{
+  "name": "com.ar.biometric.host",
+  "description": "AR Biometric Bridge — Host Nativo para captura de biometria via hardware local",
+  "path": "C:\\Program Files\\AR Biometric Host\\ArBiometricHost.exe",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://SUBSTITUA_PELO_ID_REAL_DA_EXTENSAO/"
+  ]
+}
