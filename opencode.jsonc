@@ -28,10 +28,6 @@
       "path": "~/repos/spec-kit",
       "description": "Spec Kit - toolkit SDD (Spec-Driven Development)"
     },
-    "ruflo": {
-      "path": "../ANIVERSARIO DA MANU/ruflo",
-      "description": "Ruflo / Claude Flow - orquestração de agentes AI"
-    },
     "angry-ac": {
       "path": "~/repos/angry-ac",
       "description": "AC ANGRY - certificacao digital ICP-Brasil"
@@ -57,6 +53,15 @@
     "prettier": {
       "command": ["npx", "-y", "prettier", "--stdin-filepath", "{file}"],
       "extensions": [".ts", ".tsx", ".js", ".jsx", ".json", ".css"]
+    }
+  },
+
+  "mcp": {
+    "ruflo": {
+      "type": "local",
+      "command": ["npx", "-y", "ruflo@latest", "mcp", "start"],
+      "enabled": true,
+      "timeout": 30000
     }
   },
 
