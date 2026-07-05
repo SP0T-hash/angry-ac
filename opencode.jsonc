@@ -2,32 +2,15 @@
   "$schema": "https://opencode.ai/config.json",
 
   "instructions": [
-    "AGENTS.md",
     "INTEGRACAO.md",
     "SUPABASE_SCHEMA.sql"
   ],
 
+  "plugin": [
+    "token-efficiency@git+https://github.com/undefdev/token-efficiency.git"
+  ],
+
   "references": {
-    "pansite": {
-      "path": "../pansite",
-      "description": "Projeto Flutter portfolio web"
-    },
-    "pantzolyne": {
-      "path": "../pantzolyne",
-      "description": "Projetos web diversos"
-    },
-    "aniversario-manu": {
-      "path": "../ANIVERSARIO DA MANU",
-      "description": "Jogos e projetos da Manu"
-    },
-    "open-design": {
-      "path": "~/repos/open-design",
-      "description": "Open Design - workspace de design local (vibe coding)"
-    },
-    "spec-kit": {
-      "path": "~/repos/spec-kit",
-      "description": "Spec Kit - toolkit SDD (Spec-Driven Development)"
-    },
     "angry-ac": {
       "path": "~/repos/angry-ac",
       "description": "AC ANGRY - certificacao digital ICP-Brasil"
@@ -49,13 +32,6 @@
     }
   },
 
-  "formatter": {
-    "prettier": {
-      "command": ["npx", "-y", "prettier", "--stdin-filepath", "{file}"],
-      "extensions": [".ts", ".tsx", ".js", ".jsx", ".json", ".css"]
-    }
-  },
-
   "mcp": {
     "ruflo": {
       "type": "local",
@@ -68,7 +44,7 @@
   "agent": {
     "build": {
       "model": "anthropic/claude-sonnet-4-6",
-      "prompt": "Você está trabalhando no projeto VEMAPI SITE (CoreAr). É uma solução de gestão empresarial com: frontend Next.js 14 (TypeScript, Tailwind), backend .NET (C#), banco PostgreSQL, Redis e RabbitMQ. Prefira código limpo e componentização. Siga as convenções do projeto existente."
+      "prompt": "Você está trabalhando no projeto VEMAPI SITE (CoreAr). É uma solução de gestão empresarial com: frontend Next.js 14 (TypeScript, Tailwind), backend .NET (C#), banco PostgreSQL, Redis e RabbitMQ. Prefira código limpo, componentização e segurança. Siga as convenções do projeto existente."
     }
   }
 }
