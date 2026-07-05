@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS agr_users (
   email         TEXT NOT NULL UNIQUE,
   role          TEXT NOT NULL DEFAULT 'AGR' CHECK (role IN ('AGR', 'SUPERVISOR', 'ADMIN')),
   is_active     BOOLEAN DEFAULT true,
+  password_hash TEXT,               -- Hash bcrypt da senha
   cert_serial   TEXT,               -- Número de série do cert A3
   last_login    TIMESTAMPTZ,
   created_at    TIMESTAMPTZ DEFAULT now(),

@@ -7,11 +7,18 @@
  * Uso: node scripts/setup-supabase.mjs
  */
 
-const SUPABASE_URL = 'https://lzmylpfdmgspleezgynz.supabase.co';
-const SUPABASE_REF = 'lzmylpfdmgspleezgynz'; // extraído da URL
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6bXlscGZkbWdzcGxlZXpneW56Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODg2ODY4OCwiZXhwIjoyMDg0NDQ0Njg4fQ.qXfF_-1_Yr_NytHpeqfWwOpyhyTSY9fkUh81IL1BryQ';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_REF = SUPABASE_URL?.replace('https://', '').replace('.supabase.co', '');
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 async function checkConnectivity() {
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+    console.log('❌ Variáveis de ambiente não configuradas.');
+    console.log('   Certifique-se de que NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY');
+    console.log('   estão definidas no .env.local');
+    return false;
+  }
+
   console.log('🔍 Verificando conectividade com Supabase...');
   console.log(`   URL: ${SUPABASE_URL}`);
   console.log(`   Ref: ${SUPABASE_REF}`);
