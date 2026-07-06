@@ -57,5 +57,14 @@ desktop.ini
 *.tsbuildinfo
 next-env.d.ts
 
+## Security reports
+/security-report/
+
+## .NET / C# build artifacts
+**/obj/
+**/bin/
+*.user
+*.suo
+
 ## Misc
 .vercel
