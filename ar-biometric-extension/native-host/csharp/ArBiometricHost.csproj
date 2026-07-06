@@ -12,51 +12,41 @@
 
     <!--
       Publicação para Chrome Native Messaging:
-      dotnet publish -c Release
-      O binário compilado estará em bin/Release/net8.0/win-x64/publish/ArBiometricHost.exe
+        dotnet publish -c Release
+        O binário estará em: bin/Release/net8.0/win-x64/publish/ArBiometricHost.exe
     -->
     <PublishSingleFile>true</PublishSingleFile>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <DebugType>embedded</DebugType>
 
     <!--
-      Manifesto de instalação do Native Messaging Host.
-      Copiar o .exe e este JSON para o diretório de manifesto do Chrome:
-        Windows: %LOCALAPPDATA%\Google\Chrome\User Data\NativeMessagingHosts\
-        Linux:   /etc/opt/chrome/native-messaging-hosts/  (ou ~/.config/google-chrome/)
-        Mac:     /Library/Google/Chrome/NativeMessagingHosts/
-
-      Nome do arquivo: com.ar.biometric.host.json
-      Conteúdo:
-      {
-        "name": "com.ar.biometric.host",
-        "description": "Native messaging host for AR Biometric Bridge",
-        "path": "C:\\caminho\\para\\ArBiometricHost.exe",
-        "type": "stdio",
-        "allowed_origins": ["chrome-extension://SEU_EXTENSION_ID_AQUI/"]
-      }
+      Script de instalação (pós-build):
+        powershell -ExecutionPolicy Bypass -File install.ps1
+      Copia o binário e o manifest para os diretórios corretos.
     -->
+    <PostBuildEvent Condition="'$(Configuration)'=='Release'">
+      powershell -ExecutionPolicy Bypass -File "$(ProjectDir)install.ps1" -BinPath "$(TargetDir)publish"
+    </PostBuildEvent>
   </PropertyGroup>
 
-  <!-- Dependências do SDK do leitor biométrico (substituir conforme hardware) -->
   <!--
-    Exemplo Futronic FS80:
-    <ItemGroup>
+    ===========================================================================
+    DEPENDÊNCIAS DOS SDKs BIOMÉTRICOS
+    ===========================================================================
+
+    Descomente o pacote correspondente ao hardware instalado na máquina.
+
+    Futronic FS80/FS90:
       <PackageReference Include="Futronic.SDK.FS80" Version="1.0.0" />
-    </ItemGroup>
 
-    Exemplo SecuGen:
-    <ItemGroup>
+    SecuGen FDx Pro / Hamster:
       <PackageReference Include="SecuGen.FDxSDK" Version="1.0.0" />
-    </ItemGroup>
 
-    Exemplo Suprema:
-    <ItemGroup>
+    Suprema BioMini / RealScan:
       <PackageReference Include="Suprema.BiometricSDK" Version="2.0.0" />
-    </ItemGroup>
-  -->
+    -->
 
-  <!-- Logging estruturado (opcional) -->
+  <!-- Logging estruturado -->
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
   </ItemGroup>

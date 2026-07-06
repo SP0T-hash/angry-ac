@@ -1,0 +1,202 @@
+# CI/CD Pipeline — GS VEMAPI
+#
+# Executa em todo push e Pull Request para a branch main.
+# Etapas:
+#   1. Testes unitários (Vitest)
+#   2. Build Next.js (verifica compilação)
+#   3. Análise de segurança (npm audit)
+#   4. Build do Native Host (.NET)
+#
+# Variáveis de ambiente necessárias (GitHub Secrets):
+#   - Nenhuma para CI básico (testes e build)
+#   - Para deploy: SUPABASE_SERVICE_ROLE_KEY, etc.
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+  DOTNET_VERSION: "8.0"
+
+jobs:
+  # ───────────────────────────────────────────────────────────────────────────
+  # Job 1: Testes Unitários
+  # ───────────────────────────────────────────────────────────────────────────
+  test:
+    name: 🧪 Testes Unitários
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: ⚙️ Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: 📦 Instalar dependências
+        run: npm ci --legacy-peer-deps
+
+      - name: 🧪 Executar testes
+        run: npm test -- --run
+        env:
+          NODE_ENV: test
+
+      - name: 📊 Relatório de cobertura
+        run: npx vitest run --coverage.enabled --coverage.reporter=text-summary || true
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Job 2: Build Next.js
+  # ───────────────────────────────────────────────────────────────────────────
+  build:
+    name: 🏗️ Build Next.js
+    runs-on: ubuntu-latest
+    needs: [test]
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: ⚙️ Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: 📦 Instalar dependências
+        run: npm ci --legacy-peer-deps
+
+      - name: 🏗️ Build Next.js
+        run: npm run build
+        env:
+          # Valores mock para build (não afetam o resultado)
+          NEXT_PUBLIC_SUPABASE_URL: "https://mock.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "mock-anon-key"
+          SUPABASE_SERVICE_ROLE_KEY: "mock-service-role-key"
+          PKI_NONCE_SECRET: "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef"
+          AUTH_JWT_SECRET: "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef"
+
+      - name: 📦 Salvar .next como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: .next/
+          retention-days: 3
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Job 3: Análise de Segurança
+  # ───────────────────────────────────────────────────────────────────────────
+  security-audit:
+    name: 🔒 Auditoria de Segurança
+    runs-on: ubuntu-latest
+    needs: [test]
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: 📦 Instalar dependências
+        run: npm ci --legacy-peer-deps
+
+      - name: 🔍 npm audit
+        run: npm audit --audit-level=high || true
+        continue-on-error: true
+
+      - name: 🛡️ Verificar secrets expostos
+        run: |
+          if grep -r "SUPABASE_SERVICE_ROLE_KEY\|PKI_NONCE_SECRET\|AUTH_JWT_SECRET" \
+            --include="*.ts" --include="*.tsx" --include="*.js" --include="*.json" \
+            --exclude-dir=node_modules --exclude-dir=.next \
+            src/ | grep -v "process.env\|\.env"; then
+            echo "⚠️  Possível secret exposto no código!"
+            exit 1
+          fi
+          echo "✅ Nenhum secret exposto."
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Job 4: Build Native Host (.NET)
+  # ───────────────────────────────────────────────────────────────────────────
+  native-host:
+    name: 🖥️ Build Native Host (.NET)
+    runs-on: windows-latest
+    needs: [test]
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 🏗️ Build Native Host
+        run: |
+          cd ar-biometric-extension/native-host/csharp
+          dotnet build -c Release -r win-x64 --self-contained false
+
+      - name: 📦 Salvar binário como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-host
+          path: ar-biometric-extension/native-host/csharp/bin/Release/net8.0/win-x64/
+          retention-days: 3
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Job 5: Teste de Penetração Automatizado
+  # ───────────────────────────────────────────────────────────────────────────
+  pen-test:
+    name: 🛡️ Teste de Penetração (Automatizado)
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Instalar dependências
+        run: npm ci --legacy-peer-deps
+
+      - name: 🛡️ Executar testes de segurança
+        run: npx vitest run --config vitest.security.config.ts || true
+        env:
+          NODE_ENV: test
+          TARGET_URL: "https://staging.vemapi.com.br"
+          AGR_TOKEN: ${{ secrets.AGR_TOKEN || '' }}
+
+      - name: 📊 Relatório de segurança
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: security-report/
+          retention-days: 30

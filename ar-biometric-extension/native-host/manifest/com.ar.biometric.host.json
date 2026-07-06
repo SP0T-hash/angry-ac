@@ -1,9 +1,14 @@
 {
   "name": "com.ar.biometric.host",
-  "description": "AR Biometric Bridge — Host Nativo para captura de biometria via hardware local",
+  "description": "AR Biometric Bridge — Host Nativo para captura biométrica via hardware local (Futronic, SecuGen, Suprema)",
   "path": "C:\\Program Files\\AR Biometric Host\\ArBiometricHost.exe",
   "type": "stdio",
   "allowed_origins": [
     "chrome-extension://SUBSTITUA_PELO_ID_REAL_DA_EXTENSAO/"
-  ]
+  ],
+  "_comentarios": {
+    "path": "Caminho absoluto para o executável compilado (dotnet publish -c Release). Use install.ps1 para configurar automaticamente.",
+    "allowed_origins": "Substitua pelo ID real da extensão (encontrado em chrome://extensions após carregar a extensão).",
+    "type": "stdio significa comunicação via stdin/stdout (Chrome Native Messaging padrão)."
+  }
 }
