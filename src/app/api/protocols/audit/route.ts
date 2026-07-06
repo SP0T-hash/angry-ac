@@ -1,43 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withAuth } from '@/lib/ac-angry/api-middleware';
+import { getSupabaseAdmin } from '@/lib/ac-angry/supabase-admin';
 
-// Cliente mock para build sem variáveis
-const createMockClient = () => ({
-  from: () => ({
-    insert: () => Promise.resolve({ data: null, error: null })
-  })
-});
-
-export async function POST(req: NextRequest) {
+export const POST = withAuth(async (req: NextRequest, { session, ip }) => {
   try {
     const body = await req.json();
-    const { protocol_id, action, agent_name, metadata, ip_address } = body;
+    const { protocol_id, action, metadata } = body;
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    
-    let supabase;
-    
-    if (!supabaseUrl || !supabaseKey) {
-      console.log('[AUDIT] Modo mock - sem variáveis Supabase');
-      supabase = createMockClient();
-    } else {
-      // Dynamic import only when needed at runtime
-      const { createClient } = await import('@supabase/supabase-js');
-      supabase = createClient(supabaseUrl, supabaseKey);
-    }
+    const supabase = await getSupabaseAdmin();
 
-    const { error } = await supabase
-      .from('audit_logs')
-      .insert([
-        { 
-          protocol_id, 
-          action, 
-          agent_name, 
-          metadata, 
-          ip_address,
-          timestamp: new Date().toISOString()
-        }
-      ]);
+    const { error } = await supabase.from('audit_logs').insert([
+      {
+        protocol_id,
+        event_type: action,
+        agr_id: session.agrId,
+        ip_address: ip,
+        payload: metadata ?? null,
+        severity: 'INFO',
+      },
+    ]);
 
     if (error) throw error;
 
@@ -46,4 +27,4 @@ export async function POST(req: NextRequest) {
     console.error('Audit Save Error:', err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
-}
+});

@@ -1,40 +1,48 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { withAuth } from '@/lib/ac-angry/api-middleware';
+import { AuditLogger } from '@/lib/ac-angry/security';
 import { supabase } from '@/lib/supabase';
 
-// Sistema Anti-Fraude (SAF) INTERNO via Banco de Dados Próprio do Supabase
-export async function POST(request: Request) {
+export const POST = withAuth(async (req: NextRequest, { session, ip }) => {
   try {
-    const { characteristics } = await request.json();
-    
-    // O sistema faz a query na sua Tabela "fraud_blacklist" (Cofre Negro de fraudadores que você flagrou no passado)
+    const { characteristics } = await req.json();
+
     const { data: frauds, error } = await supabase
       .from('fraud_blacklist')
       .select('id, name, fraud_reason, risk_level')
       .contains('traits_array', characteristics || []);
-      
+
     if (error) {
       if (error.code === '42P01') {
-        // Significa que você ainda não criou a tabela fraud_blacklist no seu painel do Supabase.
-        // É normal, você faz isso depois. O sistema assume "Limpo" (Verde).
+        // Tabela fraud_blacklist não existe ainda
         return NextResponse.json({ match: false, frauds: [] });
       }
       throw error;
     }
 
+    await AuditLogger.log({
+      eventType: 'SAF_CHECK',
+      agrId: session.agrId,
+      ipAddress: ip,
+      payload: { match: !!(frauds && frauds.length > 0) },
+      severity: frauds && frauds.length > 0 ? 'WARN' : 'INFO',
+    });
+
     if (frauds && frauds.length > 0) {
-      // Deu Match com criminoso na sua base!
-      return NextResponse.json({ 
-        match: true, 
+      return NextResponse.json({
+        match: true,
         frauds,
-        message: 'ALERTA TÉCNICO: CPF ou Rosto confere com indivíduo bloqueado na sua base VEMAPI.'
+        message:
+          'ALERTA TÉCNICO: CPF ou Rosto confere com indivíduo bloqueado na sua base VEMAPI.',
       });
     }
 
-    // Passou na verificação perfeitamente
     return NextResponse.json({ match: false, frauds: [] });
-
   } catch (error) {
     console.error('Erro na API SAF Supabase:', error);
-    return NextResponse.json({ error: 'Erro interno ao consultar SAF.' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Erro interno ao consultar SAF.' },
+      { status: 500 },
+    );
   }
-}
+});

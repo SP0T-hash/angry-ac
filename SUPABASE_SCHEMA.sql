@@ -98,19 +98,29 @@ CREATE TABLE IF NOT EXISTS secure_sessions (
 );
 
 -- ============================================================
--- 5. TABELA: audit_logs (Trilha de Auditoria Imutável)
+-- 5. TABELA: audit_logs (Trilha de Auditoria Imutável com Hash Chain)
 -- ============================================================
+-- O hash chain garante integridade dos logs: cada entrada contém
+-- o hash SHA-256 da entrada anterior + dados atuais.
+-- Qualquer alteração em um registro existente invalida toda a cadeia.
 CREATE TABLE IF NOT EXISTS audit_logs (
-  id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  event_type  TEXT NOT NULL,        -- 'LOGIN','LOCK','UNLOCK','BIOMETRY','EMIT', etc.
-  agr_id      UUID REFERENCES agr_users(id),
-  protocol_id UUID REFERENCES protocols(id),
-  ip_address  TEXT,
-  user_agent  TEXT,
-  payload     JSONB,                -- Dados do evento (sem info sensível)
-  severity    TEXT DEFAULT 'INFO'  CHECK (severity IN ('INFO','WARN','ERROR','CRITICAL')),
-  created_at  TIMESTAMPTZ DEFAULT now()
+  id            UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  event_type    TEXT NOT NULL,        -- 'LOGIN','LOCK','UNLOCK','BIOMETRY','EMIT', etc.
+  agr_id        UUID REFERENCES agr_users(id),
+  protocol_id   UUID REFERENCES protocols(id),
+  ip_address    TEXT,
+  user_agent    TEXT,
+  payload       JSONB,                -- Dados do evento (sem info sensível)
+  severity      TEXT DEFAULT 'INFO'  CHECK (severity IN ('INFO','WARN','ERROR','CRITICAL')),
+  previous_hash TEXT,                 -- Hash SHA-256 da entrada anterior (blockchain-style)
+  hash          TEXT NOT NULL,        -- Hash SHA-256 desta entrada
+  created_at    TIMESTAMPTZ DEFAULT now(),
+  -- Garante que o hash é único (impede duplicação)
+  CONSTRAINT uq_audit_hash UNIQUE (hash)
 );
+
+-- Índice para busca rápida do último hash
+CREATE INDEX IF NOT EXISTS idx_audit_hash ON audit_logs(hash DESC);
 
 -- ============================================================
 -- 6. TABELA: rate_limit_buckets (Rate Limiting por IP/AGR)
@@ -169,6 +179,40 @@ ALTER TABLE leads             ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "leads_insert_public" ON leads FOR INSERT WITH CHECK (true);
 CREATE POLICY "leads_select_public" ON leads FOR SELECT USING (true);
+
+-- ============================================================
+-- FUNÇÃO: Calcular hash chain para audit_logs (blockchain-style)
+-- ============================================================
+CREATE OR REPLACE FUNCTION compute_audit_hash()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+DECLARE
+  last_hash TEXT;
+  raw_data TEXT;
+BEGIN
+  -- Buscar o hash da última entrada
+  SELECT hash INTO last_hash FROM audit_logs
+    ORDER BY created_at DESC, id DESC LIMIT 1;
+
+  -- Concatenar dados da entrada atual com o hash anterior
+  raw_data := COALESCE(last_hash, 'genesis')
+    || COALESCE(NEW.event_type, '')
+    || COALESCE(NEW.agr_id::TEXT, '')
+    || COALESCE(NEW.protocol_id::TEXT, '')
+    || COALESCE(NEW.ip_address, '')
+    || COALESCE(NEW.payload::TEXT, '')
+    || COALESCE(NEW.severity, 'INFO')
+    || COALESCE(EXTRACT(EPOCH FROM NOW())::TEXT, '');
+
+  NEW.previous_hash := last_hash;
+  NEW.hash := encode(sha256(raw_data::bytea), 'hex');
+
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_audit_logs_hash
+  BEFORE INSERT ON audit_logs
+  FOR EACH ROW EXECUTE FUNCTION compute_audit_hash();
 
 -- ============================================================
 -- FUNÇÃO: Limpar nonces expirados (agendar via pg_cron se disponível)

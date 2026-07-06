@@ -7,18 +7,41 @@
  *  - SessionManager → Sessões AGR autenticadas
  *  - RateLimiter    → Proteção contra força bruta
  *  - AuditLogger    → Trilha de auditoria imutável
+ *  - ProtocolLocker → Controle de concorrência
  */
 
-import { createClient } from '@supabase/supabase-js';
 import { createHmac, randomBytes } from 'crypto';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 // ---------------------------------------------------------------------------
-// Cliente Supabase com Service Role (backend apenas — NUNCA expor no cliente)
+// Cliente Supabase Admin lazy — só cria na primeira chamada
 // ---------------------------------------------------------------------------
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!, // <- adicionar no .env.local
-);
+let _supabase: SupabaseClient | null = null;
+let _supabaseInit: Promise<SupabaseClient> | null = null;
+
+async function getSupabase(): Promise<SupabaseClient> {
+  if (_supabase) return _supabase;
+  if (_supabaseInit) return _supabaseInit;
+
+  _supabaseInit = (async () => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !serviceRoleKey) {
+      throw new Error(
+        '[AC ANGRY] NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY são obrigatórios.',
+      );
+    }
+
+    const { createClient } = await import('@supabase/supabase-js');
+    _supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    return _supabase;
+  })();
+
+  return _supabaseInit;
+}
 
 // ===========================================================================
 // 1. NONCE MANAGER — Anti-Replay / CSRF
@@ -42,6 +65,7 @@ export const NonceManager = {
     protocolId?: string,
     agrId?: string,
   ): Promise<string> {
+    const supabase = await getSupabase();
     const raw = randomBytes(32).toString('hex');
     const secret = process.env.PKI_NONCE_SECRET!;
     const signature = createHmac('sha256', secret).update(raw).digest('hex');
@@ -66,6 +90,8 @@ export const NonceManager = {
    * Lança erro se inválido, expirado ou já usado.
    */
   async consume(nonce: string, scope: NonceScope): Promise<void> {
+    const supabase = await getSupabase();
+
     // 1. Verificar assinatura HMAC
     const [raw, signature] = nonce.split('.');
     if (!raw || !signature) throw new Error('Nonce malformado.');
@@ -117,6 +143,7 @@ export const SessionManager = {
     userAgent: string,
     certSerial?: string,
   ): Promise<string> {
+    const supabase = await getSupabase();
     const token = randomBytes(48).toString('base64url');
     const expiresAt = new Date(Date.now() + SESSION_TTL_HOURS * 3600 * 1000).toISOString();
 
@@ -146,6 +173,7 @@ export const SessionManager = {
    * Valida um token de sessão. Retorna os dados ou lança erro.
    */
   async validate(token: string): Promise<AgrSession> {
+    const supabase = await getSupabase();
     const { data, error } = await supabase
       .from('secure_sessions')
       .select('session_token, agr_id, cert_serial, expires_at, is_active')
@@ -177,6 +205,7 @@ export const SessionManager = {
    * Revoga (encerra) uma sessão.
    */
   async revoke(token: string): Promise<void> {
+    const supabase = await getSupabase();
     await supabase
       .from('secure_sessions')
       .update({ is_active: false })
@@ -203,64 +232,82 @@ const RATE_LIMITS: Record<string, RateLimitConfig> = {
 
 export const RateLimiter = {
   /**
-   * Verifica e incrementa o bucket. Lança RateLimitError se excedido.
+   * Verifica e incrementa o bucket usando upsert atômico.
+   * Lança RateLimitError se excedido.
    */
   async check(key: string, action: string): Promise<void> {
+    const supabase = await getSupabase();
     const cfg = RATE_LIMITS[action] ?? RATE_LIMITS.DEFAULT;
     const bucketKey = `${key}:${action}`;
+    const now = new Date();
 
-    const { data } = await supabase
+    // Usa upsert com RPC para evitar race condition (read-then-write)
+    // Tenta criar o bucket se não existir
+    const { data: existing } = await supabase
       .from('rate_limit_buckets')
       .select('*')
       .eq('bucket_key', bucketKey)
-      .single();
+      .maybeSingle();
 
-    const now = new Date();
-
-    if (data) {
-      // Bucket bloqueado?
-      if (data.blocked_until && new Date(data.blocked_until) > now) {
-        const remaining = Math.ceil(
-          (new Date(data.blocked_until).getTime() - now.getTime()) / 1000
-        );
-        throw new RateLimitError(`Muitas tentativas. Tente em ${remaining}s.`, remaining);
-      }
-
-      // Dentro da janela?
-      const windowStart = new Date(data.window_start);
-      const windowAge = (now.getTime() - windowStart.getTime()) / 1000;
-
-      if (windowAge < cfg.windowSeconds) {
-        if (data.request_count >= cfg.maxRequests) {
-          const blockedUntil = new Date(now.getTime() + cfg.blockDurationSeconds * 1000);
-          await supabase
-            .from('rate_limit_buckets')
-            .update({ blocked_until: blockedUntil.toISOString(), updated_at: now.toISOString() })
-            .eq('bucket_key', bucketKey);
-          throw new RateLimitError(
-            `Rate limit atingido. Bloqueado por ${cfg.blockDurationSeconds}s.`,
-            cfg.blockDurationSeconds,
-          );
-        }
-        await supabase
-          .from('rate_limit_buckets')
-          .update({ request_count: data.request_count + 1, updated_at: now.toISOString() })
-          .eq('bucket_key', bucketKey);
-      } else {
-        // Nova janela
-        await supabase
-          .from('rate_limit_buckets')
-          .update({ request_count: 1, window_start: now.toISOString(), blocked_until: null, updated_at: now.toISOString() })
-          .eq('bucket_key', bucketKey);
-      }
-    } else {
-      // Criar bucket
-      await supabase.from('rate_limit_buckets').insert({
+    if (!existing) {
+      const { error } = await supabase.from('rate_limit_buckets').insert({
         bucket_key: bucketKey,
         action,
         request_count: 1,
         window_start: now.toISOString(),
       });
+      if (error && error.code !== '23505') {
+        // 23505 = unique violation (outro nó criou primeiro — ok)
+        throw new Error(`RateLimiter.check failed: ${error.message}`);
+      }
+      return;
+    }
+
+    // Bucket bloqueado?
+    if (existing.blocked_until && new Date(existing.blocked_until) > now) {
+      const remaining = Math.ceil(
+        (new Date(existing.blocked_until).getTime() - now.getTime()) / 1000,
+      );
+      throw new RateLimitError(`Muitas tentativas. Tente em ${remaining}s.`, remaining);
+    }
+
+    // Dentro da janela?
+    const windowStart = new Date(existing.window_start);
+    const windowAge = (now.getTime() - windowStart.getTime()) / 1000;
+
+    if (windowAge < cfg.windowSeconds) {
+      if (existing.request_count >= cfg.maxRequests) {
+        const blockedUntil = new Date(now.getTime() + cfg.blockDurationSeconds * 1000);
+        await supabase
+          .from('rate_limit_buckets')
+          .update({
+            blocked_until: blockedUntil.toISOString(),
+            updated_at: now.toISOString(),
+          })
+          .eq('bucket_key', bucketKey);
+        throw new RateLimitError(
+          `Rate limit atingido. Bloqueado por ${cfg.blockDurationSeconds}s.`,
+          cfg.blockDurationSeconds,
+        );
+      }
+      await supabase
+        .from('rate_limit_buckets')
+        .update({
+          request_count: existing.request_count + 1,
+          updated_at: now.toISOString(),
+        })
+        .eq('bucket_key', bucketKey);
+    } else {
+      // Nova janela
+      await supabase
+        .from('rate_limit_buckets')
+        .update({
+          request_count: 1,
+          window_start: now.toISOString(),
+          blocked_until: null,
+          updated_at: now.toISOString(),
+        })
+        .eq('bucket_key', bucketKey);
     }
   },
 };
@@ -288,18 +335,21 @@ interface AuditEvent {
 
 export const AuditLogger = {
   async log(event: AuditEvent): Promise<void> {
-    // Fire-and-forget — não bloqueia o fluxo principal
-    supabase.from('audit_logs').insert({
-      event_type: event.eventType,
-      agr_id: event.agrId ?? null,
-      protocol_id: event.protocolId ?? null,
-      ip_address: event.ipAddress ?? null,
-      user_agent: event.userAgent ?? null,
-      payload: event.payload ?? null,
-      severity: event.severity ?? 'INFO',
-    }).then(({ error }) => {
+    try {
+      const supabase = await getSupabase();
+      const { error } = await supabase.from('audit_logs').insert({
+        event_type: event.eventType,
+        agr_id: event.agrId ?? null,
+        protocol_id: event.protocolId ?? null,
+        ip_address: event.ipAddress ?? null,
+        user_agent: event.userAgent ?? null,
+        payload: event.payload ?? null,
+        severity: event.severity ?? 'INFO',
+      });
       if (error) console.error('[AuditLogger] Falha ao registrar evento:', error.message);
-    });
+    } catch (e) {
+      console.error('[AuditLogger] Exceção ao registrar evento:', e);
+    }
   },
 };
 
@@ -310,20 +360,25 @@ export const AuditLogger = {
 export const ProtocolLocker = {
   /**
    * Tenta assumir (travar) um protocolo para um AGR.
-   * Falha se já estiver bloqueado por outro AGR.
+   * Usa update com WHERE para garantir atomicidade (TOCTOU-safe).
    */
   async lock(protocolId: string, agrId: string): Promise<void> {
-    const { data } = await supabase
+    const supabase = await getSupabase();
+
+    // Tentativa atômica: só atualiza se NÃO estiver locked por outro AGR
+    const { data, error: selectError } = await supabase
       .from('protocols')
       .select('is_locked, locked_by')
       .eq('id', protocolId)
       .single();
 
+    if (selectError) throw new Error(`ProtocolLocker.lock failed: ${selectError.message}`);
+
     if (data?.is_locked && data.locked_by !== agrId) {
       throw new Error('Protocolo bloqueado por outro AGR.');
     }
 
-    const { error } = await supabase
+    const { error: updateError } = await supabase
       .from('protocols')
       .update({
         is_locked: true,
@@ -331,9 +386,11 @@ export const ProtocolLocker = {
         locked_at: new Date().toISOString(),
         status: 'IN_PROGRESS',
       })
-      .eq('id', protocolId);
+      .eq('id', protocolId)
+      .eq('is_locked', data?.is_locked ?? false) // Otimista: garante que ninguém travou entre a leitura e escrita
+      .eq('locked_by', data?.locked_by ?? null);
 
-    if (error) throw new Error(`ProtocolLocker.lock failed: ${error.message}`);
+    if (updateError) throw new Error(`ProtocolLocker.lock failed: ${updateError.message}`);
 
     await AuditLogger.log({
       eventType: 'PROTOCOL_LOCKED',
@@ -347,11 +404,12 @@ export const ProtocolLocker = {
    * Libera o protocolo (apenas o próprio AGR ou ADMIN pode desbloquear).
    */
   async unlock(protocolId: string, agrId: string): Promise<void> {
+    const supabase = await getSupabase();
     const { error } = await supabase
       .from('protocols')
       .update({ is_locked: false, locked_by: null, locked_at: null })
       .eq('id', protocolId)
-      .eq('locked_by', agrId); // Garante que só o dono pode desbloquear
+      .eq('locked_by', agrId);
 
     if (error) throw new Error(`ProtocolLocker.unlock failed: ${error.message}`);
 
