@@ -44,6 +44,10 @@ const ALLOWED_MSG_TYPES = new Set([
   "AR_BIOMETRIC_CAPTURE_FINGERPRINT",
   "AR_BIOMETRIC_CAPTURE_FACE",
   "AR_BIOMETRIC_ABORT",
+  "AR_AGR_SIGN",
+  "AR_AGR_LOGIN",
+  "AR_AGR_APPROVE_ORDER",
+  "AR_AGR_REVOKE_CERT",
 ]);
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -93,6 +97,18 @@ async function handleMessage(message, sender) {
 
     case "AR_BIOMETRIC_ABORT":
       return handleAbort(message.sessionId, tabId);
+
+    case "AR_AGR_SIGN":
+      return handleAgrSign(message, tabId);
+
+    case "AR_AGR_LOGIN":
+      return handleAgrLogin(message, tabId);
+
+    case "AR_AGR_APPROVE_ORDER":
+      return handleAgrApproveOrder(message, tabId);
+
+    case "AR_AGR_REVOKE_CERT":
+      return handleAgrRevokeCert(message, tabId);
 
     default:
       return { ok: false, error: "UNHANDLED_TYPE" };
@@ -253,6 +269,268 @@ async function handleAbort(sessionId, tabId) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// AGR Sign — assinatura de payload com senha do token A3
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Assina um payload usando HMAC-SHA256 derivado da senha do token AGR.
+ * A senha NUNCA é enviada em texto claro para lugar nenhum — apenas o hash
+ * de verificação e a assinatura do payload via HMAC.
+ *
+ * @param {object} message
+ *   - passwordHash: string (SHA-256 da senha do token AGR)
+ *   - data: object (payload a ser assinado: sessionId, protocolId, action, nonce)
+ * @param {string} tabId
+ * @returns {Promise<object>}
+ */
+async function handleAgrSign(message, tabId) {
+  const { passwordHash, data } = message;
+
+  if (!passwordHash || typeof passwordHash !== "string" || passwordHash.length !== 64) {
+    return { ok: false, error: "INVALID_PASSWORD_HASH" };
+  }
+  if (!data || typeof data !== "object") {
+    return { ok: false, error: "INVALID_DATA" };
+  }
+
+  try {
+    // 1. Importar o hash da senha como chave HMAC
+    const hmacKey = await importHmacKey(passwordHash);
+
+    // 2. Construir o payload a ser assinado
+    const signPayload = {
+      ...data,
+      signedAt: Date.now(),
+      agrVersion: "1.0",
+      nonce: data.nonce || generateNonce(),
+    };
+
+    // 3. Calcular HMAC-SHA256
+    const encoded = new TextEncoder().encode(JSON.stringify(signPayload));
+    const sigBuffer = await crypto.subtle.sign("HMAC", hmacKey, encoded);
+    const signature = bufferToBase64Url(new Uint8Array(sigBuffer));
+
+    // 4. Prova de posse da senha (hash da senha + salt) para verificação
+    const proofSalt = generateNonce().slice(0, 16);
+    const proofInput = passwordHash + proofSalt + signPayload.nonce;
+    const proofEncoded = new TextEncoder().encode(proofInput);
+    const proofBuffer = await crypto.subtle.digest("SHA-256", proofEncoded);
+    const proof = bufferToBase64Url(new Uint8Array(proofBuffer));
+
+    return {
+      ok: true,
+      signature,
+      proof,
+      proofSalt,
+      signedAt: signPayload.signedAt,
+      dataHash: await sha256Hex(JSON.stringify(signPayload)),
+    };
+  } catch (err) {
+    console.error("[AR-Bridge] AGR_SIGN error:", err);
+    return { ok: false, error: "SIGN_FAILED", detail: err.message };
+  }
+}
+
+/**
+ * Realiza todo o fluxo de login AGR:
+ *   biometria (5 dedos) → assinatura AGR → pacote consolidado
+ */
+async function handleAgrLogin(message, tabId) {
+  const { nonce, issuedAt, passwordHash } = message;
+
+  if (!passwordHash && !message.passwordHash) {
+    return { ok: false, error: "PASSWORD_HASH_REQUIRED" };
+  }
+
+  try {
+    // 1. Iniciar sessão biométrica
+    const sessionResult = await handleStartSession(tabId);
+    if (!sessionResult.ok) return sessionResult;
+
+    const { sessionId } = sessionResult;
+
+    // 2. Capturar os 5 dedos
+    const fingerprints = [];
+    for (let i = 0; i < 5; i++) {
+      const captureResult = await handleCapture("fingerprint", {
+        sessionId,
+        nonce: generateNonce(),
+        issuedAt: Date.now(),
+      }, tabId);
+
+      if (!captureResult.ok) {
+        destroySession(sessionId);
+        return captureResult;
+      }
+
+      fingerprints.push(captureResult);
+    }
+
+    // 3. Dados para assinatura AGR
+    const signData = {
+      action: "LOGIN",
+      sessionId,
+      nonce: nonce || generateNonce(),
+      issuedAt: issuedAt || Date.now(),
+      fingerprintCount: fingerprints.length,
+      fingerprintHashes: fingerprints.map(f => f.meta?.nonce),
+    };
+
+    // 4. Assinar com senha AGR
+    const signResult = await handleAgrSign({
+      passwordHash: passwordHash || message.passwordHash,
+      data: signData,
+    }, tabId);
+
+    if (!signResult.ok) {
+      destroySession(sessionId);
+      return signResult;
+    }
+
+    return {
+      ok: true,
+      sessionId,
+      fingerprints,
+      agrSignature: signResult,
+      loginPackage: {
+        biometricData: fingerprints,
+        agrProof: signResult,
+        issuedAt: signData.issuedAt,
+      },
+    };
+  } catch (err) {
+    return { ok: false, error: "AGR_LOGIN_FAILED", detail: err.message };
+  }
+}
+
+/**
+ * Fluxo de aprovação de pedido de certificado:
+ *   biometria → assinatura AGR → dados do protocolo
+ */
+async function handleAgrApproveOrder(message, tabId) {
+  const { passwordHash, protocolId, sessionToken } = message;
+
+  if (!passwordHash) return { ok: false, error: "PASSWORD_HASH_REQUIRED" };
+  if (!protocolId) return { ok: false, error: "PROTOCOL_ID_REQUIRED" };
+
+  try {
+    // 1. Iniciar sessão e capturar biometria (apenas 1 dedo para aprovação)
+    const sessionResult = await handleStartSession(tabId);
+    if (!sessionResult.ok) return sessionResult;
+
+    const captureResult = await handleCapture("fingerprint", {
+      sessionId: sessionResult.sessionId,
+      nonce: generateNonce(),
+      issuedAt: Date.now(),
+    }, tabId);
+
+    if (!captureResult.ok) {
+      destroySession(sessionResult.sessionId);
+      return captureResult;
+    }
+
+    // 2. Assinar dados de aprovação com senha AGR
+    const signData = {
+      action: "APPROVE_ORDER",
+      protocolId,
+      sessionId: sessionResult.sessionId,
+      nonce: generateNonce(),
+      issuedAt: Date.now(),
+    };
+
+    const signResult = await handleAgrSign({ passwordHash, data: signData }, tabId);
+    if (!signResult.ok) {
+      destroySession(sessionResult.sessionId);
+      return signResult;
+    }
+
+    return {
+      ok: true,
+      sessionId: sessionResult.sessionId,
+      biometricCapture: captureResult,
+      agrSignature: signResult,
+      approvalPackage: {
+        protocolId,
+        biometricData: captureResult,
+        agrProof: signResult,
+      },
+    };
+  } catch (err) {
+    return { ok: false, error: "AGR_APPROVE_FAILED", detail: err.message };
+  }
+}
+
+/**
+ * Fluxo de revogação de certificado:
+ *   biometria → assinatura AGR → dados de revogação
+ */
+async function handleAgrRevokeCert(message, tabId) {
+  const { passwordHash, protocolId, reason, sessionToken } = message;
+
+  if (!passwordHash) return { ok: false, error: "PASSWORD_HASH_REQUIRED" };
+  if (!protocolId) return { ok: false, error: "PROTOCOL_ID_REQUIRED" };
+
+  try {
+    // 1. Captura biométrica + face (revogação exige biometria dupla)
+    const sessionResult = await handleStartSession(tabId);
+    if (!sessionResult.ok) return sessionResult;
+
+    const [fpResult, faceResult] = await Promise.all([
+      handleCapture("fingerprint", {
+        sessionId: sessionResult.sessionId,
+        nonce: generateNonce(),
+        issuedAt: Date.now(),
+      }, tabId),
+      handleCapture("face", {
+        sessionId: sessionResult.sessionId,
+        nonce: generateNonce(),
+        issuedAt: Date.now(),
+      }, tabId),
+    ]);
+
+    if (!fpResult.ok) {
+      destroySession(sessionResult.sessionId);
+      return fpResult;
+    }
+    if (!faceResult.ok) {
+      destroySession(sessionResult.sessionId);
+      return faceResult;
+    }
+
+    // 2. Assinar dados de revogação
+    const signData = {
+      action: "REVOKE_CERT",
+      protocolId,
+      reason: reason || "Revogado pelo AGR",
+      sessionId: sessionResult.sessionId,
+      nonce: generateNonce(),
+      issuedAt: Date.now(),
+    };
+
+    const signResult = await handleAgrSign({ passwordHash, data: signData }, tabId);
+    if (!signResult.ok) {
+      destroySession(sessionResult.sessionId);
+      return signResult;
+    }
+
+    return {
+      ok: true,
+      sessionId: sessionResult.sessionId,
+      biometricCapture: { fingerprint: fpResult, face: faceResult },
+      agrSignature: signResult,
+      revokePackage: {
+        protocolId,
+        reason: reason || "Revogado pelo AGR",
+        biometricData: { fingerprint: fpResult, face: faceResult },
+        agrProof: signResult,
+      },
+    };
+  } catch (err) {
+    return { ok: false, error: "AGR_REVOKE_FAILED", detail: err.message };
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Native Messaging — comunicação com o host nativo
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -336,4 +614,35 @@ async function deriveAESFromPublicKey(ecdhPublicKey) {
     false,
     ["encrypt", "decrypt"]
   );
+}
+
+/**
+ * Importa uma string hexadecimal como chave HMAC-SHA256.
+ * @param {string} hexKey  — 64 caracteres hex (32 bytes / 256 bits)
+ * @returns {Promise<CryptoKey>}
+ */
+async function importHmacKey(hexKey) {
+  const rawKey = new Uint8Array(32);
+  for (let i = 0; i < 32; i++) {
+    rawKey[i] = parseInt(hexKey.slice(i * 2, i * 2 + 2), 16);
+  }
+  return crypto.subtle.importKey(
+    "raw",
+    rawKey,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign", "verify"]
+  );
+}
+
+/**
+ * Calcula SHA-256 de uma string e retorna em hex.
+ * @param {string} input
+ * @returns {Promise<string>}
+ */
+async function sha256Hex(input) {
+  const encoded = new TextEncoder().encode(input);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", encoded);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 }

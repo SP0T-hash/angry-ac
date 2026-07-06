@@ -1,0 +1,763 @@
+<div id="ar-biometric-overlay" style="display:none;">
+  <div id="ar-bio-backdrop"></div>
+  <div id="ar-bio-card">
+    <button id="ar-bio-close" aria-label="Fechar">&times;</button>
+
+    <div id="ar-bio-header">
+      <div id="ar-bio-steps">
+        <div class="ar-bio-step" data-step="1">
+          <span class="ar-bio-step-num">1</span>
+          <span class="ar-bio-step-label">Leitor</span>
+        </div>
+        <div class="ar-bio-step" data-step="2">
+          <span class="ar-bio-step-num">2</span>
+          <span class="ar-bio-step-label">Dedo</span>
+        </div>
+        <div class="ar-bio-step" data-step="3">
+          <span class="ar-bio-step-num">3</span>
+          <span class="ar-bio-step-label">Captura</span>
+        </div>
+        <div class="ar-bio-step" data-step="4">
+          <span class="ar-bio-step-num">4</span>
+          <span class="ar-bio-step-label">Assinar</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="ar-bio-body">
+      <!-- Step 1: Reader Detection -->
+      <div class="ar-bio-panel" data-panel="1">
+        <div class="ar-bio-reader-status" id="ar-bio-reader-status">
+          <div class="ar-bio-reader-icon" id="ar-bio-reader-icon">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="8" y="4" width="48" height="56" rx="4" stroke="currentColor" stroke-width="2.5" fill="none"/>
+              <rect x="14" y="10" width="36" height="30" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <circle cx="32" cy="25" r="6" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <rect x="26" y="30" width="12" height="3" rx="1" stroke="currentColor" stroke-width="1" fill="none"/>
+              <rect x="26" y="44" width="12" height="2" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <rect x="20" y="48" width="24" height="8" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <line x1="14" y1="34" x2="20" y2="34" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+              <line x1="14" y1="38" x2="20" y2="38" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+              <line x1="44" y1="34" x2="50" y2="34" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+              <line x1="44" y1="38" x2="50" y2="38" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+            </svg>
+          </div>
+          <p class="ar-bio-reader-text" id="ar-bio-reader-text">Detectando leitor biométrico...</p>
+          <div class="ar-bio-spinner" id="ar-bio-reader-spinner"></div>
+        </div>
+      </div>
+
+      <!-- Step 2: Finger Guide -->
+      <div class="ar-bio-panel" data-panel="2" style="display:none;">
+        <div class="ar-bio-finger-guide">
+          <div class="ar-bio-hand-container">
+            <svg class="ar-bio-hand-svg" viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="fingerGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#059669" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#059669" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+
+              <!-- Palm -->
+              <path d="M100 260 Q60 250 50 220 Q40 190 50 160 L55 140 Q56 135 60 130 L65 120 Q70 100 75 80 Q78 68 85 60 Q90 52 100 50 Q110 52 115 60 Q122 68 125 80 Q130 100 135 120 L140 130 Q144 135 145 140 L150 160 Q160 190 150 220 Q140 250 100 260Z"
+                    fill="url(#fingerGlow)" stroke="#065f46" stroke-width="2" opacity="0.6"/>
+
+              <!-- Thumb (finger 0) -->
+              <g class="ar-bio-finger-segment" data-finger="0">
+                <path d="M55 140 Q45 130 40 115 Q35 100 38 85 Q42 72 50 65 Q58 60 62 65 Q68 72 70 85 Q72 100 65 115 Q60 130 55 140Z"
+                      fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+                <ellipse cx="50" cy="75" rx="12" ry="8" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="50" y="78" text-anchor="middle" fill="#475569" font-size="9" font-weight="bold">1</text>
+              </g>
+
+              <!-- Index (finger 1) -->
+              <g class="ar-bio-finger-segment" data-finger="1">
+                <path d="M75 80 Q72 55 73 35 Q74 18 80 12 Q86 8 90 12 Q94 18 93 35 Q92 55 85 80Z"
+                      fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+                <ellipse cx="83" cy="22" rx="10" ry="7" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="83" y="25" text-anchor="middle" fill="#475569" font-size="9" font-weight="bold">2</text>
+              </g>
+
+              <!-- Middle (finger 2) -->
+              <g class="ar-bio-finger-segment" data-finger="2">
+                <path d="M95 75 Q93 48 94 28 Q95 10 100 6 Q106 2 110 6 Q114 10 113 28 Q112 48 108 75Z"
+                      fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+                <ellipse cx="104" cy="18" rx="10" ry="7" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="104" y="21" text-anchor="middle" fill="#475569" font-size="9" font-weight="bold">3</text>
+              </g>
+
+              <!-- Ring (finger 3) -->
+              <g class="ar-bio-finger-segment" data-finger="3">
+                <path d="M115 80 Q113 55 114 35 Q115 18 120 12 Q126 8 130 12 Q134 18 133 35 Q132 55 125 80Z"
+                      fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+                <ellipse cx="124" cy="22" rx="10" ry="7" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="124" y="25" text-anchor="middle" fill="#475569" font-size="9" font-weight="bold">4</text>
+              </g>
+
+              <!-- Pinky (finger 4) -->
+              <g class="ar-bio-finger-segment" data-finger="4">
+                <path d="M135 120 Q138 100 140 85 Q142 72 146 68 Q150 65 154 68 Q158 72 156 85 Q154 100 148 120Z"
+                      fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+                <ellipse cx="147" cy="78" rx="9" ry="7" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="147" y="81" text-anchor="middle" fill="#475569" font-size="9" font-weight="bold">5</text>
+              </g>
+
+              <!-- Wrist band -->
+              <rect x="80" y="260" width="40" height="8" rx="3" fill="#065f46" opacity="0.5"/>
+            </svg>
+          </div>
+          <p class="ar-bio-finger-prompt" id="ar-bio-finger-prompt">Coloque o polegar no leitor</p>
+        </div>
+      </div>
+
+      <!-- Step 3: Capture Progress -->
+      <div class="ar-bio-panel" data-panel="3" style="display:none;">
+        <div class="ar-bio-capture">
+          <div class="ar-bio-scan-animation" id="ar-bio-scan-animation">
+            <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="4" width="72" height="72" rx="8" stroke="#059669" stroke-width="2.5" fill="none" class="ar-bio-scan-frame"/>
+              <line x1="4" y1="40" x2="76" y2="40" stroke="#059669" stroke-width="1.5" class="ar-bio-scan-line" opacity="0.6"/>
+              <circle cx="40" cy="40" r="20" stroke="#059669" stroke-width="1.5" fill="none" opacity="0.3" class="ar-bio-scan-pulse"/>
+              <path d="M30 40 L38 48 L50 34" stroke="#059669" stroke-width="2.5" fill="none" class="ar-bio-scan-check" opacity="0"/>
+            </svg>
+          </div>
+          <div class="ar-bio-progress-container">
+            <div class="ar-bio-progress-bar" id="ar-bio-progress-bar">
+              <div class="ar-bio-progress-fill" id="ar-bio-progress-fill"></div>
+            </div>
+            <span class="ar-bio-progress-text" id="ar-bio-progress-text">0%</span>
+          </div>
+          <p class="ar-bio-capture-status" id="ar-bio-capture-status">Capturando impressão digital...</p>
+        </div>
+      </div>
+
+      <!-- Step 4: AGR Signing -->
+      <div class="ar-bio-panel" data-panel="4" style="display:none;">
+        <div class="ar-bio-sign">
+          <div class="ar-bio-quality-meter" id="ar-bio-quality-meter">
+            <svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+              <rect x="5" y="8" width="20" height="24" rx="3" fill="#e2e8f0" class="ar-bio-qual-bar"/>
+              <rect x="30" y="8" width="20" height="24" rx="3" fill="#e2e8f0" class="ar-bio-qual-bar"/>
+              <rect x="55" y="8" width="20" height="24" rx="3" fill="#e2e8f0" class="ar-bio-qual-bar"/>
+              <rect x="80" y="8" width="20" height="24" rx="3" fill="#e2e8f0" class="ar-bio-qual-bar"/>
+              <rect x="105" y="25" width="10" height="7" rx="2" fill="#e2e8f0" class="ar-bio-qual-bar"/>
+            </svg>
+            <div class="ar-bio-quality-score" id="ar-bio-quality-score">NFIQ: --</div>
+          </div>
+
+          <div class="ar-bio-sign-fields">
+            <label class="ar-bio-field-label" for="ar-bio-password">Senha do Token AGR</label>
+            <div class="ar-bio-password-wrap">
+              <input type="password" id="ar-bio-password" class="ar-bio-input" placeholder="••••••••" autocomplete="off" spellcheck="false"/>
+              <button type="button" class="ar-bio-toggle-pw" id="ar-bio-toggle-pw" aria-label="Mostrar senha">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+            <button type="button" class="ar-bio-btn ar-bio-btn-primary" id="ar-bio-sign-btn">
+              Assinar com Token AGR
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result Panel (shown over any step) -->
+      <div class="ar-bio-panel ar-bio-result-panel" id="ar-bio-result-panel" style="display:none;">
+        <div class="ar-bio-result-icon" id="ar-bio-result-icon">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="28" fill="none" stroke-width="3"/>
+            <path d="M22 32 L30 40 L42 26" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="ar-bio-result-title" id="ar-bio-result-title">Sucesso!</h3>
+        <div class="ar-bio-result-details" id="ar-bio-result-details"></div>
+        <button type="button" class="ar-bio-btn ar-bio-btn-secondary" id="ar-bio-result-close">Concluir</button>
+      </div>
+    </div>
+
+    <div id="ar-bio-footer">
+      <button type="button" class="ar-bio-btn ar-bio-btn-ghost" id="ar-bio-cancel-btn">Cancelar</button>
+      <button type="button" class="ar-bio-btn ar-bio-btn-primary" id="ar-bio-next-btn" style="display:none;">Avançar</button>
+    </div>
+  </div>
+
+  <style>
+    #ar-biometric-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 2147483647;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #1e293b;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #ar-bio-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      animation: arBioFadeIn 0.25s ease-out;
+    }
+
+    @keyframes arBioFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes arBioSlideUp {
+      from { opacity: 0; transform: translateY(24px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes arBioSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes arBioProgressPulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes arBioScanSlide {
+      0% { transform: translateY(-30px); }
+      100% { transform: translateY(30px); }
+    }
+
+    @keyframes arBioPulseRing {
+      0% { transform: scale(0.8); opacity: 0.6; }
+      100% { transform: scale(1.3); opacity: 0; }
+    }
+
+    @keyframes arBioCheckIn {
+      0% { stroke-dashoffset: 30; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    @keyframes arBioFingerGlow {
+      0% { filter: drop-shadow(0 0 0 rgba(5, 150, 105, 0)); }
+      50% { filter: drop-shadow(0 0 8px rgba(5, 150, 105, 0.6)); }
+      100% { filter: drop-shadow(0 0 0 rgba(5, 150, 105, 0)); }
+    }
+
+    @keyframes arBioShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+
+    @keyframes arBioQualFill {
+      from { width: 0; }
+      to { width: var(--qual-width); }
+    }
+
+    #ar-bio-card {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: calc(100% - 32px);
+      max-width: 460px;
+      max-height: calc(100vh - 32px);
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+      animation: arBioSlideUp 0.3s ease-out;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #ar-bio-close {
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 32px; height: 32px;
+      border: none;
+      background: #f1f5f9;
+      border-radius: 50%;
+      font-size: 20px;
+      line-height: 1;
+      color: #64748b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+      z-index: 10;
+      padding: 0;
+    }
+
+    #ar-bio-close:hover {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+
+    /* Steps */
+    #ar-bio-header {
+      padding: 24px 24px 0;
+      flex-shrink: 0;
+    }
+
+    #ar-bio-steps {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin-bottom: 20px;
+    }
+
+    .ar-bio-step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: #f1f5f9;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    .ar-bio-step.active {
+      background: #059669;
+      color: #fff;
+    }
+
+    .ar-bio-step.completed {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .ar-bio-step-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(0,0,0,0.08);
+    }
+
+    .ar-bio-step.active .ar-bio-step-num {
+      background: rgba(255,255,255,0.25);
+    }
+
+    .ar-bio-step.completed .ar-bio-step-num {
+      background: #059669;
+      color: #fff;
+    }
+
+    .ar-bio-step-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Body */
+    #ar-bio-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 24px;
+      position: relative;
+    }
+
+    .ar-bio-panel {
+      animation: arBioFadeIn 0.3s ease-out;
+    }
+
+    /* Reader Status */
+    .ar-bio-reader-status {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 0 8px;
+      gap: 12px;
+    }
+
+    .ar-bio-reader-icon {
+      width: 80px;
+      height: 80px;
+      color: #94a3b8;
+      transition: color 0.4s;
+    }
+
+    .ar-bio-reader-icon.connected {
+      color: #059669;
+    }
+
+    .ar-bio-reader-icon.error {
+      color: #dc2626;
+      animation: arBioShake 0.4s ease-out;
+    }
+
+    .ar-bio-reader-text {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+      color: #475569;
+    }
+
+    .ar-bio-spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid #e2e8f0;
+      border-top-color: #059669;
+      border-radius: 50%;
+      animation: arBioSpin 0.8s linear infinite;
+    }
+
+    /* Finger Guide */
+    .ar-bio-finger-guide {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 0;
+      gap: 16px;
+    }
+
+    .ar-bio-hand-container {
+      width: 160px;
+      height: auto;
+    }
+
+    .ar-bio-hand-svg {
+      width: 100%;
+      height: auto;
+    }
+
+    .ar-bio-finger-segment {
+      transition: fill 0.3s, stroke 0.3s;
+      cursor: default;
+    }
+
+    .ar-bio-finger-segment.active {
+      fill: #a7f3d0;
+      stroke: #059669;
+      animation: arBioFingerGlow 1s ease-in-out infinite;
+    }
+
+    .ar-bio-finger-segment.done {
+      fill: #6ee7b7;
+      stroke: #065f46;
+    }
+
+    .ar-bio-finger-prompt {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #065f46;
+      text-align: center;
+    }
+
+    /* Capture */
+    .ar-bio-capture {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 0 8px;
+      gap: 16px;
+    }
+
+    .ar-bio-scan-animation {
+      width: 80px;
+      height: 80px;
+      position: relative;
+    }
+
+    .ar-bio-scan-animation svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .ar-bio-scan-line {
+      animation: arBioScanSlide 1s ease-in-out infinite;
+    }
+
+    .ar-bio-scan-pulse {
+      animation: arBioPulseRing 1.5s ease-out infinite;
+      transform-origin: center;
+    }
+
+    .ar-bio-scan-check {
+      stroke-dasharray: 30;
+      stroke-dashoffset: 30;
+    }
+
+    .ar-bio-scan-check.visible {
+      animation: arBioCheckIn 0.4s ease-out forwards;
+    }
+
+    .ar-bio-progress-container {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ar-bio-progress-bar {
+      flex: 1;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .ar-bio-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #059669, #10b981);
+      border-radius: 4px;
+      transition: width 0.15s linear;
+    }
+
+    .ar-bio-progress-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: #059669;
+      min-width: 38px;
+      text-align: right;
+    }
+
+    .ar-bio-capture-status {
+      margin: 0;
+      font-size: 13px;
+      color: #64748b;
+      text-align: center;
+    }
+
+    /* Quality Meter */
+    .ar-bio-quality-meter {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 0;
+    }
+
+    .ar-bio-quality-meter svg {
+      width: 140px;
+      height: auto;
+    }
+
+    .ar-bio-qual-bar {
+      transition: fill 0.4s;
+    }
+
+    .ar-bio-qual-bar.active-1 { fill: #ef4444; }
+    .ar-bio-qual-bar.active-2 { fill: #f97316; }
+    .ar-bio-qual-bar.active-3 { fill: #eab308; }
+    .ar-bio-qual-bar.active-4 { fill: #059669; }
+    .ar-bio-qual-bar.active-5 { fill: #10b981; }
+
+    .ar-bio-quality-score {
+      font-size: 14px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    /* Signing Fields */
+    .ar-bio-sign {
+      padding: 8px 0;
+    }
+
+    .ar-bio-sign-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-top: 4px;
+    }
+
+    .ar-bio-field-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .ar-bio-password-wrap {
+      position: relative;
+    }
+
+    .ar-bio-input {
+      width: 100%;
+      padding: 10px 40px 10px 14px;
+      border: 2px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 15px;
+      color: #1e293b;
+      background: #f9fafb;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+    }
+
+    .ar-bio-input:focus {
+      border-color: #059669;
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+      background: #fff;
+    }
+
+    .ar-bio-input.error {
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+    }
+
+    .ar-bio-toggle-pw {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: none;
+      color: #9ca3af;
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      transition: color 0.15s;
+    }
+
+    .ar-bio-toggle-pw:hover {
+      color: #059669;
+    }
+
+    /* Buttons */
+    .ar-bio-btn {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, opacity 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .ar-bio-btn:active {
+      transform: scale(0.97);
+    }
+
+    .ar-bio-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .ar-bio-btn-primary {
+      background: #059669;
+      color: #fff;
+    }
+
+    .ar-bio-btn-primary:hover:not(:disabled) {
+      background: #047857;
+    }
+
+    .ar-bio-btn-secondary {
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+
+    .ar-bio-btn-secondary:hover:not(:disabled) {
+      background: #e2e8f0;
+    }
+
+    .ar-bio-btn-ghost {
+      background: transparent;
+      color: #64748b;
+    }
+
+    .ar-bio-btn-ghost:hover:not(:disabled) {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    /* Result Panel */
+    .ar-bio-result-panel {
+      position: absolute;
+      inset: 0;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 32px 24px;
+      z-index: 5;
+      animation: arBioFadeIn 0.3s ease-out;
+    }
+
+    .ar-bio-result-icon {
+      width: 64px;
+      height: 64px;
+    }
+
+    .ar-bio-result-icon.success svg {
+      stroke: #059669;
+    }
+
+    .ar-bio-result-icon.error svg {
+      stroke: #dc2626;
+    }
+
+    .ar-bio-result-icon svg circle {
+      fill: none;
+    }
+
+    .ar-bio-result-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .ar-bio-result-details {
+      font-size: 13px;
+      color: #64748b;
+      text-align: center;
+      max-width: 300px;
+    }
+
+    .ar-bio-result-details p {
+      margin: 4px 0;
+    }
+
+    /* Footer */
+    #ar-bio-footer {
+      padding: 12px 24px 20px;
+      display: flex;
+      justify-content: space-between;
+      flex-shrink: 0;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    /* Error state */
+    .ar-bio-error-text {
+      color: #dc2626;
+      font-size: 13px;
+      text-align: center;
+      margin: 4px 0 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      #ar-bio-card {
+        border-radius: 12px;
+        width: calc(100% - 16px);
+        max-height: calc(100vh - 16px);
+      }
+      #ar-bio-header { padding: 16px 16px 0; }
+      #ar-bio-body { padding: 8px 16px; }
+      #ar-bio-footer { padding: 12px 16px 16px; }
+      .ar-bio-step { padding: 4px 8px; }
+      .ar-bio-step-label { font-size: 10px; }
+      .ar-bio-hand-container { width: 120px; }
+    }
+  </style>
+</div>

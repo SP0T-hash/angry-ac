@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>ArBiometricHost</AssemblyName>
+    <RootNamespace>ArBiometricHost</RootNamespace>
+
+    <!--
+      Publicação para Chrome Native Messaging:
+      dotnet publish -c Release
+      O binário compilado estará em bin/Release/net8.0/win-x64/publish/ArBiometricHost.exe
+    -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <DebugType>embedded</DebugType>
+
+    <!--
+      Manifesto de instalação do Native Messaging Host.
+      Copiar o .exe e este JSON para o diretório de manifesto do Chrome:
+        Windows: %LOCALAPPDATA%\Google\Chrome\User Data\NativeMessagingHosts\
+        Linux:   /etc/opt/chrome/native-messaging-hosts/  (ou ~/.config/google-chrome/)
+        Mac:     /Library/Google/Chrome/NativeMessagingHosts/
+
+      Nome do arquivo: com.ar.biometric.host.json
+      Conteúdo:
+      {
+        "name": "com.ar.biometric.host",
+        "description": "Native messaging host for AR Biometric Bridge",
+        "path": "C:\\caminho\\para\\ArBiometricHost.exe",
+        "type": "stdio",
+        "allowed_origins": ["chrome-extension://SEU_EXTENSION_ID_AQUI/"]
+      }
+    -->
+  </PropertyGroup>
+
+  <!-- Dependências do SDK do leitor biométrico (substituir conforme hardware) -->
+  <!--
+    Exemplo Futronic FS80:
+    <ItemGroup>
+      <PackageReference Include="Futronic.SDK.FS80" Version="1.0.0" />
+    </ItemGroup>
+
+    Exemplo SecuGen:
+    <ItemGroup>
+      <PackageReference Include="SecuGen.FDxSDK" Version="1.0.0" />
+    </ItemGroup>
+
+    Exemplo Suprema:
+    <ItemGroup>
+      <PackageReference Include="Suprema.BiometricSDK" Version="2.0.0" />
+    </ItemGroup>
+  -->
+
+  <!-- Logging estruturado (opcional) -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>

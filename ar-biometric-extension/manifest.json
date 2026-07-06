@@ -13,7 +13,9 @@
 
   "host_permissions": [
     "https://ar.sua-empresa.com.br/*",
-    "https://*.icp-brasil.gov.br/*"
+    "https://*.icp-brasil.gov.br/*",
+    "https://*.vemapi.com.br/*",
+    "https://*.angry.ac.br/*"
   ],
 
   "background": {
@@ -25,7 +27,9 @@
     {
       "matches": [
         "https://ar.sua-empresa.com.br/*",
-        "https://*.icp-brasil.gov.br/*"
+        "https://*.icp-brasil.gov.br/*",
+        "https://*.vemapi.com.br/*",
+        "https://*.angry.ac.br/*"
       ],
       "js": ["src/content/content-script.js"],
       "run_at": "document_idle",
@@ -38,10 +42,20 @@
   },
 
   "icons": {
-    "16":  "assets/icon-16.png",
-    "48":  "assets/icon-48.png",
-    "128": "assets/icon-128.png"
+    "16":  "assets/icon-16.svg",
+    "48":  "assets/icon-48.svg",
+    "128": "assets/icon-128.svg"
   },
 
-  "web_accessible_resources": []
+  "web_accessible_resources": [
+    {
+      "resources": ["src/content/biometric-overlay.html"],
+      "matches": [
+        "https://*.vemapi.com.br/*",
+        "https://*.angry.ac.br/*",
+        "https://ar.sua-empresa.com.br/*",
+        "https://*.icp-brasil.gov.br/*"
+      ]
+    }
+  ]
 }

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="bg48" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a73e8"/>
+      <stop offset="100%" stop-color="#0d47a1"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="8" fill="url(#bg48)"/>
+  <g transform="translate(9,6)" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+    <!-- Fingerprint shape -->
+    <path d="M15,2 C7,2 2,8 2,16"/>
+    <path d="M15,2 C23,2 28,8 28,16"/>
+    <path d="M15,6 C10,6 6,10 6,16"/>
+    <path d="M15,6 C20,6 24,10 24,16"/>
+    <!-- Ridge lines -->
+    <path d="M15,10 L15,26"/>
+    <path d="M9,12 L11,18"/>
+    <path d="M21,12 L19,18"/>
+    <path d="M8,20 L10,24"/>
+    <path d="M22,20 L20,24"/>
+    <!-- Fingerprint loop -->
+    <path d="M13,28 C13,30 15,32 15,32 C15,32 17,30 17,28"/>
+  </g>
+</svg>
