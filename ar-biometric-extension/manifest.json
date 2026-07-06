@@ -2,6 +2,7 @@
   "manifest_version": 3,
   "name": "AR Biometric Bridge",
   "version": "1.0.0",
+  "version_name": "1.0.0",
   "description": "Ponte segura entre a aplicação web da Autoridade de Registro e hardware biométrico local.",
 
   "minimum_chrome_version": "116",
@@ -12,10 +13,14 @@
   ],
 
   "host_permissions": [
-    "https://ar.sua-empresa.com.br/*",
-    "https://*.icp-brasil.gov.br/*",
+    "http://localhost:3000/*",
+    "http://localhost:3001/*",
+    "https://*.vercel.app/*",
     "https://*.vemapi.com.br/*",
-    "https://*.angry.ac.br/*"
+    "https://vemapi.com.br/*",
+    "https://*.angry.ac.br/*",
+    "https://*.icp-brasil.gov.br/*",
+    "https://ar.sua-empresa.com.br/*"
   ],
 
   "background": {
@@ -26,10 +31,14 @@
   "content_scripts": [
     {
       "matches": [
-        "https://ar.sua-empresa.com.br/*",
-        "https://*.icp-brasil.gov.br/*",
+        "http://localhost:3000/*",
+        "http://localhost:3001/*",
+        "https://*.vercel.app/*",
         "https://*.vemapi.com.br/*",
-        "https://*.angry.ac.br/*"
+        "https://vemapi.com.br/*",
+        "https://*.angry.ac.br/*",
+        "https://*.icp-brasil.gov.br/*",
+        "https://ar.sua-empresa.com.br/*"
       ],
       "js": ["src/content/content-script.js"],
       "run_at": "document_idle",
@@ -51,10 +60,14 @@
     {
       "resources": ["src/content/biometric-overlay.html"],
       "matches": [
+        "http://localhost:3000/*",
+        "http://localhost:3001/*",
+        "https://*.vercel.app/*",
         "https://*.vemapi.com.br/*",
+        "https://vemapi.com.br/*",
         "https://*.angry.ac.br/*",
-        "https://ar.sua-empresa.com.br/*",
-        "https://*.icp-brasil.gov.br/*"
+        "https://*.icp-brasil.gov.br/*",
+        "https://ar.sua-empresa.com.br/*"
       ]
     }
   ]

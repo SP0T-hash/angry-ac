@@ -66,5 +66,12 @@ next-env.d.ts
 *.user
 *.suo
 
-## Misc
+## Vercel
 .vercel
+.vite/
+
+## Extension build artifacts
+ar-biometric-extension/native-host/csharp/bin/
+ar-biometric-extension/native-host/csharp/obj/
+*.tmp
+*.temp

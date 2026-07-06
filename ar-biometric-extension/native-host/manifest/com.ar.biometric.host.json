@@ -7,8 +7,9 @@
     "chrome-extension://SUBSTITUA_PELO_ID_REAL_DA_EXTENSAO/"
   ],
   "_comentarios": {
-    "path": "Caminho absoluto para o executável compilado (dotnet publish -c Release). Use install.ps1 para configurar automaticamente.",
-    "allowed_origins": "Substitua pelo ID real da extensão (encontrado em chrome://extensions após carregar a extensão).",
-    "type": "stdio significa comunicação via stdin/stdout (Chrome Native Messaging padrão)."
+    "path": "Caminho absoluto do executável. O install.ps1 ajusta automaticamente.",
+    "allowed_origins": "Substitua pelo ID real da extensão (chrome://extensions após carregar).",
+    "type": "stdio = comunicação via stdin/stdout (padrão Chrome Native Messaging).",
+    "install": "Execute native-host\\csharp\\install.ps1 -ExtensionId SEU_ID para configurar automaticamente."
   }
 }

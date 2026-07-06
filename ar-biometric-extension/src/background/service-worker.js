@@ -34,6 +34,12 @@ import {
 
 const NATIVE_HOST_ID    = "com.ar.biometric.host";
 const ALLOWED_ORIGINS   = new Set([
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "https://vemapi.com.br",
+  "https://www.vemapi.com.br",
+  "https://angry.ac.br",
+  "https://www.angry.ac.br",
   "https://ar.sua-empresa.com.br",
   "https://ra.icp-brasil.gov.br",
 ]);
