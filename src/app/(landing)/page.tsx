@@ -780,63 +780,7 @@ export default function VEMAPIPage() {
         </div>
       </section>
 
-      {/* CONTROLE DE CARREIRAS - TRABALHE CONOSCO (Oculto temporariamente) */}
-      {false && (
-        <section id="carreiras" className="py-20 md:py-32 px-6 sm:px-12 max-w-6xl mx-auto relative z-20 reveal">
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-24 items-center">
-            {/* LADO ESQUERDO: TEXTO DE CARREIRAS */}
-            <div>
-              <div className="text-[#10b981] text-[10px] font-black uppercase tracking-widest mb-6">FAÇA PARTE DO TIME</div>
-              <h3 className="text-2xl md:text-3xl lg:text-5xl font-black tracking-tighter uppercase italic mb-6 leading-[0.8] text-slate-900 dark:text-white">
-                VEMAPI <br />TALENTS
-              </h3>
-              <p className="font-medium text-sm md:text-base leading-relaxed mb-6 text-slate-600 dark:text-slate-400">
-                Buscamos mentes inquietas. Desenvolvedores, especialistas em infraestrutura, resolvedores de problemas natos que queiram impactar de verdade o ecossistema PME.
-              </p>
-              <p className="font-bold text-xs md:text-sm uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                🚀 Vagas abertas para:
-              </p>
-              <div className="flex flex-wrap gap-2 mt-4">
-                <span className="px-3 py-1.5 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Suporte N1/N2</span>
-                <span className="px-3 py-1.5 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Dev Fullstack</span>
-                <span className="px-3 py-1.5 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Cloud Architect</span>
-              </div>
-            </div>
-
-            {/* LADO DIREITO: FORMULÁRIO DE CURRÍCULO (GLASSMORPHISM) */}
-            <div className="bg-white/95 border-slate-200 text-slate-900 dark:bg-slate-900/40 dark:border-white/5 dark:text-white rounded-[20px] lg:rounded-[40px] p-6 lg:p-10 shadow-2xl backdrop-blur-xl relative overflow-hidden spotlight-card border">
-              <div className="spotlight-gradient"></div>
-              <form className="relative z-10 grid gap-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <input type="text" required placeholder="NOME COMPLETO" className="w-full bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-white/40 border p-3 md:p-4 rounded-xl outline-none focus:border-[#10b981] transition-all text-[9px] font-bold tracking-[0.2em] uppercase" />
-                  <input type="email" required placeholder="E-MAIL" className="w-full bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-white/40 border p-3 md:p-4 rounded-xl outline-none focus:border-[#10b981] transition-all text-[9px] font-bold tracking-[0.2em] uppercase" />
-                </div>
-                <input type="url" placeholder="LINK DO LINKEDIN OU GITHUB" className="w-full bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-white/40 border p-3 md:p-4 rounded-xl outline-none focus:border-[#10b981] transition-all text-[9px] font-bold tracking-[0.2em] uppercase" />
-                
-                {/* ÁREA DE UPLOAD DE ARQUIVO */}
-                <div className="mt-2 relative">
-                  <input 
-                    type="file" 
-                    id="curriculo" 
-                    accept=".pdf,.doc,.docx"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  />
-                  <div className="w-full border-2 border-dashed border-slate-300 dark:border-white/20 rounded-xl p-6 text-center bg-slate-50 dark:bg-white/5 group-hover:border-[#10b981] transition-colors relative flex flex-col items-center justify-center gap-2">
-                    <div className="w-10 h-10 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-400">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">ANEXAR CURRÍCULO (PDF)</span>
-                  </div>
-                </div>
-
-                <button type="submit" className="w-full mt-4 py-4 md:py-5 bg-[#10b981] text-white rounded-xl font-black uppercase tracking-[0.3em] text-[10px] hover:bg-emerald-600 transition-all text-center shadow-lg hover:shadow-[#10b981]/20">
-                  ENVIAR APLICAÇÃO
-                </button>
-              </form>
-            </div>
-          </div>
-        </section>
-      )}
+      {/* CONTROLE DE CARREIRAS - TRABALHE CONOSCO (Removido temporariamente) */}
 
       {/* MARQUEE DE TECNOLOGIAS ACIMA DO FOOTER */}
       <section className="relative py-6 overflow-hidden">

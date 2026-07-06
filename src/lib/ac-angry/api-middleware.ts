@@ -50,6 +50,12 @@ export function withAuth(handler: AuthHandler, opts: MiddlewareOptions = {}) {
             { status: 429, headers: { 'Retry-After': String(e.retryAfterSeconds) } },
           );
         }
+        // Erro inesperado no rate limiter — loga e retorna 500
+        console.error('[withAuth] RateLimiter error:', e);
+        return NextResponse.json(
+          { error: 'Erro interno no controle de acesso.' },
+          { status: 500 },
+        );
       }
     }
 

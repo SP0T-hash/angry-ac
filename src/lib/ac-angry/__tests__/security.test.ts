@@ -158,7 +158,11 @@ describe('NonceManager', () => {
         data: { id: nonceId, used: false, scope: 'AUTH', expires_at: FUTURE },
         error: null,
       });
-      const updateMock = vi.fn(() => createChain());
+      const updateSingleMock = vi.fn().mockResolvedValue({
+        data: { id: nonceId, used: true },
+        error: null,
+      });
+      const updateMock = vi.fn(() => createChain({ single: updateSingleMock }));
       mockFrom.mockImplementation((table: string) => {
         if (table === 'security_nonces') return createChain({ single: singleMock, update: updateMock });
         return createChain();

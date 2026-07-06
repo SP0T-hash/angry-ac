@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Zap, ShieldCheck, MonitorSmartphone, Fingerprint, LockKeyhole, ArrowRight, CreditCard, AlertCircle, HardDrive, Globe } from 'lucide-react';
 import { pscAuth, PSCProvider } from '@/lib/ac-angry/psc-auth';
 
 export default function AgentLoginPage() {
   const [authStatus, setAuthStatus] = useState<'idle' | 'scanning' | 'pin' | 'cloud-push' | 'success' | 'error'>('idle');
+  const authStatusRef = useRef(authStatus);
+  // Mantém a ref sincronizada com o estado
+  useEffect(() => { authStatusRef.current = authStatus; }, [authStatus]);
   const [pin, setPin] = useState('');
   const [identifier, setIdentifier] = useState(''); // CPF ou E-mail para Nuvem
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
@@ -69,9 +72,9 @@ export default function AgentLoginPage() {
         useDomain: true
       });
       
-      // Timeout extendido com feedback granular
+      // Timeout com ref p/ evitar stale closure
       const timeout = setTimeout(() => {
-        if (authStatus === 'scanning') {
+        if (authStatusRef.current === 'scanning') {
            setAuthStatus('error');
            setTimeout(() => setAuthStatus('idle'), 3000);
         }
@@ -125,22 +128,53 @@ export default function AgentLoginPage() {
       setCurrentSessionId(response.session_id);
       setAuthStatus('cloud-push');
       
-      // Inicia polling de verificação
-      checkCloudStatus(response.session_id);
+      // Inicia polling de verificação (com retry a cada 3s)
+      if (pollingRef.current) clearInterval(pollingRef.current);
+      startCloudPolling(response.session_id);
     } catch (err) {
       setAuthStatus('error');
     }
   };
 
-  const checkCloudStatus = async (sessionId: string) => {
-    const result = await pscAuth.checkStatus(sessionId);
-    if (result.success) {
-      setAuthStatus('success');
-      setTimeout(() => {
-        window.location.href = '/ac/agent/dashboard';
-      }, 1500);
-    }
-  };
+  // Ref para armazenar o intervalo ativo (cleanup no unmount)
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const startCloudPolling = useCallback((sessionId: string) => {
+    let attempts = 0;
+    const maxAttempts = 20; // ~60s
+    pollingRef.current = setInterval(async () => {
+      attempts++;
+      try {
+        const result = await pscAuth.checkStatus(sessionId);
+        if (result.success) {
+          if (pollingRef.current) clearInterval(pollingRef.current);
+          pollingRef.current = null;
+          setAuthStatus('success');
+          setTimeout(() => window.location.href = '/ac/agent/dashboard', 1500);
+          return;
+        }
+      } catch { /* ignora erro temporário e continua */ }
+      if (attempts >= maxAttempts) {
+        if (pollingRef.current) clearInterval(pollingRef.current);
+        pollingRef.current = null;
+        setAuthStatus('error');
+        setTimeout(() => setAuthStatus('idle'), 3000);
+      }
+    }, 3000);
+  }, []);
+
+  // Limpa polling ao desmontar
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, []);
+
+  // Limpa polling ao desmontar
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, []);
 
   const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

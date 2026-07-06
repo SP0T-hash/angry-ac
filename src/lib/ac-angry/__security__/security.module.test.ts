@@ -36,7 +36,7 @@ process.env.AUTH_JWT_SECRET = 'fedcbafedcbafedcbafedcbafedcbafedcbafedcbafedcbaf
 
 const { mockSupabase, builder, mockReturn } = vi.hoisted(() => {
   // Build a chainable + thenable builder to simulate PostgrestFilterBuilder
-  const builderHandlers: Record<string, vi.Mock> = {};
+  const builderHandlers: Record<string, any> = {};
 
   // Terminal: .single() e .maybeSingle()
   builderHandlers['single'] = vi.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116', message: 'Not found' } });

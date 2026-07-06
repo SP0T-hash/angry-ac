@@ -10,13 +10,18 @@ export const GET = withAuth(async (req: NextRequest, { session, ip }) => {
     return NextResponse.json({ error: 'CPF é obrigatório' }, { status: 400 });
   }
 
+  const cpfDigits = cpf.replace(/\D/g, '');
+  if (cpfDigits.length !== 11) {
+    return NextResponse.json({ error: 'CPF inválido: deve conter 11 dígitos' }, { status: 400 });
+  }
+
   // Simulação de tempo de resposta de Bureau (KYC)
   await new Promise((resolve) => setTimeout(resolve, 1500));
 
   // Buscar em protocolos mock
   const { MOCK_PROTOCOLS } = await import('@/lib/ac-angry/mockData');
   const existingProtocol = MOCK_PROTOCOLS.find(
-    (p: any) => p.titular.cpf.replace(/\D/g, '') === cpf.replace(/\D/g, ''),
+    (p: any) => p.titular.cpf.replace(/\D/g, '') === cpfDigits,
   );
 
   const mockResponse = {
@@ -36,7 +41,7 @@ export const GET = withAuth(async (req: NextRequest, { session, ip }) => {
     eventType: 'CPF_CONSULTED',
     agrId: session.agrId,
     ipAddress: ip,
-    payload: { cpf: cpf.replace(/\D/g, '').slice(0, 3) + '***' },
+    payload: { cpf: cpfDigits.slice(0, 3) + '***' },
     severity: 'INFO',
   });
 

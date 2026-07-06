@@ -58,7 +58,14 @@ async function ensureCAInitialized(): Promise<void> {
       { name: 'subjectKeyIdentifier' },
     ]);
     caCert.sign(caKeys.privateKey, forge.default.md.sha256.create());
-  })();
+  })()
+  .catch((err) => {
+    // Se falhar, limpa a promise p/ permitir retry na próxima chamada
+    caInitPromise = null;
+    caKeys = null;
+    caCert = null;
+    throw err;
+  });
 
   return caInitPromise;
 }

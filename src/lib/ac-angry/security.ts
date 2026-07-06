@@ -112,11 +112,20 @@ export const NonceManager = {
     if (data.scope !== scope) throw new Error(`Nonce de escopo inválido: esperado ${scope}.`);
     if (new Date(data.expires_at) < new Date()) throw new Error('Nonce expirado.');
 
-    // 3. Marcar como usado
-    await supabase
+    // 3. Marcar como usado (UPDATE atômico com condição used=false)
+    // Se outro request concorrente já marcou como usado, o UPDATE afeta 0 linhas
+    // e .select().single() retorna erro PGRST116 (not found).
+    const { data: updated, error: updateError } = await supabase
       .from('security_nonces')
       .update({ used: true, used_at: new Date().toISOString() })
-      .eq('id', data.id);
+      .eq('id', data.id)
+      .eq('used', false)
+      .select()
+      .single();
+
+    if (updateError || !updated) {
+      throw new Error('Nonce já utilizado (replay detectado) – conflito atômico.');
+    }
   },
 };
 

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/lib/ac-angry/api-middleware';
+import { AuditLogger } from '@/lib/ac-angry/security';
 
-export const GET = withAuth(async (req: NextRequest) => {
+export const GET = withAuth(async (req: NextRequest, { session, ip }) => {
   const { searchParams } = new URL(req.url);
   const cnpjParam = searchParams.get('cnpj');
 
@@ -20,6 +21,13 @@ export const GET = withAuth(async (req: NextRequest) => {
 
     if (!response.ok) {
       if (response.status === 404) {
+        await AuditLogger.log({
+          eventType: 'CNPJ_NOT_FOUND',
+          agrId: session.agrId,
+          ipAddress: ip,
+          payload: { cnpj: cnpj.slice(0, 3) + '***********' },
+          severity: 'WARN',
+        });
         return NextResponse.json(
           { error: 'CNPJ não encontrado na Receita Federal' },
           { status: 404 },
@@ -29,6 +37,13 @@ export const GET = withAuth(async (req: NextRequest) => {
     }
 
     const data = await response.json();
+    await AuditLogger.log({
+      eventType: 'CNPJ_CONSULTED',
+      agrId: session.agrId,
+      ipAddress: ip,
+      payload: { cnpj: cnpj.slice(0, 3) + '***********' },
+      severity: 'INFO',
+    });
     return NextResponse.json(data);
   } catch (error) {
     console.error('Erro ao consultar CNPJ:', error);

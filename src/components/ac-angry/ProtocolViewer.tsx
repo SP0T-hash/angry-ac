@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ArrowLeft, FileText, MoreHorizontal, Lock, Unlock, Edit2, Check, UploadCloud, X, Video, Fingerprint, Search, Save, ShieldCheck, UserCircle, History, AlertTriangle, Camera, AlertCircle, Shield, ChevronDown, ChevronUp, Eye, EyeOff
 } from 'lucide-react';
@@ -228,30 +228,36 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
   
   // Hardware Bridge (WebSocket)
   const [hwStatus, setHwStatus] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected');
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const wsReconnectCount = useRef(0);
+  const wsMaxReconnect = 5;
+  const isMountedRef = useRef(true);
 
-  // WEBCAM STATES
-  const [stream, setStream] = useState<MediaStream | null>(null);
+  // WEBCAM
+  const streamRef = useRef<MediaStream | null>(null);
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
   const startCamera = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
-      setStream(mediaStream);
+      if (!isMountedRef.current) {
+        mediaStream.getTracks().forEach(t => t.stop());
+        return;
+      }
+      streamRef.current = mediaStream;
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
       }
     } catch (err) {
       console.error("Erro ao acessar webcam:", err);
-      alert("Não foi possível acessar a webcam. Verifique as permissões do navegador.");
     }
   };
 
   const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
     }
   };
 
@@ -263,12 +269,16 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
   };
 
   useEffect(() => {
+    isMountedRef.current = true;
     if ((activeTab === 'Videoconferência' || activeTab === 'Atendimento') && protocol.is_presencial) {
       startCamera();
     } else {
       stopCamera();
     }
-    return () => stopCamera();
+    return () => {
+      stopCamera();
+      isMountedRef.current = false;
+    };
   }, [activeTab, protocol.id]);
 
   const handleCapturePhoto = () => {
@@ -295,39 +305,53 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
   };
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     const connectHw = () => {
+      if (wsReconnectCount.current >= wsMaxReconnect) {
+        console.warn('⚠️ Máximo de tentativas de reconexão WebSocket atingido');
+        setHwStatus('disconnected');
+        return;
+      }
+      wsReconnectCount.current += 1;
       setHwStatus('connecting');
       const ws = new WebSocket('ws://localhost:8080');
-      
+
       ws.onopen = () => {
+        wsReconnectCount.current = 0; // reset no contador ao conectar
         setHwStatus('connected');
-        console.log('✅ Conectado ao Agente Local AC ANGRY');
       };
-      
+
       ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === 'BIOMETRY_CAPTURED') {
-          setIsBiometriaColetada(true);
-          addAuditLog("Biometria capturada via Hardware USB");
-          // Disparar validação PSBIO automaticamente ao capturar com o template recebido
-          handleConsultarPSBIO(data.template);
-        }
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'BIOMETRY_CAPTURED') {
+            setIsBiometriaColetada(true);
+            addAuditLog("Biometria capturada via Hardware USB");
+            handleConsultarPSBIO(data.template);
+          }
+        } catch { /* ignora msg malformada */ }
       };
-      
+
       ws.onclose = () => {
+        if (!isMountedRef.current) return; // componente desmontou
         setHwStatus('disconnected');
-        // BUG FIX: Feedback de tentativa de reconexão
-        setTimeout(() => {
-          setHwStatus('disconnected'); // Forçar re-render ou status de tentativa
-          connectHw();
-        }, 5000); 
+        setTimeout(connectHw, 5000);
       };
-      
-      setSocket(ws);
+
+      wsRef.current = ws;
     };
 
     connectHw();
-    return () => socket?.close();
+
+    return () => {
+      isMountedRef.current = false;
+      if (wsRef.current) {
+        wsRef.current.onclose = null; // evita loop de reconexão
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
   }, []);
   const [safStatus, setSafStatus] = useState<'idle' | 'searching' | 'clean' | 'attached'>('idle');
   
@@ -1127,7 +1151,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                            <div className="w-full h-full bg-gradient-to-t from-black/60 to-transparent absolute inset-0 z-10"></div>
                            
-                           {!stream && !capturedPhoto && (
+                            {!streamRef.current && !capturedPhoto && (
                              <div className="z-20 flex flex-col items-center text-emerald-400">
                                <div className="w-12 h-12 border-2 border-emerald-500 rounded-full flex items-center justify-center animate-pulse mb-3">
                                  <Camera size={24} />
