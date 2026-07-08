@@ -327,16 +327,28 @@ async function validatePSCSignature(
     }
 
     // Detectar provider pelo session_id
-    const provider = sessionId.includes('vidaas') ? 'vidaas' :
+    const provider: 'vidaas' | 'syngular' | 'birdid' = sessionId.includes('vidaas') ? 'vidaas' :
                     sessionId.includes('syngular') ? 'syngular' : 'birdid';
 
-    const config = {
+    const configs: Record<string, { client_id: string | undefined; secret: string | undefined; api_url: string }> = {
       vidaas: {
         client_id: process.env.VIDAAS_CLIENT_ID,
         secret: process.env.VIDAAS_CLIENT_SECRET,
         api_url: process.env.VIDAAS_API_URL || 'https://api.vidaas.com.br'
+      },
+      syngular: {
+        client_id: process.env.SYNGULAR_CLIENT_ID,
+        secret: process.env.SYNGULAR_CLIENT_SECRET,
+        api_url: process.env.SYNGULAR_API_URL || 'https://api.syngular.com.br'
+      },
+      birdid: {
+        client_id: process.env.BIRDID_CLIENT_ID,
+        secret: process.env.BIRDID_CLIENT_SECRET,
+        api_url: process.env.BIRDID_API_URL || 'https://api.birdid.com.br'
       }
-    }[provider];
+    };
+
+    const config = configs[provider];
 
     if (!config?.client_id || config.client_id.includes('ANGRY_')) {
       console.error(`[PSC] Credenciais ${provider} não configuradas`);
