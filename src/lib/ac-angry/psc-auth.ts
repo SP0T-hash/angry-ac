@@ -16,19 +16,19 @@ export interface PSCAuthResponse {
 class PSCAuthAdapter {
   // Credenciais reais do environment
   private config = {
-    vidaas: { 
-      client_id: process.env.VIDAAS_CLIENT_ID || 'ANGRY_VIDAAS', 
-      secret: process.env.VIDAAS_CLIENT_SECRET || '***',
+    vidaas: {
+      client_id: process.env.VIDAAS_CLIENT_ID || 'ANGRY_VIDAAS',
+      secret: process.env.VIDAAS_CLIENT_SECRET || '',
       api_url: process.env.VIDAAS_API_URL || 'https://api.vidaas.com.br'
     },
-    syngular: { 
-      client_id: process.env.SYNGULAR_CLIENT_ID || 'ANGRY_SYNGULAR', 
-      secret: process.env.SYNGULAR_CLIENT_SECRET || '***',
+    syngular: {
+      client_id: process.env.SYNGULAR_CLIENT_ID || 'ANGRY_SYNGULAR',
+      secret: process.env.SYNGULAR_CLIENT_SECRET || '',
       api_url: process.env.SYNGULAR_API_URL || 'https://api.syngular.com.br'
     },
-    birdid: { 
-      client_id: process.env.BIRDID_CLIENT_ID || 'ANGRY_BIRD_ID', 
-      secret: process.env.BIRDID_CLIENT_SECRET || '***',
+    birdid: {
+      client_id: process.env.BIRDID_CLIENT_ID || 'ANGRY_BIRD_ID',
+      secret: process.env.BIRDID_CLIENT_SECRET || '',
       api_url: process.env.BIRDID_API_URL || 'https://api.birdid.com.br'
     }
   };
@@ -190,10 +190,46 @@ class PSCAuthAdapter {
 
   /**
    * Valida a assinatura digital retornada pelo PSC
+   * Em produção, valida criptograficamente via API do provider
    */
   async verifySignature(session_id: string, signedData: string): Promise<boolean> {
-    // Validação criptográfica da assinatura no lado do servidor
-    return true; 
+    if (!session_id || !signedData) return false;
+
+    // Sessões mock só aceitam tokens mock
+    if (session_id.startsWith('MOCK_')) {
+      return signedData.startsWith('MOCK_TOKEN_');
+    }
+
+    // Detectar provider pelo session_id
+    const provider = session_id.includes('vidaas') ? 'vidaas' :
+                    session_id.includes('syngular') ? 'syngular' : 'birdid';
+
+    const config = this.config[provider];
+
+    try {
+      if (provider === 'vidaas') {
+        const response = await fetch(`${config.api_url}/v1/signature/${session_id}/verify`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${config.secret}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ signed_data: signedData })
+        });
+
+        if (!response.ok) return false;
+        const data = await response.json();
+        return data.valid === true;
+      }
+
+      // Providers não implementados retornam false por segurança
+      console.warn(`[PSC] Verificação de assinatura não implementada para ${provider}`);
+      return false;
+
+    } catch (error) {
+      console.error(`[PSC] Erro na verificação de assinatura:`, error);
+      return false;
+    }
   }
 }
 

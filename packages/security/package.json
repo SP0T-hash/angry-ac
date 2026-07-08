@@ -1,0 +1,20 @@
+{
+  "name": "@vemapi/security",
+  "version": "1.0.0",
+  "description": "Módulos de segurança compartilhados do AC ANGRY",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.90.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "crypto": "*"
+  }
+}

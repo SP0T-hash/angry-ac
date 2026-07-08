@@ -10,7 +10,7 @@
  *  - ProtocolLocker → Controle de concorrência
  */
 
-import { createHmac, randomBytes } from 'crypto';
+import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // ---------------------------------------------------------------------------
@@ -98,7 +98,13 @@ export const NonceManager = {
 
     const secret = process.env.PKI_NONCE_SECRET!;
     const expected = createHmac('sha256', secret).update(raw).digest('hex');
-    if (expected !== signature) throw new Error('Assinatura de nonce inválida.');
+
+    // Usar timingSafeEqual para prevenir timing attacks
+    const expectedBuf = Buffer.from(expected, 'hex');
+    const signatureBuf = Buffer.from(signature, 'hex');
+    if (expectedBuf.length !== signatureBuf.length || !timingSafeEqual(expectedBuf, signatureBuf)) {
+      throw new Error('Assinatura de nonce inválida.');
+    }
 
     // 2. Buscar no banco
     const { data, error } = await supabase

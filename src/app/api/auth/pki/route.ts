@@ -273,15 +273,37 @@ async function validateA3Signature(
       // Se não existir a tabela CRL, ignorar (deve ser criada em produção)
     }
 
-    // Simulação de verificação criptográfica
-    // Em produção, usar: crypto.verify('sha256', Buffer.from(nonce), publicKey, Buffer.from(signature, 'base64'))
-    const hash = createHash('sha256').update(nonce).digest('base64');
+    // 7. Verificação criptográfica real da assinatura
+    // Em produção, extrair a chave pública do certificado X.509 e verificar
+    const { createVerify } = await import('crypto');
+    try {
+      // Extrair chave pública do certificado (formato PEM ou DER)
+      const publicKeyPem = certificate.publicKeyPem || certificate.publicKey;
+      if (!publicKeyPem) {
+        console.error('[A3] Chave pública não encontrada no certificado');
+        return false;
+      }
 
-    // Validação básica: o hash do nonce deve ter relação com a assinatura
-    // NOTA: Em produção isso deve ser substituído por verificação real com chave pública
-    const signatureHash = createHash('sha256').update(signature).digest('hex');
+      // Normalizar formato PEM se necessário
+      const pemKey = publicKeyPem.includes('BEGIN')
+        ? publicKeyPem
+        : `-----BEGIN PUBLIC KEY-----\n${publicKeyPem}\n-----END PUBLIC KEY-----`;
 
-    return signatureHash.length > 0;
+      const verifier = createVerify('SHA256');
+      verifier.update(nonce);
+
+      const signatureBuffer = Buffer.from(signature, 'base64');
+      const isValid = verifier.verify(pemKey, signatureBuffer);
+
+      if (!isValid) {
+        console.error('[A3] Assinatura criptográfica inválida');
+      }
+
+      return isValid;
+    } catch (cryptoError) {
+      console.error('[A3] Erro na verificação criptográfica:', cryptoError);
+      return false;
+    }
   } catch (error) {
     console.error('Erro na validação A3:', error);
     return false;
@@ -299,14 +321,50 @@ async function validatePSCSignature(
   try {
     if (!sessionId) return false;
 
-    // Em produção, verificar com o PSC correspondente:
-    // - Vidaas: GET /api/v1/sessions/{sessionId} com token de acesso
-    // - Syngular: verificar JWT assinado pelo PSC
-    // - BirdID: verificar webhook de confirmação
+    // Sessões mock só aceitam assinaturas mock
+    if (sessionId.startsWith('MOCK_')) {
+      return signature?.startsWith('MOCK_TOKEN_') || false;
+    }
 
-    // Validação básica: sessionId deve ter formato UUID
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    return uuidRegex.test(sessionId);
+    // Detectar provider pelo session_id
+    const provider = sessionId.includes('vidaas') ? 'vidaas' :
+                    sessionId.includes('syngular') ? 'syngular' : 'birdid';
+
+    const config = {
+      vidaas: {
+        client_id: process.env.VIDAAS_CLIENT_ID,
+        secret: process.env.VIDAAS_CLIENT_SECRET,
+        api_url: process.env.VIDAAS_API_URL || 'https://api.vidaas.com.br'
+      }
+    }[provider];
+
+    if (!config?.client_id || config.client_id.includes('ANGRY_')) {
+      console.error(`[PSC] Credenciais ${provider} não configuradas`);
+      return false;
+    }
+
+    // Verificar status real com o PSC
+    if (provider === 'vidaas') {
+      const response = await fetch(`${config.api_url}/v1/signature/${sessionId}/status`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${config.secret}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        console.error(`[PSC] Erro ao verificar status: ${response.status}`);
+        return false;
+      }
+
+      const data = await response.json();
+      return data.status === 'approved';
+    }
+
+    // Providers não implementados retornam false
+    console.warn(`[PSC] Validação não implementada para ${provider}`);
+    return false;
   } catch (error) {
     console.error('Erro na validação PSC:', error);
     return false;

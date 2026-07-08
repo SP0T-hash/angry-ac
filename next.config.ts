@@ -5,7 +5,7 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://*.daily.co",
+      "script-src 'self' 'unsafe-eval' https://*.supabase.co https://*.daily.co",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://via.placeholder.com",
       "font-src 'self' https://fonts.gstatic.com",

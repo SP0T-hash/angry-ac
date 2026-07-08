@@ -31,7 +31,11 @@ export async function generateCSR(titular: { name: string, email: string, cpfOrC
       resolve({
         csrPem: pem,
         publicKeyPem: forge.pki.publicKeyToPem(keys.publicKey),
-        privateKeyPem: forge.pki.privateKeyToPem(keys.privateKey) // Em prod, a privkey não sai do hardware
+        // NOTA: Em produção, a chave privada NUNCA sai do hardware/token
+        // Esta função é apenas para desenvolvimento/testes
+        privateKeyPem: process.env.NODE_ENV === 'development'
+          ? forge.pki.privateKeyToPem(keys.privateKey)
+          : undefined
       });
     } catch (err) {
       reject(err);

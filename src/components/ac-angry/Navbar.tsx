@@ -1,3 +1,5 @@
+'use client';
+
 import { UserCircle, Zap, LogOut, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
