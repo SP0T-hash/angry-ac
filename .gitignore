@@ -53,6 +53,10 @@ desktop.ini
 ## Build
 /build
 
+## Graphify
+graphify-out/
+raw-code-only/
+
 ## TypeScript
 *.tsbuildinfo
 next-env.d.ts
