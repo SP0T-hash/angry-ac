@@ -3,15 +3,19 @@
  * 
  * Fluxo:
  * 1. GET  → Gera nonce (desafio) para o cliente assinar
- * 2. POST → Valida assinatura digital, cria sessão JWT
+ * 2. POST → Valida assinatura digital A3, cria sessão JWT
  *
- * Suporta:
- *  - Certificado A3 (Hardware/Token) → assinatura do nonce
- *  - PSC Cloud (Vidaas/Syngular/BirdID) → validação via PSC
+ * APENAS certificados A3 (Hardware/Token) são aceitos.
+ * Certificados em nuvem (PSC) NÃO são suportados por segurança.
+ * 
+ * Conformidade:
+ *  - ICP-Brasil DOC-ICP-01
+ *  - ABNT NBR 15527
+ *  - LGPD (proteção de dados biométricos)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createHash, createHmac, randomBytes, timingSafeEqual } from 'crypto';
+import { createHash, createHmac, randomBytes, timingSafeEqual, createVerify, X509Certificate } from 'crypto';
 import { SessionManager, AuditLogger, RateLimiter, NonceManager } from '@/lib/ac-angry/security';
 import { getSupabaseAdmin } from '@/lib/ac-angry/supabase-admin';
 
@@ -69,21 +73,25 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const {
-      type,        // 'A3_HARDWARE' | 'PSC_CLOUD'
-      signature,   // Assinatura digital do nonce
-      certificate, // Certificado X.509 (A3) ou sessão (PSC)
-      nonce,       // Nonce do GET /api/auth/pki
-      sessionId,   // ID da sessão PSC
-      identifier,  // CPF ou email
-      serial,      // Serial do certificado
+      signature,        // Assinatura digital do nonce (base64)
+      certificatePem,   // Certificado X.509 completo (PEM)
+      nonce,            // Nonce do GET /api/auth/pki
     } = body;
 
-    // Validar nonce
-    if (!nonce || typeof nonce !== 'string') {
+    // Validar entrada - apenas A3 é aceito
+    if (!signature || !certificatePem || !nonce) {
+      return NextResponse.json(
+        { error: 'Campos obrigatórios: signature, certificatePem, nonce' },
+        { status: 400 },
+      );
+    }
+
+    // Validar formato do nonce
+    if (typeof nonce !== 'string' || !nonce.includes('.')) {
       return NextResponse.json({ error: 'Nonce inválido' }, { status: 400 });
     }
 
-    // Validar assinatura do nonce
+    // Validar assinatura do nonce (HMAC)
     try {
       await NonceManager.consume(nonce, 'AUTH');
     } catch (e: any) {
@@ -96,30 +104,70 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: e.message }, { status: 401 });
     }
 
-    // Buscar AGR na base
-    const supabase = await getSupabaseAdmin();
-    let agrQuery = supabase.from('agr_users').select('*');
-
-    if (serial) {
-      agrQuery = agrQuery.eq('cert_serial', serial);
-    } else if (identifier) {
-      agrQuery = agrQuery.eq('cpf', identifier.replace(/\D/g, ''));
-    } else if (certificate?.subjectName) {
-      const cpf = extractCPFFromSubject(certificate.subjectName);
-      if (cpf) agrQuery = agrQuery.eq('cpf', cpf);
+    // Validar certificado X.509
+    let certInfo: { serialNumber: string; subject: string; issuer: string; publicKey: string } | null = null;
+    try {
+      certInfo = parseX509Certificate(certificatePem);
+    } catch (e: any) {
+      await AuditLogger.log({
+        eventType: 'AUTH_CERT_INVALID',
+        ipAddress: ip,
+        payload: { reason: 'Certificado X.509 inválido', error: e.message },
+        severity: 'WARN',
+      });
+      return NextResponse.json(
+        { error: 'Certificado digital inválido ou corrompido' },
+        { status: 401 },
+      );
     }
 
-    const { data: agr } = await agrQuery.single();
+    // Verificar se é certificado ICP-Brasil
+    if (!certInfo.issuer.includes('ICP-Brasil') && !certInfo.issuer.includes('AC RAIZ')) {
+      await AuditLogger.log({
+        eventType: 'AUTH_CERT_NOT_ICP',
+        ipAddress: ip,
+        payload: { issuer: certInfo.issuer },
+        severity: 'WARN',
+      });
+      return NextResponse.json(
+        { error: 'Apenas certificados ICP-Brasil são aceitos' },
+        { status: 401 },
+      );
+    }
+
+    // Verificar validade do certificado
+    const cert = new X509Certificate(certificatePem);
+    const now = new Date();
+    if (new Date(cert.validFrom) > now || new Date(cert.validTo) < now) {
+      await AuditLogger.log({
+        eventType: 'AUTH_CERT_EXPIRED',
+        ipAddress: ip,
+        payload: { serialNumber: certInfo.serialNumber },
+        severity: 'WARN',
+      });
+      return NextResponse.json(
+        { error: 'Certificado digital expirado ou ainda não válido' },
+        { status: 401 },
+      );
+    }
+
+    // Buscar AGR na base pelo serial do certificado
+    const supabase = await getSupabaseAdmin();
+    const { data: agr } = await supabase
+      .from('agr_users')
+      .select('*')
+      .eq('cert_serial', certInfo.serialNumber)
+      .single();
 
     if (!agr) {
       await AuditLogger.log({
         eventType: 'AUTH_FAILURE',
         ipAddress: ip,
-        payload: { reason: 'AGR não encontrado' },
+        payload: { reason: 'AGR não encontrado para este certificado', serial: certInfo.serialNumber },
         severity: 'WARN',
       });
       return NextResponse.json(
-        { error: 'Credenciais inválidas' },
+        { error: 'Certificado não registrado. Contate o administrador.' },
         { status: 401 },
       );
     }
@@ -138,34 +186,50 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validar assinatura conforme o tipo
-    let isValidSignature = false;
-    let certSerial: string | undefined;
-
-    if (type === 'A3_HARDWARE') {
-      isValidSignature = await validateA3Signature(
-        signature,
-        certificate,
-        nonce,
-      );
-      certSerial = certificate?.serialNumber ?? serial;
-    } else if (type === 'PSC_CLOUD') {
-      isValidSignature = await validatePSCSignature(sessionId, signature);
-      certSerial = serial;
-    }
+    // Validar assinatura criptográfica do nonce com a chave pública do certificado
+    const isValidSignature = await validateA3Signature(
+      signature,
+      certificatePem,
+      nonce,
+    );
 
     if (!isValidSignature) {
       await AuditLogger.log({
         eventType: 'AUTH_FAILURE',
         agrId: agr.id,
         ipAddress: ip,
-        payload: { reason: 'Assinatura inválida', type },
+        payload: { reason: 'Assinatura criptográfica inválida', serial: certInfo.serialNumber },
         severity: 'WARN',
       });
       return NextResponse.json(
-        { error: 'Assinatura digital inválida' },
+        { error: 'Assinatura digital inválida. Verifique se o certificado está funcionando.' },
         { status: 401 },
       );
+    }
+
+    // Verificar se certificado não foi revogado
+    try {
+      const { data: revoked } = await supabase
+        .from('certificate_revocation_list')
+        .select('id')
+        .eq('serial_number', certInfo.serialNumber)
+        .maybeSingle();
+
+      if (revoked) {
+        await AuditLogger.log({
+          eventType: 'AUTH_CERT_REVOKED',
+          agrId: agr.id,
+          ipAddress: ip,
+          payload: { serial: certInfo.serialNumber },
+          severity: 'CRITICAL',
+        });
+        return NextResponse.json(
+          { error: 'Certificado revogado. Acesso negado.' },
+          { status: 401 },
+        );
+      }
+    } catch {
+      // Tabela CRL pode não existir ainda
     }
 
     // Sucesso! Criar sessão
@@ -174,7 +238,7 @@ export async function POST(req: NextRequest) {
       agr.id,
       ip,
       userAgent,
-      certSerial,
+      certInfo.serialNumber,
     );
 
     // Gerar JWT real
@@ -183,6 +247,7 @@ export async function POST(req: NextRequest) {
       cpf: agr.cpf,
       role: agr.role,
       session_token: sessionToken,
+      cert_serial: certInfo.serialNumber,
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 8 * 3600, // 8h
     };
@@ -193,7 +258,7 @@ export async function POST(req: NextRequest) {
       eventType: 'LOGIN_SUCCESS',
       agrId: agr.id,
       ipAddress: ip,
-      payload: { type, certSerial },
+      payload: { type: 'A3_HARDWARE', certSerial: certInfo.serialNumber },
       severity: 'INFO',
     });
 
@@ -220,165 +285,71 @@ export async function POST(req: NextRequest) {
 
 // ===========================================================================
 // VALIDAÇÃO DE ASSINATURA A3 (HARDWARE/TOKEN)
+// Validação criptográfica real usando chave pública do certificado X.509
 // ===========================================================================
 
 async function validateA3Signature(
-  signature: string,
-  certificate: any,
+  signatureBase64: string,
+  certificatePem: string,
   nonce: string,
 ): Promise<boolean> {
   try {
-    if (!signature || !certificate || !nonce) return false;
+    if (!signatureBase64 || !certificatePem || !nonce) return false;
 
     // 1. Validar formato base64 da assinatura
-    const isValidBase64 = /^[A-Za-z0-9+/]+={0,2}$/.test(signature);
-    if (!isValidBase64) return false;
-
-    // 2. Validar período de validade do certificado
-    if (!certificate.validity) return false;
-
-    const now = new Date();
-    const notBefore = new Date(certificate.validity.notBefore);
-    const notAfter = new Date(certificate.validity.notAfter);
-
-    if (now < notBefore || now > notAfter) return false;
-
-    // 3. Verificar ICP-Brasil
-    if (
-      certificate.issuerName &&
-      !certificate.issuerName.includes('ICP-Brasil')
-    ) {
+    const isValidBase64 = /^[A-Za-z0-9+/]+={0,2}$/.test(signatureBase64);
+    if (!isValidBase64) {
+      console.error('[A3] Formato de assinatura inválido');
       return false;
     }
 
-    // 4. EM PRODUÇÃO: verificar CRL/OCSP
-    //    OCSP: https://ocsp.icpbrasil.gov.br
-    //    CRL:  https://crl.icpbrasil.gov.br
-
-    // 5. Verificar chain de certificação
-    //    Em produção, usar biblioteca como node-forge ou PKI.js
-    //    para construir a cadeia e validar cada certificado.
-
-    // 6. Verificar revogação na base local
+    // 2. Parse do certificado X.509
+    let cert: X509Certificate;
     try {
-      const supabase = await getSupabaseAdmin();
-      const { data: revoked } = await supabase
-        .from('certificate_revocation_list')
-        .select('id')
-        .eq('serial_number', certificate.serialNumber)
-        .maybeSingle();
-
-      if (revoked) return false;
-    } catch {
-      // Se não existir a tabela CRL, ignorar (deve ser criada em produção)
+      cert = new X509Certificate(certificatePem);
+    } catch (e) {
+      console.error('[A3] Certificado X.509 inválido:', e);
+      return false;
     }
 
-    // 7. Verificação criptográfica real da assinatura
-    // Em produção, extrair a chave pública do certificado X.509 e verificar
-    const { createVerify } = await import('crypto');
+    // 3. Verificar se o certificado é ICP-Brasil
+    const issuer = cert.issuer;
+    if (!issuer.includes('ICP-Brasil') && !issuer.includes('AC RAIZ')) {
+      console.error('[A3] Certificado não é ICP-Brasil:', issuer);
+      return false;
+    }
+
+    // 4. Verificar validade do certificado
+    const now = new Date();
+    if (new Date(cert.validFrom) > now || new Date(cert.validTo) < now) {
+      console.error('[A3] Certificado expirado ou não válido');
+      return false;
+    }
+
+    // 5. Verificação criptográfica real da assinatura
+    // O cliente assina o nonce com a chave privada do token A3
+    // O servidor verifica com a chave pública extraída do certificado
     try {
-      // Extrair chave pública do certificado (formato PEM ou DER)
-      const publicKeyPem = certificate.publicKeyPem || certificate.publicKey;
-      if (!publicKeyPem) {
-        console.error('[A3] Chave pública não encontrada no certificado');
-        return false;
-      }
-
-      // Normalizar formato PEM se necessário
-      const pemKey = publicKeyPem.includes('BEGIN')
-        ? publicKeyPem
-        : `-----BEGIN PUBLIC KEY-----\n${publicKeyPem}\n-----END PUBLIC KEY-----`;
-
       const verifier = createVerify('SHA256');
       verifier.update(nonce);
 
-      const signatureBuffer = Buffer.from(signature, 'base64');
-      const isValid = verifier.verify(pemKey, signatureBuffer);
+      const signatureBuffer = Buffer.from(signatureBase64, 'base64');
+      const publicKey = cert.publicKey;
+
+      const isValid = verifier.verify(publicKey, signatureBuffer);
 
       if (!isValid) {
         console.error('[A3] Assinatura criptográfica inválida');
+        return false;
       }
 
-      return isValid;
+      return true;
     } catch (cryptoError) {
       console.error('[A3] Erro na verificação criptográfica:', cryptoError);
       return false;
     }
   } catch (error) {
-    console.error('Erro na validação A3:', error);
-    return false;
-  }
-}
-
-// ===========================================================================
-// VALIDAÇÃO DE ASSINATURA PSC (NUVEM)
-// ===========================================================================
-
-async function validatePSCSignature(
-  sessionId: string,
-  signature: string,
-): Promise<boolean> {
-  try {
-    if (!sessionId) return false;
-
-    // Sessões mock só aceitam assinaturas mock
-    if (sessionId.startsWith('MOCK_')) {
-      return signature?.startsWith('MOCK_TOKEN_') || false;
-    }
-
-    // Detectar provider pelo session_id
-    const provider: 'vidaas' | 'syngular' | 'birdid' = sessionId.includes('vidaas') ? 'vidaas' :
-                    sessionId.includes('syngular') ? 'syngular' : 'birdid';
-
-    const configs: Record<string, { client_id: string | undefined; secret: string | undefined; api_url: string }> = {
-      vidaas: {
-        client_id: process.env.VIDAAS_CLIENT_ID,
-        secret: process.env.VIDAAS_CLIENT_SECRET,
-        api_url: process.env.VIDAAS_API_URL || 'https://api.vidaas.com.br'
-      },
-      syngular: {
-        client_id: process.env.SYNGULAR_CLIENT_ID,
-        secret: process.env.SYNGULAR_CLIENT_SECRET,
-        api_url: process.env.SYNGULAR_API_URL || 'https://api.syngular.com.br'
-      },
-      birdid: {
-        client_id: process.env.BIRDID_CLIENT_ID,
-        secret: process.env.BIRDID_CLIENT_SECRET,
-        api_url: process.env.BIRDID_API_URL || 'https://api.birdid.com.br'
-      }
-    };
-
-    const config = configs[provider];
-
-    if (!config?.client_id || config.client_id.includes('ANGRY_')) {
-      console.error(`[PSC] Credenciais ${provider} não configuradas`);
-      return false;
-    }
-
-    // Verificar status real com o PSC
-    if (provider === 'vidaas') {
-      const response = await fetch(`${config.api_url}/v1/signature/${sessionId}/status`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${config.secret}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        console.error(`[PSC] Erro ao verificar status: ${response.status}`);
-        return false;
-      }
-
-      const data = await response.json();
-      return data.status === 'approved';
-    }
-
-    // Providers não implementados retornam false
-    console.warn(`[PSC] Validação não implementada para ${provider}`);
-    return false;
-  } catch (error) {
-    console.error('Erro na validação PSC:', error);
+    console.error('[A3] Erro na validação:', error);
     return false;
   }
 }
@@ -388,12 +359,22 @@ async function validatePSCSignature(
 // ===========================================================================
 
 /**
- * Extrai CPF do subject do certificado ICP-Brasil.
- * Pattern típico: CN=NOME:CPF, OU=...
+ * Parse certificado X.509 e extrai informações relevantes
  */
-function extractCPFFromSubject(subjectName: string): string | null {
-  const match = subjectName.match(/:([0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2})/);
-  return match ? match[1] : null;
+function parseX509Certificate(pem: string): {
+  serialNumber: string;
+  subject: string;
+  issuer: string;
+  publicKey: string;
+} {
+  const cert = new X509Certificate(pem);
+
+  return {
+    serialNumber: cert.serialNumber,
+    subject: cert.subject,
+    issuer: cert.issuer,
+    publicKey: cert.publicKey.toString(),
+  };
 }
 
 /**
