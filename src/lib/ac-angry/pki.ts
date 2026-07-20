@@ -1,10 +1,9 @@
-import forge from 'node-forge';
-
 /**
  * Função utilitária para gerar chaves e CSR (Certificate Signing Request)
  * no navegador do AGR/Cliente.
  */
 export async function generateCSR(titular: { name: string, email: string, cpfOrCnpj: string }) {
+  const forge = (await import('node-forge')).default;
   return new Promise((resolve, reject) => {
     try {
       // 1. Gerar Par de Chaves RSA (Simulando o que o WebPKI/Token faria)

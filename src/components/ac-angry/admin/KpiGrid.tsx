@@ -23,7 +23,7 @@ const kpiData = [
     deltaType: "moderateIncrease",
     progress: 84,
     target: "50",
-    color: "blue",
+    color: "indigo",
   },
   {
     title: "Validações PSBIO",

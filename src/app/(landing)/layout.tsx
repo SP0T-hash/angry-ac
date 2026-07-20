@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
 import "@/app/globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export const metadata: Metadata = {
   title: "VEMAPI - Soluções Digitais",
@@ -20,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${inter.className} antialiased`}>{children}</body>
+      <body className={`${GeistSans.className} antialiased`}><ErrorBoundary>{children}</ErrorBoundary></body>
     </html>
   );
 }

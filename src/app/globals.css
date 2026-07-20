@@ -2,9 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   DESIGN SYSTEM v2 — Tokens de Cor (Semáforo de Responsabilidade)
+   PRIMARY (Emerald) = gestão/CRM | SECURITY (Indigo) = cripto
+   WARNING (Amber) = atenção | DANGER (Rose) = crítico
+   ============================================================ */
+:root {
+  --color-primary-50: 236 253 245;
+  --color-primary-100: 209 250 229;
+  --color-primary-500: 16 185 129;
+  --color-primary-600: 5 150 105;
+  --color-primary-700: 4 120 87;
+  --color-primary-900: 6 78 59;
+
+  --color-security-50: 238 242 255;
+  --color-security-100: 224 231 255;
+  --color-security-600: 79 70 229;
+  --color-security-700: 67 56 202;
+  --color-security-900: 49 46 129;
+
+  --color-warning-50: 255 251 235;
+  --color-warning-200: 253 230 138;
+  --color-warning-700: 180 83 9;
+
+  --color-danger-50: 255 241 242;
+  --color-danger-100: 254 242 242;
+  --color-danger-500: 239 68 68;
+  --color-danger-700: 190 18 60;
+
+  --color-surface: 249 250 251;
+  --color-card: 255 255 255;
+  --color-border: 241 245 249;
+
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08);
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
   }
 }
 

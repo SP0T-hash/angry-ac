@@ -1,9 +1,8 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { Inter } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
 import "@/app/globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export const metadata: Metadata = {
   title: 'Portal do Cliente | VEMAPI',
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body className={`${inter.className} min-h-screen bg-slate-50 text-slate-900 selection:bg-emerald-500/30 font-sans antialiased`}>
+      <body className={`${GeistSans.className} min-h-screen bg-slate-50 text-slate-900 selection:bg-emerald-500/30 font-sans antialiased`}>
         {/* Background suave e minimalista */}
         <div className="fixed inset-0 -z-50 overflow-hidden bg-slate-50">
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
@@ -26,7 +25,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
           <div className="absolute bottom-[5%] right-[-8%] w-[35%] h-[35%] bg-blue-100/30 blur-[160px] rounded-full" />
         </div>
 
-        {children}
+        <ErrorBoundary>{children}</ErrorBoundary>
       </body>
     </html>
   );
