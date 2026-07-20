@@ -72,6 +72,13 @@ Skill `/graphify` registrado no opencode (`.config/opencode/skills/graphify`).
 - Componentes órfãos confirmados: `ac-angry/admin/{AgenteMonitor,KpiGrid,SecurityAuditTable}`
   não têm caminho para nenhuma rota (spec 005).
 
+**MCP do Graphify (ativo):** registrado em `~/.config/opencode/opencode.jsonc`
+(comando `graphify-mcp --graph graphify-out/graph.json`). Expõe as ferramentas de
+query do grafo (path/explain/busca) direto no agente. ⚠️ Após mudanças de código
+relevantes, rodar `graphify . --code-only` para atualizar `graphify-out/graph.json`
+(sem API key = só AST de código) e reiniciar a sessão do opencode para o MCP
+relar o arquivo.
+
 ## Validação
 ```bash
 npx tsc --noEmit   # type check
