@@ -50,6 +50,28 @@ arquivos em `specs/`. Exemplo já documentado: `specs/001-gs-ui-reform/spec.md`.
 **Constituição do projeto:** `.specify/memory/constitution.md` (Princípio I =
 separação das áreas; III = design system Open Design; IV = dev/prod).
 
+## 🕸️ Graphify (knowledge graph do código)
+Ferramenta de análise (não é dependência do app) que mapeia o projeto em um
+grafo de conhecimento via AST local (tree-sitter), sem LLM. Útil para auditar
+acoplamento entre as 3 áreas e achar componentes órfãos.
+
+**Uso:**
+```bash
+graphify . --code-only          # gera graphify-out/ (AST local, sem API key)
+graphify cluster-only .         # gera GRAPH_REPORT.md + graph.html
+graphify path "A" "B"           # caminho mais curto entre dois arquivos
+graphify explain "X"            # explica um nó e vizinhos
+```
+Skill `/graphify` registrado no opencode (`.config/opencode/skills/graphify`).
+`graphify-out/` está no `.gitignore`.
+
+**Descobertas da análise (2026-07-19):**
+- GS ↔ AC Angry: **sem arestas** (0 caminho) → áreas bem separadas (Princípio I OK).
+- Landing ↔ GS: caminho indireto de 9 hops só via `supabase.ts`/`getSupabaseAdmin`
+  (infra de dados compartilhada, não acoplamento de UI — aceitável).
+- Componentes órfãos confirmados: `ac-angry/admin/{AgenteMonitor,KpiGrid,SecurityAuditTable}`
+  não têm caminho para nenhuma rota (spec 005).
+
 ## Validação
 ```bash
 npx tsc --noEmit   # type check

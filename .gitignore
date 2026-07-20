@@ -56,7 +56,6 @@ desktop.ini
 /build
 
 ## Graphify
-graphify-out/
 raw-code-only/
 
 ## TypeScript
@@ -84,3 +83,8 @@ ar-biometric-extension/native-host/csharp/obj/
 
 # Spec-kit (Claude skills sao artifacts do agente, nao do projeto)
 .claude/
+
+# Graphify (knowledge graph gerado localmente)
+
+# Graphify (knowledge graph gerado localmente)
+graphify-out/
