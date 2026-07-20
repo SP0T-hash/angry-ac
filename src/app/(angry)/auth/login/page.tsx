@@ -2,25 +2,19 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Zap, ShieldCheck, MonitorSmartphone, Fingerprint, LockKeyhole, ArrowRight, CreditCard, AlertCircle, HardDrive, Globe } from 'lucide-react';
-import { pscAuth, PSCProvider } from '@/lib/ac-angry/psc-auth';
 
 export default function AgentLoginPage() {
-  const [authStatus, setAuthStatus] = useState<'idle' | 'scanning' | 'pin' | 'cloud-push' | 'success' | 'error'>('idle');
+  const [authStatus, setAuthStatus] = useState<'idle' | 'scanning' | 'pin' | 'success' | 'error'>('idle');
   const authStatusRef = useRef(authStatus);
   // Mantém a ref sincronizada com o estado
   useEffect(() => { authStatusRef.current = authStatus; }, [authStatus]);
   const [pin, setPin] = useState('');
-  const [identifier, setIdentifier] = useState(''); // CPF ou E-mail para Nuvem
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [availableCertificates, setAvailableCertificates] = useState<any[]>([]);
   const [selectedCert, setSelectedCert] = useState<any>(null);
-  const [showCloudModal, setShowCloudModal] = useState(false);
-  const [cloudIdentifier, setCloudIdentifier] = useState('');
-  
+
   const [diagnostics, setDiagnostics] = useState({
     webPki: 'checking',
-    hwDrivers: 'checking',
-    cloudApi: 'checking'
+    hwDrivers: 'checking'
   });
 
   // Diagnóstico de estação (Homologação)
@@ -31,8 +25,7 @@ export default function AgentLoginPage() {
       
       setDiagnostics({
         webPki: isWebPkiInstalled ? 'active' : 'error',
-        hwDrivers: isWebPkiInstalled ? 'active' : 'checking', 
-        cloudApi: 'active'
+        hwDrivers: isWebPkiInstalled ? 'active' : 'checking',
       });
     };
     runDiagnostics();
@@ -115,66 +108,6 @@ export default function AgentLoginPage() {
       setTimeout(() => setAuthStatus('idle'), 3000);
     }
   };
-
-  const handleCloudLogin = async (provider: PSCProvider) => {
-    if (!identifier) {
-      alert("Por favor, informe seu CPF ou E-mail vinculado ao certificado em nuvem.");
-      return;
-    }
-
-    setAuthStatus('scanning');
-    try {
-      const response = await pscAuth.initiatePush(provider, identifier);
-      setCurrentSessionId(response.session_id);
-      setAuthStatus('cloud-push');
-      
-      // Inicia polling de verificação (com retry a cada 3s)
-      if (pollingRef.current) clearInterval(pollingRef.current);
-      startCloudPolling(response.session_id);
-    } catch (err) {
-      setAuthStatus('error');
-    }
-  };
-
-  // Ref para armazenar o intervalo ativo (cleanup no unmount)
-  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const startCloudPolling = useCallback((sessionId: string) => {
-    let attempts = 0;
-    const maxAttempts = 20; // ~60s
-    pollingRef.current = setInterval(async () => {
-      attempts++;
-      try {
-        const result = await pscAuth.checkStatus(sessionId);
-        if (result.success) {
-          if (pollingRef.current) clearInterval(pollingRef.current);
-          pollingRef.current = null;
-          setAuthStatus('success');
-          setTimeout(() => window.location.href = '/ac/agent/dashboard', 1500);
-          return;
-        }
-      } catch { /* ignora erro temporário e continua */ }
-      if (attempts >= maxAttempts) {
-        if (pollingRef.current) clearInterval(pollingRef.current);
-        pollingRef.current = null;
-        setAuthStatus('error');
-        setTimeout(() => setAuthStatus('idle'), 3000);
-      }
-    }, 3000);
-  }, []);
-
-  // Limpa polling ao desmontar
-  useEffect(() => {
-    return () => {
-      if (pollingRef.current) clearInterval(pollingRef.current);
-    };
-  }, []);
-
-  // Limpa polling ao desmontar
-  useEffect(() => {
-    return () => {
-      if (pollingRef.current) clearInterval(pollingRef.current);
-    };
-  }, []);
 
   const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -280,9 +213,6 @@ export default function AgentLoginPage() {
             <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border transition-colors ${diagnostics.hwDrivers === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
               <HardDrive size={10} /> TOKEN
             </div>
-            <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border transition-colors ${diagnostics.cloudApi === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-              <Zap size={10} /> NUVEM
-            </div>
           </div>
           
           {authStatus === 'idle' && (
@@ -304,15 +234,6 @@ export default function AgentLoginPage() {
                     </div>
                   </div>
                 </button>
-
-                <div className="text-center">
-                  <button 
-                    onClick={() => setShowCloudModal(true)}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-medium underline transition-colors"
-                  >
-                    Ou acessar via Nuvem (Vidaas/Syngular/BirdID)
-                  </button>
-                </div>
               </div>
 
                           </div>
@@ -329,35 +250,6 @@ export default function AgentLoginPage() {
                </div>
                <h3 className="text-lg font-bold text-slate-900 mb-2">Analisando Portas USB...</h3>
                 <p className="text-slate-500 text-sm font-medium">Buscando certificados emitidos por ICP-Brasil no hardware seguro ou nuvem corporativa.</p>
-            </div>
-          )}
-
-          {authStatus === 'cloud-push' && (
-            <div className="animate-in fade-in slide-in-from-right-8 duration-500 flex flex-col items-center text-center">
-              <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6 relative">
-                 <div className="absolute inset-0 border-2 border-blue-200 border-dashed rounded-full animate-spin-slow"></div>
-                 <MonitorSmartphone size={40} className="text-blue-600" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-1">Push Enviado!</h3>
-              <p className="text-slate-500 text-sm font-medium mb-2">
-                 Verifique o app <span className="font-bold text-blue-600">Vidaas</span> no seu celular
-              </p>
-              <p className="text-xs text-slate-400 mb-8">
-                 Aguardando aprovação biometrica...
-              </p>
-
-              <div className="flex flex-col gap-3 w-full max-w-xs">
-                <div className="bg-blue-50 p-3 rounded-xl border border-blue-200">
-                  <p className="text-xs text-blue-700 font-medium">💡 Dica: A aprovação deve chegar em até 10 segundos</p>
-                </div>
-                
-                <button 
-                  onClick={() => setAuthStatus('idle')}
-                  className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors"
-                >
-                  Cancelar e tentar outro método
-                </button>
-              </div>
             </div>
           )}
 
@@ -454,47 +346,6 @@ export default function AgentLoginPage() {
         </div>
 
       </div>
-
-      {/* Modal para Login via Nuvem */}
-      {showCloudModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Acessar via Nuvem A3</h3>
-            <p className="text-sm text-slate-600 mb-4">Digite seu CPF ou E-mail do certificado em nuvem:</p>
-            
-            <div className="space-y-4">
-              <input 
-                type="text" 
-                placeholder="000.000.000-00"
-                value={cloudIdentifier}
-                onChange={(e) => setCloudIdentifier(e.target.value)}
-                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:border-blue-500 focus:bg-white transition-all outline-none"
-                autoFocus
-              />
-              
-              <div className="flex gap-3">
-                <button 
-                  onClick={() => {
-                    setIdentifier(cloudIdentifier);
-                    setShowCloudModal(false);
-                    handleCloudLogin('vidaas');
-                  }}
-                  disabled={!cloudIdentifier}
-                  className="flex-1 h-10 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-bold rounded-xl transition-all"
-                >
-                  Enviar Push
-                </button>
-                <button 
-                  onClick={() => setShowCloudModal(false)}
-                  className="flex-1 h-10 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition-all"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

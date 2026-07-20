@@ -259,7 +259,7 @@ export async function POST(req: NextRequest) {
       severity: 'INFO',
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: 'Autenticação validada com sucesso',
       token: jwt,
@@ -271,6 +271,17 @@ export async function POST(req: NextRequest) {
         role: agr.role,
       },
     });
+
+    // Define o cookie de sessão (httpOnly) usado pelo route guard em /ac/*
+    response.cookies.set('ac_angry_session', jwt, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 8 * 60 * 60, // 8h
+    });
+
+    return response;
   } catch (error) {
     console.error('[AUTH-PKI] Erro interno:', error);
     return NextResponse.json(

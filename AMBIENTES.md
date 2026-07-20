@@ -232,7 +232,11 @@ Estes exigem **infraestrutura de AC credenciada pelo ITI**, fora do escopo do re
 
 ### Como validar o login A3 após correções
 ```bash
-npm run build && npm start:prod   # http://localhost:3000/ac/auth/login
+npm run build && npm start:prod   # http://localhost:3000/auth/login
 # Fluxo: GET /api/auth/pki → nonce → pki.signData → POST com certificatePem + signature
 ```
+⚠️ **Path correto do login A3**: `/auth/login` (o grupo de rotas `(angry)` NÃO
+adiciona prefixo; o prefixo `ac` vem apenas de `(angry)/ac/`). Não confundir com
+`/ac/auth/login` (inexistente → 404). Rotas AC Angry confirmadas em prod:
+- `/auth/login` (login A3) · `/ac/agent/dashboard` · `/ac/admin` · `/api/auth/pki`
 

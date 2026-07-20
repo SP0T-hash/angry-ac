@@ -43,8 +43,8 @@ class PSCAuthAdapter {
     
     // Verificar se temos credenciais reais
     if (!config.client_id || config.client_id.includes('ANGRY_')) {
-      console.log(`[PSC] ⚠️ Usando modo mock - credenciais ${provider} não configuradas`);
-      return this.mockInitiatePush(provider, identifier);
+      console.error(`[PSC] ⛔ Credenciais ${provider} não configuradas — push PSC real indisponível`);
+      throw new Error(`Credenciais PSC (${provider}) não configuradas. Acesso por nuvem indisponível.`);
     }
     
     try {
@@ -81,24 +81,9 @@ class PSCAuthAdapter {
       
     } catch (error) {
       console.error(`[PSC] ❌ Erro na API real ${provider}:`, error);
-      // Fallback para mock se API falhar
-      return this.mockInitiatePush(provider, identifier);
+      // Falha por segurança: NUNCA simula push.
+      throw error;
     }
-  }
-  
-  // Método mock como fallback
-  private mockInitiatePush(provider: PSCProvider, identifier: string): Promise<{ session_id: string; message: string }> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const sessionId = `MOCK_${provider}_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-        console.log(`[PSC] 🎭 Sessão mock criada: ${sessionId}`);
-        
-        resolve({
-          session_id: sessionId,
-          message: `Push simulado para ${provider}! (Modo desenvolvimento)`
-        });
-      }, 1000);
-    });
   }
 
   /**
@@ -107,10 +92,11 @@ class PSCAuthAdapter {
   async checkStatus(session_id: string): Promise<PSCAuthResponse> {
     console.log(`[PSC] Verificando status da sessão ${session_id}...`);
     
-    // Verificar se é sessão mock
+    // Sessões mock NUNCA são aprovadas — exigência de segurança:
+    // acesso só pode ser liberado após validação criptográfica real do PSC.
     if (session_id.startsWith('MOCK_')) {
-      console.log(`[PSC] 🎭 Usando modo mock para sessão ${session_id}`);
-      return this.mockCheckStatus(session_id);
+      console.error(`[PSC] ⛔ Sessão mock detectada — acesso NÃO é liberado sem validação real`);
+      return { success: false, error: 'Validação PSC real indisponível (credenciais não configuradas).' };
     }
     
     // Detectar provider pelo session_id
@@ -165,42 +151,24 @@ class PSCAuthAdapter {
       
     } catch (error) {
       console.error(`[PSC] ❌ Erro no checkStatus real:`, error);
-      // Fallback para mock
-      return this.mockCheckStatus(session_id);
+      // Falha por segurança: NUNCA aprova sem resposta real da API do PSC.
+      return { success: false, error: 'Falha ao validar assinatura PSC na certificadora.' };
     }
   }
   
-  // Método mock como fallback
-  private mockCheckStatus(session_id: string): Promise<PSCAuthResponse> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log(`[PSC] 🎭 ✅ Assinatura mock aprovada para sessão ${session_id}`);
-        resolve({
-          success: true,
-          token: `MOCK_TOKEN_${session_id}_VALID`,
-          certificate_data: {
-            subject: 'CN=MOCK USER VEMAPI:12345678900, OU=VEMAPI CERTIFICADORA, O=ICP-Brasil, C=BR',
-            serial: 'MOCK' + Math.random().toString(16).substring(2, 10).toUpperCase(),
-            cpf: '123.456.789-00'
-          }
-        });
-      }, 2000);
-    });
-  }
-
   /**
-   * Valida a assinatura digital retornada pelo PSC
-   * Em produção, valida criptograficamente via API do provider
+   * Valida a assinatura digital retornada pelo PSC.
+   * Apenas aprova após validação criptográfica real via API do provider.
    */
   async verifySignature(session_id: string, signedData: string): Promise<boolean> {
     if (!session_id || !signedData) return false;
 
-    // Sessões mock só aceitam tokens mock
+    // Sessões mock NUNCA são aceitas.
     if (session_id.startsWith('MOCK_')) {
-      return signedData.startsWith('MOCK_TOKEN_');
+      console.error(`[PSC] ⛔ Assinatura mock rejeitada — exigido PSC real`);
+      return false;
     }
 
-    // Detectar provider pelo session_id
     const provider = session_id.includes('vidaas') ? 'vidaas' :
                     session_id.includes('syngular') ? 'syngular' : 'birdid';
 

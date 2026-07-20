@@ -11,6 +11,47 @@
  */
 
 import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
+
+// ===========================================================================
+// 0. JWT — Assinatura/verificação HMAC-SHA256 (sem dependências externas)
+// ===========================================================================
+
+function base64urlEncode(str: string): string {
+  return Buffer.from(str).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
+
+function base64urlDecode(str: string): string {
+  const pad = str.length % 4 === 0 ? '' : '='.repeat(4 - (str.length % 4));
+  return Buffer.from(str.replace(/-/g, '+').replace(/_/g, '/') + pad, 'base64').toString('utf8');
+}
+
+/**
+ * Verifica a assinatura de um JWT HS256 e retorna o payload decodificado.
+ * Lança erro se inválido, expirado ou assinatura não bater.
+ */
+export function verifyJWT(token: string): Record<string, unknown> {
+  const secret = process.env.AUTH_JWT_SECRET;
+  if (!secret) throw new Error('AUTH_JWT_SECRET não configurado');
+
+  const parts = token.split('.');
+  if (parts.length !== 3) throw new Error('JWT malformado');
+
+  const [headerB64, payloadB64, signatureB64] = parts;
+  const expectedSig = createHmac('sha256', secret).update(`${headerB64}.${payloadB64}`).digest('base64url');
+
+  const expectedBuf = Buffer.from(expectedSig);
+  const providedBuf = Buffer.from(signatureB64);
+  if (expectedBuf.length !== providedBuf.length || !timingSafeEqual(expectedBuf, providedBuf)) {
+    throw new Error('Assinatura de JWT inválida');
+  }
+
+  const payload = JSON.parse(base64urlDecode(payloadB64)) as Record<string, unknown>;
+  if (typeof payload.exp === 'number' && payload.exp * 1000 < Date.now()) {
+    throw new Error('JWT expirado');
+  }
+  return payload;
+}
+
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // ---------------------------------------------------------------------------
