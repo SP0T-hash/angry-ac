@@ -80,11 +80,28 @@ npm run dev      # http://localhost:3001/gs/login
 npm run build && npm start   # http://localhost:3000/gs/login
 ```
 
+### CRUD (create/edit/delete)
+Commit `95c047d`. Todas as entidades têm formulário (modal) de criação/edição:
+- **API**: `POST/DELETE /api/gs/mutate` (server, service-role) — protegida por
+  sessão GS (cookie httpOnly) + **whitelist de tabelas** (anti SQL injection).
+  Body: `{ tabela, id?, data }`.
+- **Client**: `lib/gs/mutate-client.ts` (gsMutate/gsDelete) · `GSFormModal` ·
+  `GSListClient` (lista + botões Novo/Editar/Excluir).
+- Entidades com CRUD: ARs, Unidades, Pontos, Clientes, Pedidos, Planos, Tickets.
+
+### Notas de schema (descobertas no setup)
+- Coluna de ativo é **`is_active`** (não `ativo`) em `gs_ars`, `gs_unidades`,
+  `gs_pontos_atendimento`, `gs_usuarios`.
+- `gs_usuarios.is_active`, nível emumm `USER-DEFINED`.
+- `gs_clientes.email` é **NOT NULL** (obrigatório no form).
+- `gs_assinaturas.contador_id` referencia `gs_contadores(id)` que **não existe**
+  no schema — FK órfã (não quebra o frontend de listagem).
+
 ## 🟡 Pendente (opcional)
-- Forms de criação/edição (CRUD write) — hoje são telas de listagem (read).
-- Módulo Contador (carteira/scanner/NF) e Notificações (apenas listagem parcial).
+- Módulo Contador (carteira/scanner/NF) e Notificações (telas dedicadas).
 - Backend .NET CORE-AR (`gs.vemapi/` está vazio — specs 007–010).
-- Integrações Asaas / Focus NFe.
+- Integrações Asaas / Focus NFe (split de pagamento / emissão NFS-e).
+- Validação de CPF/CNPJ e máscaras nos forms.
 
 ## Notas de segurança
 ⚠️ Revogar os tokens `ghp_...` (GitHub) e `sbp_...` (Supabase) que foram usados
