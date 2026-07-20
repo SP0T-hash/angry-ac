@@ -197,3 +197,42 @@ create index if not exists idx_gs_sessoes_token on gs_sessoes(token);
 ## Notas de segurança
 ⚠️ Revogar os tokens `ghp_...` (GitHub) e `sbp_...` (Supabase) que foram usados
 para configurar este ambiente — eles apareceram em texto durante o setup.
+
+---
+
+## 🔐 Auditoria AC Angry — correções P0/P1 (2026-07-20)
+
+Auditoria de segurança do módulo AC Angry (login A3, persistência de certificado,
+conformidade ICP-Brasil/ITI). Itens **corrigíveis por código** resolvidos:
+
+| ID | Severidade | Problema | Status | Correção |
+|----|-----------|----------|--------|----------|
+| P0-01 | Crítico | `GET /api/auth/pki` gerava nonce solto (não persistia) → `POST` falhava "Nonce não encontrado" | ✅ Resolvido | `route.ts` GET agora chama `NonceManager.generate('AUTH')` (persiste em `security_nonces`) |
+| P0-02 | Crítico | Client enviava `certificate` (objeto WebPKI); server fazia destructure de `certificatePem` (undefined) | ✅ Resolvido | `src/app/(angry)/auth/login/page.tsx` agora extrai PEM via `pki.getCertificate(thumbprint)` e envia `certificatePem` |
+| P1-04 | Alto | `persist-certificate` criava client ad-hoc / import morto de client anon | ✅ Resolvido | Trocado por `getSupabaseAdmin()` (service-role, via `withAuth`) |
+| P0-06 | Alto | IP extraído de `x-forwarded-for` spoofável | ⚠️ Mitigado | Mantido padrão "primeiro IP" (correto behind trusted proxy). Documentar: exige proxy confiável que sobrescreva o header na borda. |
+
+### Itens NÃO reproduzíveis no código atual
+- **P0-05 (CORS aberto)**: não há `Access-Control-Allow-Origin: *` em nenhuma rota;
+  o app router bloqueia cross-origin por padrão. Sem ação necessária.
+
+### ⛔ BLOQUEANTES de conformidade ICP-Brasil/ITI (NÃO corrigíveis por código)
+Estes exigem **infraestrutura de AC credenciada pelo ITI**, fora do escopo do repo:
+- **C1** — AC Angry é autodeclarada (sem credenciamento ITI). Emitir certificados
+  ICP-Brasil válidos exige AC credenciada + cadeia até AC RAIZ.
+- **C2** — Sem LCR (CRL) e OCSP publicados em URL estável do ITI/AC.
+- **C3** — Sem TSA (carimbo de tempo) credenciado.
+- **C4** — Auditoria não é imutável (tabela `audit_logs` editável; falta WORM/HSM).
+- **C5** — Chaves privadas de CA sem HSM certificado (FIPS 140-2+).
+- **C6** — Sem processo de revogação publicado (ponto de distribuição de CRL).
+
+> O login A3 implementado é **criptograficamente real** (verifica assinatura do
+> nonce com a chave pública do certificado, valida ICP-Brasil, revogação, validade,
+> nonce one-time via HMAC). O gap é de **credenciamento da AC**, não do código.
+
+### Como validar o login A3 após correções
+```bash
+npm run build && npm start:prod   # http://localhost:3000/ac/auth/login
+# Fluxo: GET /api/auth/pki → nonce → pki.signData → POST com certificatePem + signature
+```
+

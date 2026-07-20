@@ -15,7 +15,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createHash, createHmac, randomBytes, timingSafeEqual, createVerify, X509Certificate } from 'crypto';
+import { createHmac, createVerify, X509Certificate } from 'crypto';
 import { SessionManager, AuditLogger, RateLimiter, NonceManager } from '@/lib/ac-angry/security';
 import { getSupabaseAdmin } from '@/lib/ac-angry/supabase-admin';
 
@@ -35,11 +35,8 @@ const AUTH_JWT_SECRET = () => {
 
 export async function GET() {
   try {
-    const raw = randomBytes(32).toString('hex');
-    const secret = process.env.PKI_NONCE_SECRET!;
-    const signature = createHmac('sha256', secret).update(raw).digest('hex');
-    const nonce = `${raw}.${signature}`;
-
+    // Gera e persiste o nonce (one-time challenge) no banco para o POST consumir.
+    const nonce = await NonceManager.generate('AUTH');
     return NextResponse.json({ nonce });
   } catch (error) {
     console.error('[AUTH-PKI] Erro ao gerar nonce:', error);

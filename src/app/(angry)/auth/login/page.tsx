@@ -202,7 +202,14 @@ export default function AgentLoginPage() {
           digestAlgorithm: 'SHA-256'
         }).success(resolve).error(reject);
       });
-      
+
+      // Extrair o certificado em formato PEM (X.509) para o backend validar
+      const certificatePem = await new Promise<string>((resolve, reject) => {
+        pki.getCertificate(selectedCert.thumbprint)
+          .success(resolve)
+          .error(reject);
+      });
+
       // Enviar assinatura para validação no backend
       const authResponse = await fetch('/api/auth/pki', {
         method: 'POST',
@@ -210,7 +217,7 @@ export default function AgentLoginPage() {
         body: JSON.stringify({
           type: 'A3_HARDWARE',
           signature,
-          certificate: selectedCert,
+          certificatePem,
           nonce,
           identifier: selectedCert.subjectName
         })
