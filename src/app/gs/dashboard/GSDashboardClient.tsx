@@ -2,8 +2,7 @@
 
 import React from 'react';
 import {
-  Building2, Users, FileText, Wallet, Ticket, Scissors,
-  LayoutDashboard, ShieldCheck,
+  Building2, Users, FileText, Wallet,
 } from 'lucide-react';
 import {
   Card, Text, Metric, Grid, ProgressBar, BadgeDelta, Flex,
@@ -16,22 +15,26 @@ interface DashboardProps {
   nivelLabel: string;
   isAdmin: boolean;
   isAR: boolean;
+  kpis: { ars: number; unidades: number; pedidos: number; receitaMes: number };
+  erro?: string;
 }
 
-const kpis = [
-  { title: 'ARs Ativos', metric: '12', icon: Building2, delta: '2', deltaType: 'moderateIncrease' as const, progress: 80, color: 'emerald' as const, target: '15' },
-  { title: 'Unidades', metric: '48', icon: Users, delta: '5', deltaType: 'moderateIncrease' as const, progress: 90, color: 'indigo' as const, target: '50' },
-  { title: 'Pedidos (30d)', metric: '326', icon: FileText, delta: '8%', deltaType: 'moderateIncrease' as const, progress: 65, color: 'emerald' as const, target: '500' },
-  { title: 'Receita (mês)', metric: 'R$ 84k', icon: Wallet, delta: '3%', deltaType: 'moderateIncrease' as const, progress: 72, color: 'indigo' as const, target: 'R$ 120k' },
-];
+function formatBRL(v: number): string {
+  return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+}
 
-const iconWrap: Record<string, string> = {
-  emerald: 'bg-emerald-500/10 text-emerald-600',
-  indigo: 'bg-indigo-500/10 text-indigo-600',
-};
+export default function GSDashboardClient({ usuario, nivelLabel, isAdmin, isAR, kpis, erro }: DashboardProps) {
+  const cards = [
+    { title: 'ARs Ativos', metric: String(kpis.ars), icon: Building2, delta: 'tempo real', deltaType: 'moderateIncrease' as const, progress: 80, color: 'emerald' as const },
+    { title: 'Unidades', metric: String(kpis.unidades), icon: Users, delta: 'tempo real', deltaType: 'moderateIncrease' as const, progress: 90, color: 'indigo' as const },
+    { title: 'Pedidos', metric: String(kpis.pedidos), icon: FileText, delta: 'tempo real', deltaType: 'moderateIncrease' as const, progress: 65, color: 'emerald' as const },
+    { title: 'Receita (mês)', metric: formatBRL(kpis.receitaMes), icon: Wallet, delta: 'tempo real', deltaType: 'moderateIncrease' as const, progress: 72, color: 'indigo' as const },
+  ];
 
-export default function GSDashboardClient({ usuario, nivelLabel, isAdmin, isAR }: DashboardProps) {
-  const nav = buildGSNav(isAR).filter((n) => n.id !== 'dashboard');
+  const iconWrap: Record<string, string> = {
+    emerald: 'bg-emerald-500/10 text-emerald-600',
+    indigo: 'bg-indigo-500/10 text-indigo-600',
+  };
 
   return (
     <GSLayout
@@ -39,10 +42,16 @@ export default function GSDashboardClient({ usuario, nivelLabel, isAdmin, isAR }
       nivelLabel={nivelLabel}
       isAR={isAR}
       titulo="Dashboard Operacional"
-      subtitulo="Visão geral da operação multi-tenant"
+      subtitulo="Visão geral da operação multi-tenant (dados em tempo real)"
     >
+      {erro && (
+        <div role="alert" className="text-rose-600 text-sm bg-rose-50 border border-rose-100 rounded-lg px-3 py-2 mb-4">
+          {erro}
+        </div>
+      )}
+
       <Grid numItemsSm={2} numItemsLg={4} className="gap-6">
-        {kpis.map((k) => (
+        {cards.map((k) => (
           <Card key={k.title} decoration="top" decorationColor={k.color} className="bg-white border border-slate-100 rounded-2xl shadow-card">
             <Flex alignItems="start">
               <div className="flex items-center gap-3">
@@ -55,7 +64,6 @@ export default function GSDashboardClient({ usuario, nivelLabel, isAdmin, isAR }
             </Flex>
             <Flex justifyContent="start" alignItems="baseline" className="space-x-3 truncate mt-4">
               <Metric className="text-slate-900 font-black tracking-tight">{k.metric}</Metric>
-              <Text className="text-slate-400 text-xs truncate">meta: {k.target}</Text>
             </Flex>
             <ProgressBar value={k.progress} color={k.color} className="mt-4" />
           </Card>
@@ -66,7 +74,7 @@ export default function GSDashboardClient({ usuario, nivelLabel, isAdmin, isAR }
         <Card className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl shadow-card p-6">
           <Text className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Acesso Rápido</Text>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
-            {nav.map((n) => (
+            {buildGSNav(isAR).filter((n) => n.id !== 'dashboard').map((n) => (
               <button
                 key={n.id}
                 onClick={() => window.location.href = n.href}
