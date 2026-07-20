@@ -339,3 +339,15 @@ INSERT INTO gs_planos (nome, slug, descricao, publico_alvo, nivel, valor_mensal,
 ('Contador Básico', 'contador-basico', 'Gestão de carteira de clientes',     'CONTADOR', 'BASICO',      47,  0.00, 0,   1,  0,  '{}', 'EMAIL', '{"carteira": true, "scanner": true, "nf": false}', 6),
 ('Contador Profissional', 'contador-profissional', 'Carteira + NF + Relatórios', 'CONTADOR', 'PROFISSIONAL', 97, 0.00, 0, 3, 0, '{}', 'CHAT', '{"carteira": true, "scanner": true, "nf": true, "relatorios": true}', 7)
 ON CONFLICT (slug) DO NOTHING;
+
+-- ============================================================
+-- TABELA: gs_contadores (corrige FK órfã em gs_assinaturas.contador_id)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS gs_contadores (
+  id            UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  nome          TEXT NOT NULL,
+  email         TEXT,
+  ar_id         UUID REFERENCES gs_ars(id),
+  ativo         BOOLEAN DEFAULT true,
+  criado_em     TIMESTAMPTZ DEFAULT now()
+);

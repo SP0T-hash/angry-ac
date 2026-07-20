@@ -2,44 +2,58 @@ import { redirect } from "next/navigation";
 import { getGSSession } from "@/lib/gs/session";
 import { NIVEL_LABEL, isAR } from "@/lib/gs/types";
 import { gsList } from "@/lib/gs/data";
-import GSListClient from "@/components/gs/GSListClient";
+import GSLayout from "@/components/gs/GSLayout";
+import { Wallet, FileText, CreditCard } from "lucide-react";
 
 export default async function GSFinanceiroPage() {
   const sess = await getGSSession();
   if (!sess) redirect("/gs/login");
 
-  let planos: any[] = []; let cobrancas: any[] = []; let erro = "";
+  let planos: any[] = []; let cobrancas: any[] = []; let assinaturas: any[] = [];
+  let erro = "";
   try {
-    planos = await gsList("gs_planos", { colunas: "id,nome,publico_alvo,valor_mensal,taxa_por_cert,ativo", ordem: "nome" });
-    cobrancas = await gsList("gs_cobrancas", { colunas: "id,numero,valor_total,status,repasse_gs,repasse_ar", ordem: "numero" });
+    [planos, cobrancas, assinaturas] = await Promise.all([
+      gsList("gs_planos", { colunas: "id,nome", ordem: "nome" }),
+      gsList("gs_cobrancas", { colunas: "id,status", ordem: "numero" }),
+      gsList("gs_assinaturas", { colunas: "id,status", ordem: "created_at" }),
+    ]);
   } catch (e: any) { erro = e.message; }
 
+  const cards = [
+    { titulo: "Planos", subtitulo: "Assinatura AR/AC/Contador", href: "/gs/financeiro/planos", icon: Wallet, count: planos.length },
+    { titulo: "Cobranças", subtitulo: "Faturas e pagamentos", href: "/gs/financeiro/cobrancas", icon: FileText, count: cobrancas.length },
+    { titulo: "Assinaturas", subtitulo: "Split de receita GS/AR", href: "/gs/financeiro/assinaturas", icon: CreditCard, count: assinaturas.length },
+  ];
+
   return (
-    <GSListClient
+    <GSLayout
       usuario={sess.usuario}
       nivelLabel={NIVEL_LABEL[sess.usuario.nivel]}
       isAR={isAR(sess.usuario.nivel)}
-      titulo="Planos (Financeiro)"
-      subtitulo="Planos de assinatura AR/AC/Contador"
-      tabela="gs_planos"
-      erro={erro}
-      colunas={[
-        { key: "nome", label: "Nome" },
-        { key: "publico_alvo", label: "Público" },
-        { key: "valor_mensal", label: "Mensal" },
-        { key: "taxa_por_cert", label: "Tx/Cert" },
-        { key: "ativo", label: "Ativo" },
-      ]}
-      linhas={planos.map((p) => ({ ...p, valor_mensal: `R$ ${(p.valor_mensal ?? 0).toFixed(2)}`, taxa_por_cert: `R$ ${(p.taxa_por_cert ?? 0).toFixed(2)}`, ativo: p.ativo ? "Sim" : "Não" }))}
-      campos={[
-        { name: "nome", label: "Nome", required: true },
-        { name: "slug", label: "Slug" },
-        { name: "publico_alvo", label: "Público-alvo" },
-        { name: "nivel", label: "Nível" },
-        { name: "valor_mensal", label: "Valor Mensal", type: "number" },
-        { name: "taxa_por_cert", label: "Taxa por Certificado", type: "number" },
-        { name: "ativo", label: "Ativo", type: "select", defaultValue: true, options: [{ value: true, label: "Sim" }, { value: false, label: "Não" }] },
-      ]}
-    />
+      titulo="Financeiro"
+      subtitulo="Gestão financeira do GS (planos, cobranças e assinaturas)"
+    >
+      {erro && (
+        <div role="alert" className="text-rose-600 text-sm bg-rose-50 border border-rose-100 rounded-lg px-3 py-2 mb-4">{erro}</div>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {cards.map((c) => (
+          <a
+            key={c.href}
+            href={c.href}
+            className="bg-white border border-slate-100 rounded-2xl shadow-card p-6 hover:border-emerald-200 hover:bg-emerald-50/30 transition flex flex-col gap-4"
+          >
+            <div className="w-11 h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+              <c.icon size={22} />
+            </div>
+            <div>
+              <h3 className="text-slate-900 font-black text-lg tracking-tight">{c.titulo}</h3>
+              <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-0.5">{c.subtitulo}</p>
+            </div>
+            <span className="text-3xl font-black text-emerald-600">{c.count}</span>
+          </a>
+        ))}
+      </div>
+    </GSLayout>
   );
 }

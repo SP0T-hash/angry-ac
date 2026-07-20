@@ -7,7 +7,7 @@ import { getGSSession } from "@/lib/gs/session";
 // Body: { tabela, id?, data }
 const TABELAS_PERMITIDAS = new Set([
   "gs_ars", "gs_unidades", "gs_pontos_atendimento", "gs_clientes",
-  "gs_pedidos", "gs_planos", "gs_cobrancas", "gs_tickets",
+  "gs_pedidos", "gs_planos", "gs_cobrancas", "gs_tickets", "gs_assinaturas",
 ]);
 
 export async function POST(req: NextRequest) {
