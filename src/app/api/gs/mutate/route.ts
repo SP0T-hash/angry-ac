@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/ac-angry/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/infra/supabase/client";
 import { getGSSession } from "@/lib/gs/session";
 
 // Handler genérico de mutação do módulo GS (server-side, service-role).

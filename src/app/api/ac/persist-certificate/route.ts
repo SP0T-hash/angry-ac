@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/lib/ac-angry/api-middleware';
 import { AuditLogger } from '@/lib/ac-angry/security';
-import { getSupabaseAdmin } from '@/lib/ac-angry/supabase-admin';
+import { getSupabaseAdmin } from '@/lib/infra/supabase/client';
 
 export const POST = withAuth(async (req: NextRequest, { session, ip }) => {
   try {

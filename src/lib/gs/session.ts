@@ -1,7 +1,7 @@
 // Gerenciamento de sessão do módulo GS (server-side, cookies httpOnly)
 import { cookies } from "next/headers";
 import { randomBytes } from "crypto";
-import { getSupabaseAdmin } from "@/lib/ac-angry/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/infra/supabase/client";
 import type { GSUsuario, GSSessao } from "./types";
 
 const COOKIE = "gs_session";

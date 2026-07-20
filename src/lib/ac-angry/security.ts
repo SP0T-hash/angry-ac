@@ -53,35 +53,13 @@ export function verifyJWT(token: string): Record<string, unknown> {
 }
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { getSupabaseAdminAsync } from '@/lib/infra/supabase/client';
 
 // ---------------------------------------------------------------------------
-// Cliente Supabase Admin lazy — só cria na primeira chamada
+// Cliente Supabase Admin — delegado à infra centralizada (lib/infra)
 // ---------------------------------------------------------------------------
-let _supabase: SupabaseClient | null = null;
-let _supabaseInit: Promise<SupabaseClient> | null = null;
-
 async function getSupabase(): Promise<SupabaseClient> {
-  if (_supabase) return _supabase;
-  if (_supabaseInit) return _supabaseInit;
-
-  _supabaseInit = (async () => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl || !serviceRoleKey) {
-      throw new Error(
-        '[AC ANGRY] NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY são obrigatórios.',
-      );
-    }
-
-    const { createClient } = await import('@supabase/supabase-js');
-    _supabase = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
-    return _supabase;
-  })();
-
-  return _supabaseInit;
+  return getSupabaseAdminAsync();
 }
 
 // ===========================================================================

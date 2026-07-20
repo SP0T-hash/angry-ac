@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/lib/ac-angry/api-middleware';
 import { AuditLogger } from '@/lib/ac-angry/security';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/infra/supabase/client';
 
 export const POST = withAuth(async (req: NextRequest, { session, ip }) => {
   try {
     const { characteristics } = await req.json();
+
+    const supabase = await getSupabaseAdmin();
 
     const { data: frauds, error } = await supabase
       .from('fraud_blacklist')

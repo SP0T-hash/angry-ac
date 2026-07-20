@@ -1,6 +1,6 @@
 // Busca dados do módulo GS via service-role (server-side).
 // Usa filtragem por tenant quando aplicável.
-import { getSupabaseAdmin } from "@/lib/ac-angry/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/infra/supabase/client";
 import type { GSUsuario } from "./types";
 
 export async function gsList(

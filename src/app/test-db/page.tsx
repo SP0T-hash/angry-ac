@@ -1,23 +1,29 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { testSupabaseConnection, createLeadsTableSQL } from '@/lib/test-supabase';
+import { useState } from 'react';
+import { getSupabaseBrowser } from '@/lib/infra/supabase/client';
 
 export default function TestDBPage() {
-  const [testResult, setTestResult] = useState<any>(null);
+  const [testResult, setTestResult] = useState<{ success: boolean; error?: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
   const runTest = async () => {
     setLoading(true);
-    const result = await testSupabaseConnection();
-    setTestResult(result);
-    setLoading(false);
+    try {
+      const client = getSupabaseBrowser();
+      const { error } = await client.from('agr_users').select('count').limit(1).maybeSingle();
+      setTestResult({ success: !error, error: error?.message });
+    } catch (e) {
+      setTestResult({ success: false, error: e instanceof Error ? e.message : 'Erro desconhecido' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Teste de Conexão Supabase</h1>
-        
+        <h1 className="text-3xl font-bold mb-8">Teste de Conexão Supabase (Infra)</h1>
+
         <button
           onClick={runTest}
           disabled={loading}
@@ -36,19 +42,6 @@ export default function TestDBPage() {
             </pre>
           </div>
         )}
-
-        <div className="mt-8 p-6 bg-gray-800 rounded-lg">
-          <h3 className="text-xl font-bold mb-4">Instruções para configurar o banco:</h3>
-          <ol className="list-decimal list-inside space-y-2">
-            <li>Acesse o painel do Supabase: https://supabase.com/dashboard</li>
-            <li>Vá para o seu projeto</li>
-            <li>Clique em "SQL Editor" no menu lateral</li>
-            <li>Cole e execute o seguinte SQL:</li>
-          </ol>
-          <pre className="mt-4 p-4 bg-black rounded text-sm overflow-x-auto">
-            {createLeadsTableSQL}
-          </pre>
-        </div>
       </div>
     </div>
   );

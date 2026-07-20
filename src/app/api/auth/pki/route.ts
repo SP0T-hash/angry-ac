@@ -17,7 +17,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHmac, createVerify, X509Certificate } from 'crypto';
 import { SessionManager, AuditLogger, RateLimiter, NonceManager } from '@/lib/ac-angry/security';
-import { getSupabaseAdmin } from '@/lib/ac-angry/supabase-admin';
+import { getSupabaseAdmin } from '@/lib/infra/supabase/client';
 
 // ===========================================================================
 // CONSTANTES
