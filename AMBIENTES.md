@@ -60,10 +60,31 @@ Rota: `/` (grupo `src/app/(landing)/`)
 - `npm test` → 41 testes passando
 - `npm run build` + `npm start` → todas as rotas 200
 
-## 🟡 Próximo: Módulo GS (Gestão/Contabilidade)
-- Tabelas já criadas no Supabase (`SUPABASE_SCHEMA_GS.sql`, `SUPABASE_SCHEMA_BILLING.sql`).
-- Rotas/páginas GS: a definir em `specs/` e `gs.vemapi/`.
-- Pendente: revisar `src/app/(portal)/` e componentes GS, aplicar Design System v2.
+## ✅ Módulo GS (Core-AR) — CONCLUÍDO (frontend)
+Commit `b3fb09a`. Módulo de Gestão multi-tenant implementado do zero:
+- **Auth GS própria**: `gs_usuarios` + sessão httpOnly (`lib/gs/session.ts`) + RBAC por nível (9 níveis).
+- **Login**: `/gs/login` · **Logout**: API `/api/gs/auth/logout`
+- **Dashboard**: `/gs/dashboard` (KPIs Tremor, paleta Design System v2)
+- **Telas**: ARs, Unidades, Pontos de Atendimento, Clientes, Pedidos,
+  Financeiro (planos/cobranças/repasses), Suporte/Tickets
+- **Componentes**: `GSShell` (navbar+sidebar), `GSTable` (tabela genérica)
+- **Helpers**: `lib/gs/{types,session,data,guard}`
+
+### Usuário de teste (banco VEMAPI)
+- Email: `admin@acangry.ac.br` · Senha: `Admin@123` (redefinida durante setup)
+- Nível: `AC_ADMIN`
+
+### Como rodar o GS
+```bash
+npm run dev      # http://localhost:3001/gs/login
+npm run build && npm start   # http://localhost:3000/gs/login
+```
+
+## 🟡 Pendente (opcional)
+- Forms de criação/edição (CRUD write) — hoje são telas de listagem (read).
+- Módulo Contador (carteira/scanner/NF) e Notificações (apenas listagem parcial).
+- Backend .NET CORE-AR (`gs.vemapi/` está vazio — specs 007–010).
+- Integrações Asaas / Focus NFe.
 
 ## Notas de segurança
 ⚠️ Revogar os tokens `ghp_...` (GitHub) e `sbp_...` (Supabase) que foram usados
