@@ -1,5 +1,6 @@
 // Gerenciamento de sessão do módulo GS (server-side, cookies httpOnly)
 import { cookies } from "next/headers";
+import { randomBytes } from "crypto";
 import { getSupabaseAdmin } from "@/lib/ac-angry/supabase-admin";
 import type { GSUsuario, GSSessao } from "./types";
 
@@ -70,9 +71,7 @@ async function verificarSenha(
 }
 
 function gerarToken(): string {
-  // crypto disponível em runtime Node (route handler)
-  const c = require("crypto");
-  return c.randomBytes(32).toString("hex");
+  return randomBytes(32).toString("hex");
 }
 
 export async function getGSSession(): Promise<GSSessao | null> {

@@ -103,6 +103,35 @@ Commit `95c047d`. Todas as entidades têm formulário (modal) de criação/ediç
 - Integrações Asaas / Focus NFe (split de pagamento / emissão NFS-e).
 - Validação de CPF/CNPJ e máscaras nos forms.
 
+## 🎨 Reforma de UI do módulo GS (antigo "layout bagunçado")
+Aplicado padrão visual inspirado em Open Design (tokens únicos de acento,
+grid modular, 5 estados obrigatórios, foco visível, sem gradiente "trust"):
+
+- **Sidebar com labels**: nova `src/components/gs/GSLayout.tsx` unifica
+  sidebar + header (antes `GSShell` e `GSListClient` duplicavam uma sidebar
+  só-ícones de 68px). Itens ativos destacados em `emerald-50`. Item de logout
+  visível com texto "Sair".
+- **Login reestilizado** (`src/app/gs/login/page.tsx`): fundo plano
+  (`--color-surface`), validação de formulário acessível (pristine/touched/
+  invalid, `aria-invalid` + `aria-describedby` + `role="alert"`), foco visível
+  emerald. Sem gradiente emerald→indigo (anti-pattern).
+- **reCAPTCHA v2 invisível** adicionado ao login. Verificação server-side em
+  `src/app/api/gs/auth/login/route.ts`. Ativar preenchendo
+  `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` + `RECAPTCHA_SECRET_KEY` nos `.env`.
+  Se vazio, o login não é bloqueado (compatibilidade dev).
+- **Estados de lista**: `GSListClient` aceita `carregando` (skeleton "Carregando…")
+  e `erro`. Dashboard corrige `bg-${color}-500/10` (interpolação Tailwind
+  quebrava no JIT) por wrapper fixo.
+- **Otimização de login** (`src/lib/gs/session.ts`): `randomBytes` nativo
+  (removido `require("crypto")` dinâmico). Cliente admin já memoizado.
+  Tempo quente ~1.6s (gargalo = latência de rede ao Supabase).
+
+### Índices recomendados (aplicar no Supabase SQL Editor)
+```sql
+create index if not exists idx_gs_usuarios_email on gs_usuarios(email);
+create index if not exists idx_gs_sessoes_token on gs_sessoes(token);
+```
+
 ## Notas de segurança
 ⚠️ Revogar os tokens `ghp_...` (GitHub) e `sbp_...` (Supabase) que foram usados
 para configurar este ambiente — eles apareceram em texto durante o setup.
