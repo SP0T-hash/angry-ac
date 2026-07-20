@@ -13,9 +13,42 @@ npm run dev
 
 ## Ambiente de PRODUÇÃO (local)
 ```bash
-npm run build   # gera o build (carrega .env.production)
-npm start       # sobe o servidor em http://localhost:3000
+npm run build       # gera o build (carrega .env.production)
+npm run start:prod  # sobe o servidor em http://localhost:3000
 ```
+
+## ⚠️ Áreas independentes (não misturar edições)
+O projeto tem 3 frentes que devem evoluir separadamente. Só alterar uma
+área quando explicitamente solicitado — nunca aplicar mudanças de uma nas
+outras sem ordem.
+
+| Área | Rotas | Onde | Estado |
+|------|-------|------|--------|
+| **Landing (VEMAPI)** | `/` | `src/app/(landing)/` | 🔒 TRAVADA — `git update-index --assume-unchanged` em `page.tsx` e `layout.tsx`. Não mexer sem pedir. |
+| **GS (Gestão Core-AR)** | `/gs/*` | `src/app/gs/`, `src/components/gs/` | ✅ Ativo — reforma de UI aplicada. |
+| **AC ANGRY** | `/ac/*`, `(angry)` | `src/app/(angry)/` | ✅ Ativo — separado do GS. |
+
+Para destravar a landing (só quando for mexer nela de propósito):
+```bash
+git update-index --no-assume-unchanged "src/app/(landing)/page.tsx" "src/app/(landing)/layout.tsx"
+```
+
+## 🌱 Spec-Kit (spec-driven development)
+O repositório usa [spec-kit](https://github.com/github/spec-kit) para documentar
+features antes de implementar. O CLI `specify` está instalado (via `uv`).
+
+**Comandos disponíveis** (instalados em `.claude/skills/` — lidos/executados
+manualmente pelo opencode, já que não usamos Claude):
+- `constitution` — princípios do projeto → `.specify/memory/constitution.md` (já criada)
+- `specify` — cria spec de feature em `specs/<NNN-nome>/spec.md`
+- `plan` / `tasks` / `implement` / `converge` — planejar, quebrar em tarefas, implementar, validar
+
+**Como usar no opencode:** para uma nova feature, peça "crie a spec com
+speckit-specify para <feature>" — eu sigo o SKILL.md correspondente e gero os
+arquivos em `specs/`. Exemplo já documentado: `specs/001-gs-ui-reform/spec.md`.
+
+**Constituição do projeto:** `.specify/memory/constitution.md` (Princípio I =
+separação das áreas; III = design system Open Design; IV = dev/prod).
 
 ## Validação
 ```bash

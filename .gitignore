@@ -81,3 +81,6 @@ ar-biometric-extension/native-host/csharp/bin/
 ar-biometric-extension/native-host/csharp/obj/
 *.tmp
 *.temp
+
+# Spec-kit (Claude skills sao artifacts do agente, nao do projeto)
+.claude/
