@@ -1,54 +1,49 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/ac-angry/Sidebar';
 import Navbar from '@/components/ac-angry/Navbar';
 import ProtocolQueue from '@/components/ac-angry/ProtocolQueue';
 import ProtocolViewer from '@/components/ac-angry/ProtocolViewer';
 import ClientCRM from '@/components/ac-angry/ClientCRM';
 import MessageCenter from '@/components/ac-angry/MessageCenter';
-import { MOCK_PROTOCOLS } from '@/lib/ac-angry/mockData';
 import { Users, Video, ShieldCheck, MessageSquare, Search, ArrowRight, PlusCircle, CreditCard, Landmark, FileText } from 'lucide-react';
 import NewOrderForm from '@/components/ac-angry/NewOrderForm';
 
 export default function AgentDashboard() {
-  const [protocols, setProtocols] = useState<any[]>(MOCK_PROTOCOLS);
+  const [protocols, setProtocols] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedProtocol, setSelectedProtocol] = useState<any>(null);
   const [activeView, setActiveView] = useState('protocolos');
 
-  const handleNewProtocol = (formData: any) => {
-    const newId = `PRT-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    const newProtocol = {
-      id: newId,
-      status: 'ASSUMA_ESTE_PEDIDO',
-      priority: 'NORMAL',
-      product: formData.certType,
-      created_at: new Date().toISOString(),
-      is_presencial: formData.attendanceMode === 'presencial',
-      titular: {
-        name: formData.name,
-        cpf: formData.cpf,
-        birthdate: formData.birthdate || '01/01/1980',
-        email: 'aguardando@email.com',
-        phone: '(00) 00000-0000',
-      },
-      company: formData.isPJ ? {
-        cnpj: formData.cnpj,
-        razao_social: formData.companyName,
-        cei: '',
-      } : null,
-      documents: [],
-      compliance: {
-        biometria: 'PENDENTE',
-        score_liveness: '0%',
-        biometric_photo: 'https://via.placeholder.com/400?text=Aguardando+Captura',
-        receita_federal: 'PENDENTE',
-        require_dossie: true,
-        saf_generated: false
-      }
-    };
-    
-    setProtocols(prev => [newProtocol, ...prev]);
+  const carregarProtocolos = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/protocols");
+      const data = await res.json();
+      if (res.ok) setProtocols((data.protocols ?? []).map(normalizarProtocolo));
+    } catch {
+      setProtocols([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Adapta o protocolo real do banco para o formato esperado pela UI (spec 004)
+  const normalizarProtocolo = (p: any) => ({
+    ...p,
+    id: p.protocol_number || p.id,
+    product: p.cert_type,
+    titular: { name: p.holder_nome, cpf: p.holder_cpf, email: p.holder_email },
+    company: p.holder_cnpj ? { cnpj: p.holder_cnpj } : null,
+    compliance: { biometria: p.biometry_status || 'PENDENTE' },
+    created_at: p.created_at,
+  });
+
+  useEffect(() => { carregarProtocolos(); }, []);
+
+  const handleNewProtocol = (protocol: any) => {
+    setProtocols(prev => [normalizarProtocolo(protocol), ...prev]);
     setActiveView('protocolos');
   };
 
@@ -63,10 +58,21 @@ export default function AgentDashboard() {
     switch (activeView) {
       case 'protocolos':
         return !selectedProtocol ? (
-          <ProtocolQueue 
-             protocols={protocols} 
-             onSelect={setSelectedProtocol}
-          />
+          loading ? (
+            <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">Carregando protocolos…</div>
+          ) : protocols.length === 0 ? (
+            <div className="flex-1 flex items-center justify-center p-12">
+              <div className="text-center">
+                <p className="text-slate-500 font-bold">Nenhum protocolo na fila</p>
+                <p className="text-slate-400 text-sm mt-1">Crie um novo pedido para começar.</p>
+              </div>
+            </div>
+          ) : (
+            <ProtocolQueue 
+               protocols={protocols} 
+               onSelect={setSelectedProtocol}
+            />
+          )
         ) : (
           <ProtocolViewer 
              protocol={selectedProtocol} 

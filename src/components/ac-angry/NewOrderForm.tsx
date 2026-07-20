@@ -70,19 +70,25 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
     if (!formData.name || !formData.cpf) return;
     
     setIsGenerating(true);
-    // Simular latência de rede/processamento PKI
-    await new Promise(resolve => setTimeout(resolve, 1500));
     
-    const randomId = `PRT-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    setProtocolId(randomId);
-    
-    // BUG FIX: Notificar o componente pai para adicionar o protocolo à lista REAL
-    onProtocolGenerated(formData);
-    
-    setSuccess(true);
-    setIsGenerating(false);
-
-    console.log("Protocolo Gerado com Sucesso:", randomId);
+    try {
+      const res = await fetch("/api/protocols", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Falha ao criar protocolo");
+      
+      setProtocolId(data.protocol.protocol_number);
+      // Notificar o componente pai com o protocolo REAL (persistido)
+      onProtocolGenerated(data.protocol);
+      setSuccess(true);
+    } catch (e: any) {
+      alert(e.message || "Erro ao gerar protocolo");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   if (success) {
