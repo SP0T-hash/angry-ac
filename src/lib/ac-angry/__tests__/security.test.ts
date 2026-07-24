@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 import { createHmac } from 'crypto';
 
-const mockCreateClient = vi.fn();
-const mockFrom = vi.fn();
+const { mockCreateClient, mockFrom } = vi.hoisted(() => ({
+  mockCreateClient: vi.fn(),
+  mockFrom: vi.fn(),
+}));
 
 vi.mock('@supabase/supabase-js', () => ({
   createClient: mockCreateClient,
