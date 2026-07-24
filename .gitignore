@@ -88,3 +88,7 @@ ar-biometric-extension/native-host/csharp/obj/
 
 # Graphify (knowledge graph gerado localmente)
 graphify-out/
+
+# Ferramentas de terceiros clonadas (open-design, spec-kit, graphify, etc.)
+# São referências locais; não pertencem ao repositório do projeto.
+tools/
