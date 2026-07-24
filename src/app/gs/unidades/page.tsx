@@ -10,7 +10,7 @@ export default async function GSUnidadesPage() {
 
   let rows: any[] = []; let ars: any[] = []; let erro = "";
   try {
-    rows = await gsList("gs_unidades", { colunas: "id,nome,cnpj,tipo,ativo,ar_id", ordem: "nome" });
+    rows = await gsList("gs_unidades", { colunas: "id,nome,cnpj,tipo,is_active,created_at,ar_id", ordem: "nome" });
     ars = await gsList("gs_ars", { colunas: "id,nome" });
   } catch (e: any) { erro = e.message; }
 

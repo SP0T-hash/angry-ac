@@ -37,6 +37,12 @@ export function verifyJWT(token: string): Record<string, unknown> {
   if (parts.length !== 3) throw new Error('JWT malformado');
 
   const [headerB64, payloadB64, signatureB64] = parts;
+
+  // Checagem defensiva do header: rejeita algorithm confusion / alg não suportado
+  const header = JSON.parse(base64urlDecode(headerB64)) as Record<string, unknown>;
+  if (header.alg !== 'HS256') throw new Error('JWT alg não suportado');
+  if (header.typ && header.typ !== 'JWT') throw new Error('JWT typ inválido');
+
   const expectedSig = createHmac('sha256', secret).update(`${headerB64}.${payloadB64}`).digest('base64url');
 
   const expectedBuf = Buffer.from(expectedSig);
@@ -53,7 +59,51 @@ export function verifyJWT(token: string): Record<string, unknown> {
 }
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createHash, X509Certificate } from 'crypto';
 import { getSupabaseAdminAsync } from '@/lib/infra/supabase/client';
+
+// ---------------------------------------------------------------------------
+// PKI — derivação de fingerprint da chave pública do certificado
+// Usado para "pinning" da identidade do AGR: amarra o certificado apresentado
+// àquele registrado no enrollment, impedindo spoofing de serial (self-signed).
+// ---------------------------------------------------------------------------
+export function certPublicKeyFingerprint(pem: string): string {
+  const cert = new X509Certificate(pem);
+  const spki = cert.publicKey.export({ type: 'spki', format: 'der' });
+  return createHash('sha256').update(spki).digest('hex');
+}
+
+/** true se o certificado for auto-assinado (subject === issuer). */
+export function isSelfSignedCert(pem: string): boolean {
+  const cert = new X509Certificate(pem);
+  return cert.subject === cert.issuer;
+}
+
+/**
+ * Verifica a cadeia até uma AC raiz confiável (ICP-Brasil), se um bundle de
+ * raízes estiver configurado (ICP_BRASIL_ROOTS_PEM ou ICP_BRASIL_ROOTS_PATH).
+ * Retorna null quando não há raízes configuradas (verificação degradada).
+ */
+export function verifyCertificateChain(
+  pem: string,
+  rootsPem: string,
+): boolean {
+  const leaf = new X509Certificate(pem);
+  const caCerts = rootsPem
+    .split(/-----END CERTIFICATE-----/)
+    .map((c) => c.trim())
+    .filter(Boolean)
+    .map((c) => new X509Certificate(c + '\n-----END CERTIFICATE-----'));
+
+  for (const ca of caCerts) {
+    try {
+      if (leaf.verify(ca.publicKey)) return true;
+    } catch {
+      /* tenta próxima CA */
+    }
+  }
+  return false;
+}
 
 // ---------------------------------------------------------------------------
 // Cliente Supabase Admin — delegado à infra centralizada (lib/infra)
@@ -161,6 +211,7 @@ export const NonceManager = {
 export interface AgrSession {
   sessionToken: string;
   agrId: string;
+  role?: string;
   certSerial?: string;
   expiresAt: Date;
 }
@@ -210,7 +261,7 @@ export const SessionManager = {
     const supabase = await getSupabase();
     const { data, error } = await supabase
       .from('secure_sessions')
-      .select('session_token, agr_id, cert_serial, expires_at, is_active')
+      .select('session_token, agr_id, cert_serial, expires_at, is_active, agr:agr_users(role)')
       .eq('session_token', token)
       .single();
 
@@ -227,9 +278,12 @@ export const SessionManager = {
       .update({ last_activity: new Date().toISOString() })
       .eq('session_token', token);
 
+    const role = (data.agr as { role?: string } | null)?.role;
+
     return {
       sessionToken: data.session_token,
       agrId: data.agr_id,
+      role,
       certSerial: data.cert_serial ?? undefined,
       expiresAt: new Date(data.expires_at),
     };

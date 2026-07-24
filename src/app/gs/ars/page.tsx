@@ -11,7 +11,7 @@ export default async function GSArsPage() {
   let ars: any[] = [];
   let erro = "";
   try {
-    ars = await gsList("gs_ars", { colunas: "id,nome,cnpj,email,ativo,criado_em", ordem: "criado_em" });
+    ars = await gsList("gs_ars", { colunas: "id,nome,cnpj,email,is_active,created_at", ordem: "created_at" });
   } catch (e: any) { erro = e.message; }
 
   return (
@@ -30,7 +30,7 @@ export default async function GSArsPage() {
         { key: "ativo", label: "Ativo" },
         { key: "criado_em", label: "Criado em" },
       ]}
-      linhas={ars.map((a) => ({ ...a, ativo: a.is_active ? "Sim" : "Não", criado_em: new Date(a.criado_em).toLocaleDateString("pt-BR") }))}
+      linhas={ars.map((a) => ({ ...a, ativo: a.is_active ? "Sim" : "Não", criado_em: new Date(a.created_at).toLocaleDateString("pt-BR") }))}
       campos={[
         { name: "nome", label: "Nome", required: true },
         { name: "cnpj", label: "CNPJ", required: true },

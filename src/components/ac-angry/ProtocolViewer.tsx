@@ -111,7 +111,9 @@ const formatDate = (dateStr: string) => {
 };
 
 export default function ProtocolViewer({ protocol, onBack }: any) {
-  const currentUser = "VITOR MATHEUS CASTRO"; // Nome do AGR logado (em produção viria do Auth context)
+  // Identidade do AGR vem do servidor (sessão). O valor abaixo é apenas para
+  // exibição local; o log de auditoria real usa session.agrId (ver /api/protocols/audit).
+  const currentUser = 'AGR';
   const [activeTab, setActiveTab] = useState('Dados');
   const [showAssumeModal, setShowAssumeModal] = useState(false);
   const [pendingTab, setPendingTab] = useState<string | null>(null);
@@ -140,9 +142,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
         body: JSON.stringify({
           protocol_id: protocol.id,
           action,
-          agent_name: currentUser, // Nome do AGR logado dinâmico
           metadata,
-          ip_address: '187.64.122.10' // Mock de IP real
         })
       });
     } catch (e) {
@@ -277,7 +277,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
       }
     };
   }, []);
-  const [safStatus, setSafStatus] = useState<'idle' | 'searching' | 'clean' | 'attached'>('idle');
+  const [safStatus, setSafStatus] = useState<'idle' | 'searching' | 'clean' | 'attached' | 'error'>('idle');
   
   // Status Tracker Logical States
   const [isBiometriaColetada, setIsBiometriaColetada] = useState(false);
@@ -338,7 +338,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
   const [editableData, setEditableData] = useState({
     name: protocol.titular.name,
     email: protocol.titular.email,
-    phone: protocol.titular.phone,
+    phone: protocol.titular.phone ?? '',
     birthdate: protocol.titular.birthdate || '01/01/1980',
     situacaoCpf: 'REGULAR',
     companyName: protocol.company?.razao_social || '',
@@ -383,7 +383,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
     setEditableData({
       name: protocol.titular.name,
       email: protocol.titular.email,
-      phone: protocol.titular.phone,
+      phone: protocol.titular.phone ?? '',
       birthdate: protocol.titular.birthdate || '01/01/1980',
       situacaoCpf: 'REGULAR',
       companyName: protocol.company?.razao_social || '',
@@ -477,14 +477,16 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
       const data = await res.json();
       
       if (data.match) {
-        setSafStatus('idle');
+        // HIT de fraude: bloquear (não avança para "attached")
+        setSafStatus('error');
         alert("CRÍTICO: " + data.message);
       } else {
         setSafStatus('clean');
       }
     } catch (e) {
        console.error("SAF Error", e);
-       setSafStatus('clean'); // Fallback visual
+       // Fail-CLOSED: erro na verificação NUNCA deve ser tratado como "limpo".
+       setSafStatus('error');
     }
   };
 
@@ -1295,11 +1297,11 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-gray-900">Laudo Técnico SAF anexado</h4>
-                      <p className="text-xs text-gray-500 font-medium">Validado por Vitor Matheus em {new Date().toLocaleDateString()}</p>
+                      <p className="text-xs text-gray-500 font-medium">Validado por AGR em {new Date().toLocaleDateString()}</p>
                     </div>
                     <div className="ml-auto flex items-center gap-2">
                        <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded text-xs font-bold border border-emerald-100">
-                         Risco Baixo
+                        Risco Baixo
                        </span>
                     </div>
                   </div>
@@ -1307,6 +1309,19 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                      <p>• As características informadas não coincidem com o banco de fraudes.</p>
                      <p>• Vínculo anexado ao dossiê de auditoria principal do titular.</p>
                   </div>
+                </div>
+              )}
+
+              {safStatus === 'error' && (
+                <div className="border border-red-300 rounded-xl mt-8 bg-red-50/50 p-6 flex flex-col items-center text-center animate-in fade-in zoom-in-95">
+                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-3 text-red-600">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+                  </div>
+                  <h3 className="text-lg font-extrabold text-red-900 mb-2">Verificação SAF não concluída</h3>
+                  <p className="text-red-700 font-medium text-sm max-w-md mx-auto mb-4">
+                    A consulta retornou erro ou indicou indício de fraude. A emissão permanece bloqueada
+                    até uma nova verificação bem-sucedida. Revise manualmente antes de prosseguir.
+                  </p>
                 </div>
               )}
             </div>

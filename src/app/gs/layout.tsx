@@ -11,10 +11,8 @@ export default function GSLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
-      <body className={`${GeistSans.className} min-h-screen bg-[var(--color-surface)] text-slate-800 antialiased`}>
-        <ErrorBoundary>{children}</ErrorBoundary>
-      </body>
-    </html>
+    <div className={`${GeistSans.className} min-h-screen bg-[var(--color-surface)] text-slate-800 antialiased`}>
+      <ErrorBoundary>{children}</ErrorBoundary>
+    </div>
   );
 }

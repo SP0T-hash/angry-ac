@@ -10,7 +10,7 @@ export default async function GSPontosPage() {
 
   let rows: any[] = []; let unidades: any[] = []; let erro = "";
   try {
-    rows = await gsList("gs_pontos_atendimento", { colunas: "id,codigo,nome,ativo,unidade_id", ordem: "nome" });
+    rows = await gsList("gs_pontos_atendimento", { colunas: "id,codigo,nome,is_active,created_at,unidade_id", ordem: "nome" });
     unidades = await gsList("gs_unidades", { colunas: "id,nome" });
   } catch (e: any) { erro = e.message; }
 

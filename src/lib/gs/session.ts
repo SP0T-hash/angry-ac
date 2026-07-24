@@ -18,7 +18,7 @@ function mapUsuario(row: any): GSUsuario {
     unidade_id: row.unidade_id ?? null,
     ponto_id: row.ponto_id ?? null,
     ativo: row.is_active ?? true,
-    criado_em: row.criado_em,
+    criado_em: row.created_at,
   };
 }
 
@@ -36,7 +36,7 @@ export async function gsLogin(
 
   if (error || !user) return null;
 
-  // Validar senha: usa comparação direta (seed usa texto puro) ou bcrypt
+  // Validar senha: apenas bcrypt (sem fallback de texto puro)
   const ok = await verificarSenha(senha, user.password_hash);
   if (!ok) return null;
 
@@ -56,18 +56,13 @@ async function verificarSenha(
   senha: string,
   hash: string | null,
 ): Promise<boolean> {
-  if (!hash) return false;
-  // Tento bcrypt primeiro
+  if (!hash || !hash.startsWith("$2")) return false;
   try {
-    const bcrypt = await import("bcryptjs").catch(() => null);
-    if (bcrypt && hash.startsWith("$2")) {
-      return bcrypt.compareSync(senha, hash);
-    }
+    const bcrypt = await import("bcryptjs");
+    return bcrypt.compareSync(senha, hash);
   } catch {
-    /* ignore */
+    return false;
   }
-  // Fallback: seed usa texto puro (ex: admin123)
-  return senha === hash;
 }
 
 function gerarToken(): string {
@@ -84,10 +79,17 @@ export async function getGSSession(): Promise<GSSessao | null> {
     .from("gs_sessoes")
     .select("*, usuario:gs_usuarios(*)")
     .eq("token", token)
+    .eq("is_active", true)
     .gte("expires_at", new Date().toISOString())
     .maybeSingle();
 
   if (error || !sess || !sess.usuario) return null;
+
+  await admin
+    .from("gs_sessoes")
+    .update({ last_activity: new Date().toISOString() })
+    .eq("token", token);
+
   return {
     usuario: mapUsuario(sess.usuario),
     token,
@@ -99,7 +101,7 @@ export async function setGSSession(sess: GSSessao) {
   const store = await cookies();
   store.set(COOKIE, sess.token, {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
     maxAge: MAX_AGE,
   });

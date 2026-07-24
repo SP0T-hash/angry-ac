@@ -163,4 +163,4 @@ export const POST = withAuth(async (req: NextRequest, { session, ip }) => {
       { status: 500 },
     );
   }
-}, { rateLimit: 'EMIT' });
+}, { rateLimit: 'EMIT', requireRole: 'AGR' });

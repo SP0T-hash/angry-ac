@@ -16,8 +16,32 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createHmac, createVerify, X509Certificate } from 'crypto';
-import { SessionManager, AuditLogger, RateLimiter, NonceManager } from '@/lib/ac-angry/security';
+import { readFileSync } from 'fs';
+import {
+  SessionManager,
+  AuditLogger,
+  RateLimiter,
+  NonceManager,
+  certPublicKeyFingerprint,
+  isSelfSignedCert,
+  verifyCertificateChain,
+} from '@/lib/ac-angry/security';
 import { getSupabaseAdmin } from '@/lib/infra/supabase/client';
+
+// Bundle de ACs raízes ICP-Brasil confiáveis (opcional em dev, OBRIGATÓRIO em
+// produção). Quando ausente, a validação de cadeia fica degradada (apenas
+// pinning + checagens estruturais) e um alerta CRITICAL é emitido.
+function loadIcpBrasilRoots(): string {
+  if (process.env.ICP_BRASIL_ROOTS_PEM) return process.env.ICP_BRASIL_ROOTS_PEM;
+  if (process.env.ICP_BRASIL_ROOTS_PATH) {
+    try {
+      return readFileSync(process.env.ICP_BRASIL_ROOTS_PATH, 'utf8');
+    } catch {
+      return '';
+    }
+  }
+  return '';
+}
 
 // ===========================================================================
 // CONSTANTES
@@ -132,6 +156,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Rejeita certificado auto-assinado (spoofing de serial não tem cadeia válida)
+    if (isSelfSignedCert(certificatePem)) {
+      await AuditLogger.log({
+        eventType: 'AUTH_CERT_SELF_SIGNED',
+        ipAddress: ip,
+        payload: { serialNumber: certInfo.serialNumber },
+        severity: 'CRITICAL',
+      });
+      return NextResponse.json(
+        { error: 'Certificado auto-assinado não é aceito.' },
+        { status: 401 },
+      );
+    }
+
     // Verificar validade do certificado
     const cert = new X509Certificate(certificatePem);
     const now = new Date();
@@ -181,6 +219,62 @@ export async function POST(req: NextRequest) {
         { error: 'Conta desativada. Contate o administrador.' },
         { status: 403 },
       );
+    }
+
+    // ── Defesa de identidade ────────────────────────────────────────────────
+    // Pinning: o certificado apresentado DEVE corresponder à chave pública
+    // registrada no enrollment do AGR. Impede spoofing de serial (self-signed
+    // com serial conhecido), pois a chave privada do atacante não casa.
+    const fingerprint = certPublicKeyFingerprint(certificatePem);
+    if (agr.cert_public_key_hash) {
+      if (agr.cert_public_key_hash !== fingerprint) {
+        await AuditLogger.log({
+          eventType: 'AUTH_CERT_PIN_MISMATCH',
+          agrId: agr.id,
+          ipAddress: ip,
+          payload: { serial: certInfo.serialNumber },
+          severity: 'CRITICAL',
+        });
+        return NextResponse.json(
+          { error: 'Certificado não corresponde ao credenciado. Acesso negado.' },
+          { status: 401 },
+        );
+      }
+    } else {
+      // AGR sem pinning cadastrado: degradado. Em produção, exija o pinning.
+      await AuditLogger.log({
+        eventType: 'AUTH_CERT_PIN_MISSING',
+        agrId: agr.id,
+        ipAddress: ip,
+        payload: { serial: certInfo.serialNumber },
+        severity: 'WARN',
+      });
+    }
+
+    // Validação de cadeia até AC raiz ICP-Brasil (se bundle configurado)
+    const roots = loadIcpBrasilRoots();
+    if (roots) {
+      if (!verifyCertificateChain(certificatePem, roots)) {
+        await AuditLogger.log({
+          eventType: 'AUTH_CERT_CHAIN_INVALID',
+          agrId: agr.id,
+          ipAddress: ip,
+          payload: { serial: certInfo.serialNumber },
+          severity: 'CRITICAL',
+        });
+        return NextResponse.json(
+          { error: 'Cadeia de certificação inválida ou não confiável.' },
+          { status: 401 },
+        );
+      }
+    } else {
+      await AuditLogger.log({
+        eventType: 'AUTH_CHAIN_UNCONFIGURED',
+        agrId: agr.id,
+        ipAddress: ip,
+        payload: { serial: certInfo.serialNumber },
+        severity: 'CRITICAL',
+      });
     }
 
     // Validar assinatura criptográfica do nonce com a chave pública do certificado

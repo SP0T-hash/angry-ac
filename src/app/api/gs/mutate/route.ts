@@ -1,14 +1,140 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/infra/supabase/client";
 import { getGSSession } from "@/lib/gs/session";
+import { isAdmin, isAR, type GSNivel, type GSUsuario } from "@/lib/gs/types";
 
 // Handler genérico de mutação do módulo GS (server-side, service-role).
-// Protegido por sessão GS (cookie httpOnly).
+// Protegido por sessão GS (cookie httpOnly) + RBAC + isolamento de tenant.
 // Body: { tabela, id?, data }
-const TABELAS_PERMITIDAS = new Set([
-  "gs_ars", "gs_unidades", "gs_pontos_atendimento", "gs_clientes",
-  "gs_pedidos", "gs_planos", "gs_cobrancas", "gs_tickets", "gs_assinaturas",
-]);
+
+type NivelMinimo = "ADMIN" | "AR";
+
+interface TabelaPolicy {
+  minNivel: NivelMinimo;
+  // ALLOWLIST de campos graváveis. Tudo fora daqui é descartado
+  // (id, created_at, updated_at nunca entram).
+  campos: string[];
+  // Campos de tenant que só ADMIN pode definir; para não-ADMIN são
+  // forçados a partir da sessão.
+  camposTenant: string[];
+}
+
+const POLICY: Record<string, TabelaPolicy> = {
+  gs_ars: {
+    minNivel: "ADMIN",
+    campos: ["nome", "cnpj", "email", "telefone", "config", "is_active"],
+    camposTenant: [],
+  },
+  gs_unidades: {
+    minNivel: "ADMIN",
+    campos: ["nome", "cnpj", "tipo", "is_active", "ar_id"],
+    camposTenant: ["ar_id"],
+  },
+  gs_pontos_atendimento: {
+    minNivel: "ADMIN",
+    campos: ["codigo", "nome", "is_active", "unidade_id"],
+    camposTenant: ["unidade_id"],
+  },
+  gs_planos: {
+    minNivel: "ADMIN",
+    campos: [
+      "slug", "nome", "publico_alvo", "nivel", "valor_mensal",
+      "taxa_por_cert", "recursos", "is_active",
+    ],
+    camposTenant: [],
+  },
+  gs_clientes: {
+    minNivel: "AR",
+    campos: [
+      "nome", "cpf_cnpj", "tipo_pessoa", "email", "telefone",
+      "contador_id", "ar_id", "unidade_id",
+    ],
+    camposTenant: ["ar_id", "unidade_id"],
+  },
+  gs_pedidos: {
+    minNivel: "AR",
+    campos: [
+      "cliente_id", "usuario_id", "ponto_id", "protocolo",
+      "tipo_certificado", "produto", "ac_provider", "status",
+      "valor_total", "valor_comissao", "pago_em", "ar_id", "unidade_id",
+    ],
+    camposTenant: ["ar_id", "unidade_id"],
+  },
+  gs_cobrancas: {
+    minNivel: "AR",
+    campos: [
+      "assinatura_id", "numero", "valor_mensalidade", "valor_excedente",
+      "valor_total", "status", "repasse_gs", "repasse_ar", "data_pagamento",
+    ],
+    camposTenant: [],
+  },
+  gs_tickets: {
+    minNivel: "AR",
+    campos: [
+      "usuario_id", "cliente_id", "categoria", "prioridade",
+      "status", "titulo", "descricao",
+    ],
+    camposTenant: [],
+  },
+  gs_assinaturas: {
+    minNivel: "AR",
+    campos: [
+      "contador_id", "plano_id", "status", "asaas_subscription_id",
+      "split_percent_gs", "split_percent_ar", "ar_id",
+    ],
+    camposTenant: ["ar_id"],
+  },
+};
+
+function nivelPermite(minNivel: NivelMinimo, nivel: GSNivel): boolean {
+  if (minNivel === "ADMIN") return isAdmin(nivel);
+  return isAR(nivel); // AR ou ADMIN (CONTADOR/VENDEDOR não passam)
+}
+
+function sanitizarPayload(
+  data: Record<string, unknown>,
+  policy: TabelaPolicy,
+  usuario: GSUsuario,
+): Record<string, unknown> {
+  const admin = isAdmin(usuario.nivel);
+  const permitido: Record<string, unknown> = {};
+
+  for (const campo of policy.campos) {
+    if (!(campo in data)) continue;
+    // Campos de tenant só passam do cliente se ADMIN
+    if (policy.camposTenant.includes(campo) && !admin) continue;
+    permitido[campo] = data[campo];
+  }
+
+  // Não-ADMIN: tenant ids sempre vêm da sessão, nunca do cliente
+  if (!admin) {
+    if (policy.camposTenant.includes("ar_id") && usuario.ar_id) {
+      permitido.ar_id = usuario.ar_id;
+    }
+    if (policy.camposTenant.includes("unidade_id") && usuario.unidade_id) {
+      permitido.unidade_id = usuario.unidade_id;
+    }
+  }
+
+  return permitido;
+}
+
+async function auditar(
+  admin: Awaited<ReturnType<typeof getSupabaseAdmin>>,
+  entry: {
+    usuario_id: string;
+    tabela: string;
+    acao: "INSERT" | "UPDATE" | "DELETE";
+    registro_id: string | null;
+    payload: Record<string, unknown>;
+  },
+) {
+  try {
+    await admin.from("gs_audit_logs").insert(entry).then(() => {});
+  } catch {
+    // best-effort: tabela pode não existir ainda
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,26 +142,81 @@ export async function POST(req: NextRequest) {
     if (!sess) {
       return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
     }
+    const { usuario } = sess;
+
     const { tabela, id, data } = await req.json();
-    if (!TABELAS_PERMITIDAS.has(tabela)) {
+    const policy = POLICY[tabela as string];
+    if (!policy) {
       return NextResponse.json({ error: "Tabela não permitida." }, { status: 403 });
     }
-    if (!data || typeof data !== "object") {
+    if (!nivelPermite(policy.minNivel, usuario.nivel)) {
+      return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
+    }
+    if (!data || typeof data !== "object" || Array.isArray(data)) {
       return NextResponse.json({ error: "Dados inválidos." }, { status: 400 });
     }
 
     const admin = await getSupabaseAdmin();
+    const allowedData = sanitizarPayload(data, policy, usuario);
+    if (Object.keys(allowedData).length === 0) {
+      return NextResponse.json({ error: "Dados inválidos." }, { status: 400 });
+    }
 
     if (id) {
-      const { error } = await admin.from(tabela).update(data).eq("id", id);
-      if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+      // UPDATE: verificar isolamento de tenant antes de gravar
+      const { data: row, error: selErr } = await admin
+        .from(tabela)
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+      if (selErr) {
+        console.error("[gs/mutate] select", selErr);
+        return NextResponse.json({ error: "Operação inválida." }, { status: 400 });
+      }
+      if (!row) {
+        return NextResponse.json({ error: "Registro não encontrado." }, { status: 404 });
+      }
+      if (
+        "ar_id" in row &&
+        !isAdmin(usuario.nivel) &&
+        row.ar_id !== usuario.ar_id
+      ) {
+        return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
+      }
+
+      const { error } = await admin.from(tabela).update(allowedData).eq("id", id);
+      if (error) {
+        console.error("[gs/mutate] update", error);
+        return NextResponse.json({ error: "Operação inválida." }, { status: 400 });
+      }
+      await auditar(admin, {
+        usuario_id: usuario.id,
+        tabela,
+        acao: "UPDATE",
+        registro_id: id,
+        payload: { campos: Object.keys(allowedData) },
+      });
       return NextResponse.json({ ok: true, id });
     } else {
-      const { data: inserted, error } = await admin.from(tabela).insert(data).select("id").single();
-      if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+      const { data: inserted, error } = await admin
+        .from(tabela)
+        .insert(allowedData)
+        .select("id")
+        .single();
+      if (error) {
+        console.error("[gs/mutate] insert", error);
+        return NextResponse.json({ error: "Operação inválida." }, { status: 400 });
+      }
+      await auditar(admin, {
+        usuario_id: usuario.id,
+        tabela,
+        acao: "INSERT",
+        registro_id: inserted?.id ?? null,
+        payload: { campos: Object.keys(allowedData) },
+      });
       return NextResponse.json({ ok: true, id: inserted?.id });
     }
-  } catch (e: any) {
+  } catch (e) {
     console.error("[gs/mutate]", e);
     return NextResponse.json({ error: "Erro interno." }, { status: 500 });
   }
@@ -47,15 +228,54 @@ export async function DELETE(req: NextRequest) {
     if (!sess) {
       return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
     }
+    const { usuario } = sess;
+
     const { tabela, id } = await req.json();
-    if (!TABELAS_PERMITIDAS.has(tabela) || !id) {
+    const policy = POLICY[tabela as string];
+    if (!policy || !id) {
       return NextResponse.json({ error: "Requisição inválida." }, { status: 400 });
     }
+    if (!nivelPermite(policy.minNivel, usuario.nivel)) {
+      return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
+    }
+
     const admin = await getSupabaseAdmin();
+
+    const { data: row, error: selErr } = await admin
+      .from(tabela)
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (selErr) {
+      console.error("[gs/mutate] select", selErr);
+      return NextResponse.json({ error: "Operação inválida." }, { status: 400 });
+    }
+    if (!row) {
+      return NextResponse.json({ error: "Registro não encontrado." }, { status: 404 });
+    }
+    if (
+      "ar_id" in row &&
+      !isAdmin(usuario.nivel) &&
+      row.ar_id !== usuario.ar_id
+    ) {
+      return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
+    }
+
     const { error } = await admin.from(tabela).delete().eq("id", id);
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) {
+      console.error("[gs/mutate] delete", error);
+      return NextResponse.json({ error: "Operação inválida." }, { status: 400 });
+    }
+    await auditar(admin, {
+      usuario_id: usuario.id,
+      tabela,
+      acao: "DELETE",
+      registro_id: id,
+      payload: { campos: [] },
+    });
     return NextResponse.json({ ok: true });
-  } catch (e: any) {
+  } catch (e) {
+    console.error("[gs/mutate]", e);
     return NextResponse.json({ error: "Erro interno." }, { status: 500 });
   }
 }

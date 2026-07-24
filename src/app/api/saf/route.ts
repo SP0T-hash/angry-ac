@@ -3,7 +3,8 @@ import { withAuth } from '@/lib/ac-angry/api-middleware';
 import { AuditLogger } from '@/lib/ac-angry/security';
 import { getSupabaseAdmin } from '@/lib/infra/supabase/client';
 
-export const POST = withAuth(async (req: NextRequest, { session, ip }) => {
+export const POST = withAuth(
+  async (req: NextRequest, { session, ip }) => {
   try {
     const { characteristics } = await req.json();
 
@@ -47,4 +48,6 @@ export const POST = withAuth(async (req: NextRequest, { session, ip }) => {
       { status: 500 },
     );
   }
-});
+},
+  { requireRole: 'AGR' },
+);

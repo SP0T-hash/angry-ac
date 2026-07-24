@@ -3,7 +3,8 @@ import { withAuth } from '@/lib/ac-angry/api-middleware';
 import { AuditLogger } from '@/lib/ac-angry/security';
 import { getSupabaseAdmin } from '@/lib/infra/supabase/client';
 
-export const POST = withAuth(async (req: NextRequest, { session, ip }) => {
+export const POST = withAuth(
+  async (req: NextRequest, { session, ip }) => {
   try {
     const body = await req.json();
     const {
@@ -49,4 +50,6 @@ export const POST = withAuth(async (req: NextRequest, { session, ip }) => {
     console.error('Certificate Save Error:', err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
-});
+},
+  { requireRole: 'AGR' },
+);

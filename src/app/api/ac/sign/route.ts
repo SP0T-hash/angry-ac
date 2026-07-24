@@ -185,5 +185,5 @@ export const POST = withAuth(
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
   },
-  { rateLimit: 'SIGN' },
+  { rateLimit: 'SIGN', requireRole: 'AGR' },
 );
