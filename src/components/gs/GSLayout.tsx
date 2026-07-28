@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Building2, Users, FileText, Wallet, Ticket, Scissors, LogOut, LayoutDashboard,
+  Calendar, CreditCard, UserCog,
 } from 'lucide-react';
 
 export interface GSNavItem {
@@ -23,7 +24,12 @@ export function buildGSNav(isAR: boolean): GSNavItem[] {
     ] : []),
     { id: 'clientes', label: 'Clientes', icon: Users, href: '/gs/clientes' },
     { id: 'pedidos', label: 'Pedidos', icon: FileText, href: '/gs/pedidos' },
-    ...(isAR ? [{ id: 'financeiro', label: 'Financeiro', icon: Wallet, href: '/gs/financeiro' }] : []),
+    { id: 'agenda', label: 'Agenda', icon: Calendar, href: '/gs/agenda' },
+    ...(isAR ? [
+      { id: 'financeiro', label: 'Financeiro', icon: Wallet, href: '/gs/financeiro' },
+      { id: 'faturas', label: 'Faturas', icon: CreditCard, href: '/gs/financeiro/faturas' },
+      { id: 'usuarios', label: 'Usuários', icon: UserCog, href: '/gs/usuarios' },
+    ] : []),
     { id: 'tickets', label: 'Suporte', icon: Ticket, href: '/gs/tickets' },
   ];
 }

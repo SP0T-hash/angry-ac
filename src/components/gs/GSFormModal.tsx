@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Save, Trash2 } from 'lucide-react';
 import { gsMutate, gsDelete } from "@/lib/gs/mutate-client";
 
@@ -23,18 +23,26 @@ interface GSFormModalProps {
   onSaved: () => void;
 }
 
+function buildForm(campos: CampoForm[], registro?: Record<string, any> | null) {
+  const init: Record<string, any> = {};
+  campos.forEach((c) => {
+    init[c.name] = registro?.[c.name] ?? c.defaultValue ?? "";
+  });
+  return init;
+}
+
 export default function GSFormModal({
   open, titulo, tabela, campos, registro, onClose, onSaved,
 }: GSFormModalProps) {
-  const [form, setForm] = useState<Record<string, any>>(() => {
-    const init: Record<string, any> = {};
-    campos.forEach((c) => {
-      init[c.name] = registro?.[c.name] ?? c.defaultValue ?? "";
-    });
-    return init;
-  });
+  const [form, setForm] = useState<Record<string, any>>(() => buildForm(campos, registro));
   const [saving, setSaving] = useState(false);
   const [erro, setErro] = useState("");
+
+  // Reseta o form sempre que registro ou campos mudam (evita stale state ao reabrir).
+  useEffect(() => {
+    setForm(buildForm(campos, registro));
+    setErro("");
+  }, [registro?.id, open, campos]);
 
   if (!open) return null;
 
@@ -46,7 +54,6 @@ export default function GSFormModal({
     e.preventDefault();
     setSaving(true);
     setErro("");
-    // Limpa campos vazios e converte números
     const data: Record<string, any> = {};
     campos.forEach((c) => {
       let v = form[c.name];
@@ -56,26 +63,37 @@ export default function GSFormModal({
       if (v === "false") v = false;
       data[c.name] = v;
     });
-    const res = await gsMutate(tabela, data, registro?.id);
-    if (!res.ok) {
-      setErro(res.error || "Erro ao salvar.");
+    try {
+      const res = await gsMutate(tabela, data, registro?.id);
+      if (!res.ok) {
+        setErro(res.error || "Erro ao salvar.");
+        setSaving(false);
+        return;
+      }
       setSaving(false);
-      return;
+      onSaved();
+      onClose();
+    } catch (err: any) {
+      setErro(err?.message || "Falha de conexão. Verifique sua rede.");
+      setSaving(false);
     }
-    setSaving(false);
-    onSaved();
-    onClose();
   };
 
   const handleDelete = async () => {
     if (!registro?.id) return;
     if (!confirm("Confirma a exclusão deste registro?")) return;
     setSaving(true);
-    const res = await gsDelete(tabela, registro.id);
-    if (!res.ok) { setErro(res.error || "Erro ao excluir."); setSaving(false); return; }
-    setSaving(false);
-    onSaved();
-    onClose();
+    setErro("");
+    try {
+      const res = await gsDelete(tabela, registro.id);
+      if (!res.ok) { setErro(res.error || "Erro ao excluir."); setSaving(false); return; }
+      setSaving(false);
+      onSaved();
+      onClose();
+    } catch (err: any) {
+      setErro(err?.message || "Falha de conexão ao excluir.");
+      setSaving(false);
+    }
   };
 
   return (
