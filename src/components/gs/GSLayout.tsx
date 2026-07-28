@@ -29,6 +29,8 @@ export function buildGSNav(isAR: boolean): GSNavItem[] {
       { id: 'financeiro', label: 'Financeiro', icon: Wallet, href: '/gs/financeiro' },
       { id: 'faturas', label: 'Faturas', icon: CreditCard, href: '/gs/financeiro/faturas' },
       { id: 'usuarios', label: 'Usuários', icon: UserCog, href: '/gs/usuarios' },
+      { id: 'contadores', label: 'Contadores', icon: Users, href: '/gs/contadores' },
+      { id: 'agentes', label: 'Agentes', icon: Wallet, href: '/gs/agentes' }
     ] : []),
     { id: 'tickets', label: 'Suporte', icon: Ticket, href: '/gs/tickets' },
   ];

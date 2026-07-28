@@ -532,6 +532,6 @@ SELECT
   '00000000000',
   'AC_ADMIN',
   id,
-  '$2a$10$8KzQMGx5C5Kc5Q5y5Q5u5e5i5o5u5e5i5o5u5e5i5o5u5e5i5o5u' -- admin123
+  '$2b$10$uWqiw3WeGl3f0DgBxwGBRel2AquTmL6xjZ1gwt8L63MlIiqsmtauK' -- admin123 (bcrypt real)
 FROM gs_ars WHERE cnpj = '00.000.000/0001-00'
 ON CONFLICT (email) DO NOTHING;

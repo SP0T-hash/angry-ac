@@ -84,11 +84,89 @@ const POLICY: Record<string, TabelaPolicy> = {
     ],
     camposTenant: ["ar_id"],
   },
+  gs_agenda: {
+    minNivel: "AR",
+    campos: [
+      "cliente_nome", "cliente_telefone", "cliente_email",
+      "data", "hora_inicio", "hora_fim", "tipo_servico",
+      "status", "agente_nome", "observacoes", "ar_id", "unidade_id",
+    ],
+    camposTenant: ["ar_id", "unidade_id"],
+  },
+  gs_comissoes: {
+    minNivel: "AR",
+    campos: [
+      "agente_id", "agenda_id", "pedido_id", "tipo",
+      "valor_bruto", "percentual", "valor_comissao",
+      "mes_referencia", "status", "ar_id",
+    ],
+    camposTenant: ["ar_id"],
+  },
+  gs_contador_carteira: {
+    minNivel: "AR",
+    campos: [
+      "contador_id", "cliente_id", "pedido_id", "status",
+      "data_expiracao", "lembrete_60d", "lembrete_30d", "lembrete_15d",
+    ],
+    camposTenant: [],
+  },
+  gs_usuarios: {
+    minNivel: "ADMIN",
+    campos: [
+      "nome", "email", "cpf", "telefone", "nivel",
+      "ar_id", "unidade_id", "ponto_id", "is_active",
+    ],
+    camposTenant: ["ar_id", "unidade_id"],
+  },
+  gs_faturas: {
+    minNivel: "AR",
+    campos: [
+      "cliente_nome", "cliente_documento", "cliente_email",
+      "cliente_telefone", "descricao", "valor_original",
+      "valor_desconto", "valor_total", "data_vencimento",
+      "tipo_cobranca", "meio_pagamento", "status", "parcelas",
+      "taxa_gateway", "conciliado", "ar_id",
+    ],
+    camposTenant: ["ar_id"],
+  },
 };
 
 function nivelPermite(minNivel: NivelMinimo, nivel: GSNivel): boolean {
   if (minNivel === "ADMIN") return isAdmin(nivel);
   return isAR(nivel); // AR ou ADMIN (CONTADOR/VENDEDOR não passam)
+}
+
+// ─── RBAC granular via gs_permissoes (best-effort) ──────────────────────────
+const TABELA_MODULO: Record<string, string> = {
+  gs_ars: "config", gs_unidades: "config", gs_pontos_atendimento: "config",
+  gs_clientes: "clientes", gs_pedidos: "pedidos", gs_agenda: "agenda",
+  gs_cobrancas: "financeiro", gs_faturas: "financeiro",
+  gs_assinaturas: "financeiro", gs_planos: "financeiro", gs_comissoes: "financeiro",
+  gs_tickets: "suporte", gs_usuarios: "config",
+  gs_contador_carteira: "contador",
+};
+
+const ACAO_MAP: Record<string, string> = { INSERT: "criar", UPDATE: "editar", DELETE: "excluir" };
+
+/** Checa a tabela gs_permissoes para o nível do usuário. Retorna true se permitido. */
+async function verificarPermissao(
+  supabase: Awaited<ReturnType<typeof getSupabaseAdmin>>,
+  usuario: GSUsuario,
+  tabela: string,
+  acao: "INSERT" | "UPDATE" | "DELETE",
+): Promise<boolean> {
+  const modulo = TABELA_MODULO[tabela];
+  const acaoPerm = ACAO_MAP[acao];
+  if (!modulo || !acaoPerm) return true; // sem mapeamento → coarse check é suficiente
+
+  const { data: perms, error } = await supabase
+    .from("gs_permissoes")
+    .select("acao, escopo")
+    .eq("nivel", usuario.nivel)
+    .eq("modulo", modulo);
+
+  if (error || !perms || perms.length === 0) return true; // não há regras → coarse ok
+  return perms.some((p) => p.acao === acaoPerm || p.acao === "aprovar");
 }
 
 function sanitizarPayload(
@@ -157,6 +235,12 @@ export async function POST(req: NextRequest) {
     }
 
     const admin = await getSupabaseAdmin();
+
+    // Verificação granular via gs_permissoes (best-effort, ignora se não houver registros)
+    if (!(await verificarPermissao(admin, usuario, tabela, id ? "UPDATE" : "INSERT"))) {
+      return NextResponse.json({ error: "Sem permissão para esta ação." }, { status: 403 });
+    }
+
     const allowedData = sanitizarPayload(data, policy, usuario);
     if (Object.keys(allowedData).length === 0) {
       return NextResponse.json({ error: "Dados inválidos." }, { status: 400 });
@@ -240,6 +324,10 @@ export async function DELETE(req: NextRequest) {
     }
 
     const admin = await getSupabaseAdmin();
+
+    if (!(await verificarPermissao(admin, usuario, tabela, "DELETE"))) {
+      return NextResponse.json({ error: "Sem permissão para excluir." }, { status: 403 });
+    }
 
     const { data: row, error: selErr } = await admin
       .from(tabela)

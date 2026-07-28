@@ -11,7 +11,7 @@ const AR_SCOPED_TABLES = new Set([
   "gs_pedidos", "gs_cobrancas", "gs_assinaturas", "gs_faturas",
   "gs_tickets", "gs_agenda", "gs_comissoes", "gs_notas_fiscais",
   "gs_transacoes", "gs_gateway_logs", "gs_integracao_logs",
-  "gs_scanner_resultados", "gs_contador_carteira",
+  "gs_scanner_resultados",
 ]);
 
 // Allowlist de tabelas consultáveis (defesa em profundidade).
