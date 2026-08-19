@@ -20,7 +20,7 @@ export default function AgentLoginPage() {
   // Diagnóstico de estação (Homologação)
   useEffect(() => {
     const runDiagnostics = async () => {
-      // @ts-ignore - Verificação real da extensão Lacuna
+      // @ts-expect-error - Verificação real da extensão Lacuna
       const isWebPkiInstalled = typeof window !== 'undefined' && typeof window.lacunaWebPki !== 'undefined';
       
       setDiagnostics({
@@ -47,7 +47,7 @@ export default function AgentLoginPage() {
   const handleA3Login = async () => {
     setAuthStatus('scanning');
     
-    // @ts-ignore - Verificação real da extensão Lacuna
+    // @ts-expect-error - Verificação real da extensão Lacuna
     if (typeof window.lacunaWebPki === 'undefined' || !window.lacunaWebPki) {
       setAuthStatus('error');
       setTimeout(() => setAuthStatus('idle'), 3000);
@@ -55,7 +55,7 @@ export default function AgentLoginPage() {
     }
 
     try {
-      // @ts-ignore
+      // @ts-expect-error
       const pki = new window.lacunaWebPki();
       
       // Inicialização do motor com validação de compatibilidade
@@ -119,7 +119,7 @@ export default function AgentLoginPage() {
     }
     
     try {
-      // @ts-ignore
+      // @ts-expect-error
       const pki = new window.lacunaWebPki();
       await pki.init({ trusted: true });
       

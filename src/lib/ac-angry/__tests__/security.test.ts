@@ -10,7 +10,7 @@ vi.mock('@supabase/supabase-js', () => ({
   createClient: mockCreateClient,
 }));
 
-import { NonceManager, SessionManager, RateLimiter, AuditLogger, ProtocolLocker, RateLimitError } from '../security';
+import { NonceManager, SessionManager, RateLimiter, AuditLogger, ProtocolLocker, RateLimitError, verifyJWT } from '../security';
 
 function createChain(overrides: Record<string, any> = {}) {
   const c: any = {};
@@ -678,5 +678,43 @@ describe('ProtocolLocker', () => {
 
       await expect(ProtocolLocker.unlock('protocol-1', 'wrong-agr')).resolves.toBeUndefined();
     });
+  });
+});
+
+describe('verifyJWT', () => {
+  const SECRET = 'test-secret-for-verifyjwt-must-be-long-enough-32';
+  beforeAll(() => {
+    process.env.AUTH_JWT_SECRET = SECRET;
+  });
+
+  function makeToken(payload: Record<string, unknown>, alg = 'HS256', secret = SECRET) {
+    const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString('base64url');
+    const header = b64({ alg, typ: 'JWT' });
+    const body = b64(payload);
+    const sig = createHmac('sha256', secret).update(`${header}.${body}`).digest('base64url');
+    return `${header}.${body}.${sig}`;
+  }
+
+  it('accepts a valid HS256 token and returns the payload', () => {
+    const token = makeToken({ sub: 'agr-123', exp: Math.floor(Date.now() / 1000) + 60 });
+    const payload = verifyJWT(token);
+    expect(payload.sub).toBe('agr-123');
+  });
+
+  it('rejects a tampered signature', () => {
+    const token = makeToken({ sub: 'agr-123', exp: Math.floor(Date.now() / 1000) + 60 });
+    const [h, p] = token.split('.');
+    const forged = `${h}.${p}.${createHmac('sha256', SECRET).update('x').digest('base64url')}`;
+    expect(() => verifyJWT(forged)).toThrow();
+  });
+
+  it('rejects an unsupported alg (alg confusion)', () => {
+    const token = makeToken({ sub: 'agr-123', exp: Math.floor(Date.now() / 1000) + 60 }, 'HS384');
+    expect(() => verifyJWT(token)).toThrow();
+  });
+
+  it('rejects an expired token', () => {
+    const token = makeToken({ sub: 'agr-123', exp: Math.floor(Date.now() / 1000) - 10 });
+    expect(() => verifyJWT(token)).toThrow();
   });
 });

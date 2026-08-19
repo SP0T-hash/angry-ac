@@ -16,10 +16,6 @@ import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
 // 0. JWT — Assinatura/verificação HMAC-SHA256 (sem dependências externas)
 // ===========================================================================
 
-function base64urlEncode(str: string): string {
-  return Buffer.from(str).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-}
-
 function base64urlDecode(str: string): string {
   const pad = str.length % 4 === 0 ? '' : '='.repeat(4 - (str.length % 4));
   return Buffer.from(str.replace(/-/g, '+').replace(/_/g, '/') + pad, 'base64').toString('utf8');
