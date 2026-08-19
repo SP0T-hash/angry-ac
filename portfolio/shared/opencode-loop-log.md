@@ -57,3 +57,34 @@ RI ganhou README + cobertura de testes (prontidão comercial/documentação).
 ### Próxima ação
 Ciclo 2: corrigir exposição de PII em `getByPublicId` (RI) com teste; iniciar unificação de
 status canônicos Landing↔GS↔AC Angry↔RI; e executar pesquisa externa de UX/concorrentes (registrada).
+
+---
+
+## Ciclo 2 — 2026-08-19 (Ambientes & Layout)
+
+### Sistemas analisados
+Ambos os repos: `angry-ac` (Landing/GS/AC Angry) e `ar-eletronica` (RI). Foco: ambientes dev/prod e indicador de ambiente no layout.
+
+### Arquivos modificados
+- `ar-eletronica/shared/config.ts` (novo), `.env.development.example`, `.env.production.example`, `client/src/components/EnvironmentBadge.tsx`, `client/src/App.tsx`.
+- `angry-ac/src/lib/env.ts` (novo), `.env.development.example`, `.env.production.example`, `src/components/EnvironmentBanner.tsx`, layouts `(landing)`,`(portal)`,`(angry)`,`gs`.
+- `portfolio/ambientes.md` (novo).
+
+### Testes executados
+- `ar-eletronica`: `pnpm check` OK; `pnpm test` 13/13.
+- `angry-ac`: `tsc` sem erros nos alterados; ESLint limpo; `npm run test` 45/45.
+
+### Problemas corrigidos
+- Configuração dev/prod para os dois repos (config module + `.env.*.example`).
+- Guarda `ISSUANCE_ENABLED`/`ISSUANCE_BLOCKED` mantém emissão bloqueada por padrão.
+- Indicador de ambiente (badge/banner) inserido nos layouts.
+
+### Pendências
+- Valores reais de `.env.production` no go-live (após AC/homologação).
+- Unificar white-label entre repos; deep visual redesign (depende de direção de design).
+
+### Riscos
+- Nenhum segredo real commitado. Emissão permanece bloqueada.
+
+### Próxima ação
+Ciclo 3: PII em `getByPublicId` (RI); unificação white-label; pesquisa externa UX registrada.

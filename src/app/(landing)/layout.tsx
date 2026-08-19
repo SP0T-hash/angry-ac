@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import "@/app/globals.css";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { EnvironmentBanner } from "@/components/EnvironmentBanner";
 
 export const metadata: Metadata = {
   title: "VEMAPI - Soluções Digitais",
@@ -19,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${GeistSans.className} antialiased`}><ErrorBoundary>{children}</ErrorBoundary></body>
+      <body className={`${GeistSans.className} antialiased`}><ErrorBoundary><EnvironmentBanner />{children}</ErrorBoundary></body>
     </html>
   );
 }
