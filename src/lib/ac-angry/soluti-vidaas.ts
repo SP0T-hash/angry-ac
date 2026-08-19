@@ -11,6 +11,19 @@ export interface SolutiVidaasConfig {
   tokenUrl: string;
 }
 
+export interface SolutiVidaasTokenResponse {
+  access_token?: string;
+  token_type?: string;
+  expires_in?: number;
+  [key: string]: unknown;
+}
+
+export interface SolutiVidaasPushResponse {
+  success: boolean;
+  request_id?: string;
+  error?: string;
+}
+
 class SolutiVidaasAdapter {
   /**
    * Redireciona para o portal da Soluti para autorização do usuário
@@ -29,7 +42,7 @@ class SolutiVidaasAdapter {
   /**
    * Troca o 'code' retornado pelo 'access_token'
    */
-  async exchangeCodeForToken(config: SolutiVidaasConfig, code: string): Promise<any> {
+  async exchangeCodeForToken(config: SolutiVidaasConfig, code: string): Promise<SolutiVidaasTokenResponse> {
     console.log('[SOLUTI] Trocando CODE por ACCESS_TOKEN...');
     
     // Chamada real de backend (Server-side only)
@@ -51,10 +64,23 @@ class SolutiVidaasAdapter {
   /**
    * Solicita a assinatura de um desafio (Hash) via Push
    */
-  async requestPushSignature(accessToken: string, hashToSign: string): Promise<any> {
-    console.log('[SOLUTI] Solicitando assinatura via Push...');
-    // Implementação da chamada de assinatura PSC
-    return { success: true, request_id: 'SOL-REQ-999' };
+  async requestPushSignature(accessToken: string, hashToSign: string): Promise<SolutiVidaasPushResponse> {
+    // INTEGRAÇÃO NÃO IMPLEMENTADA — fail-safe por design.
+    // Não simula aprovação nem resposta de API de PSC. O fluxo de assinatura em
+    // nuvem (Soluti Vidaas) depende de credencial, contrato e homologação formal.
+    // TODO(PENDING_PROVIDER): implementar a chamada real ao endpoint de push
+    // quando a AC/DPC e o provedor estiverem formalmente contratados.
+    console.warn('[SOLUTI] requestPushSignature não implementado — PENDING_PROVIDER', {
+      hasAccessToken: Boolean(accessToken),
+      hashLength: hashToSign?.length ?? 0,
+    });
+    throw new Error(
+      'Integração Soluti Vidaas (requestPushSignature) não implementada. ' +
+        'Status: PENDING_PROVIDER / PENDING_HOMOLOGATION. ' +
+        `Contexto: accessToken=${accessToken ? 'presente' : 'ausente'}, ` +
+        `hashToSign=${hashToSign ? 'presente' : 'ausente'}. ` +
+        'Nenhuma aprovação ou resposta de API é simulada.',
+    );
   }
 }
 
