@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Building2, Users, FileText, Wallet, Ticket, Scissors, LogOut, LayoutDashboard,
-  Calendar, CreditCard, UserCog,
+  Calendar, CreditCard, UserCog, Calculator,
 } from 'lucide-react';
 
 export interface GSNavItem {
@@ -14,7 +14,7 @@ export interface GSNavItem {
   href: string;
 }
 
-export function buildGSNav(isAR: boolean): GSNavItem[] {
+export function buildGSNav(isAR: boolean, isContador = false): GSNavItem[] {
   return [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/gs/dashboard' },
     ...(isAR ? [
@@ -32,6 +32,9 @@ export function buildGSNav(isAR: boolean): GSNavItem[] {
       { id: 'contadores', label: 'Contadores', icon: Users, href: '/gs/contadores' },
       { id: 'agentes', label: 'Agentes', icon: Wallet, href: '/gs/agentes' }
     ] : []),
+    ...(isContador ? [
+      { id: 'contador', label: 'Portal do Contador', icon: Calculator, href: '/gs/contador' },
+    ] : []),
     { id: 'tickets', label: 'Suporte', icon: Ticket, href: '/gs/tickets' },
   ];
 }
@@ -40,6 +43,7 @@ interface GSLayoutProps {
   usuario: { nome: string; email: string };
   nivelLabel: string;
   isAR: boolean;
+  isContador?: boolean;
   titulo: string;
   subtitulo?: string;
   children: React.ReactNode;
@@ -47,11 +51,11 @@ interface GSLayoutProps {
 }
 
 export default function GSLayout({
-  usuario, nivelLabel, isAR, titulo, subtitulo, children, acao,
+  usuario, nivelLabel, isAR, isContador = false, titulo, subtitulo, children, acao,
 }: GSLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const nav = buildGSNav(isAR);
+  const nav = buildGSNav(isAR, isContador);
 
   const handleLogout = async () => {
     await fetch('/api/gs/auth/logout', { method: 'POST' });
@@ -63,11 +67,11 @@ export default function GSLayout({
     <div className="min-h-screen flex bg-[var(--color-surface)]">
       <aside className="hidden md:flex w-60 bg-white border-r border-slate-200 h-screen flex-col py-4 shrink-0 z-40">
         <div className="px-4 mb-6 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-sm">
+          <div className="w-9 h-9 rounded-lg bg-brand text-white flex items-center justify-center shadow-sm">
             <Building2 size={18} />
           </div>
           <div className="leading-tight">
-            <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded uppercase tracking-wider">GS</span>
+            <span className="text-[10px] font-black text-brand bg-brand/10 px-1.5 py-0.5 rounded uppercase tracking-wider">GS</span>
             <p className="text-slate-900 font-black text-sm tracking-tight">Core-AR · Gestão</p>
           </div>
         </div>
@@ -80,13 +84,14 @@ export default function GSLayout({
                 key={item.id}
                 onClick={() => router.push(item.href)}
                 aria-current={ativo ? 'page' : undefined}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+                className={`group relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
                   ativo
-                    ? 'bg-emerald-50 text-emerald-700'
+                    ? 'bg-brand/10 text-brand'
                     : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
-                <item.icon size={18} className={ativo ? 'text-emerald-600' : 'text-slate-400'} />
+                <span className={`absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-brand transition-opacity ${ativo ? 'opacity-100' : 'opacity-0'}`} />
+                <item.icon size={18} className={ativo ? 'text-brand' : 'text-slate-400'} />
                 {item.label}
               </button>
             );
@@ -113,7 +118,7 @@ export default function GSLayout({
           <div className="flex items-center gap-4 shrink-0">
             <div className="hidden md:flex flex-col items-end leading-tight">
               <span className="text-[11px] font-black text-slate-800 uppercase">{usuario.nome}</span>
-              <span className="text-[9px] text-emerald-600 font-bold uppercase tracking-wider">{usuario.email}</span>
+              <span className="text-[9px] text-brand font-bold uppercase tracking-wider">{usuario.email}</span>
             </div>
             {acao}
           </div>

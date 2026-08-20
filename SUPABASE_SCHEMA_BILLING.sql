@@ -83,11 +83,28 @@ CREATE TABLE IF NOT EXISTS gs_assinaturas (
 );
 
 -- ============================================================
+-- 2.1. FORMAS DE PAGAMENTO (configuração por AR ou global)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS gs_formas_pagamento (
+  id              UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  ar_id           UUID REFERENCES gs_ars(id) ON DELETE CASCADE, -- NULL = forma global (padrão do GS)
+  tipo            TEXT NOT NULL CHECK (tipo IN ('PIX', 'CARTAO', 'BOLETO')),
+  descricao       TEXT,
+  ativo           BOOLEAN DEFAULT true,
+  ordem           INT DEFAULT 0,
+  config          JSONB DEFAULT '{}', -- { chave_pix, bandeira, instrucoes, gateway }
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- ============================================================
 -- 3. COBRANÇAS (Faturas que emitimos para ARs/ACs/Contadores)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS gs_cobrancas (
   id                UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  assinatura_id     UUID NOT NULL REFERENCES gs_assinaturas(id),
+  assinatura_id     UUID REFERENCES gs_assinaturas(id),
+  ar_id             UUID REFERENCES gs_ars(id),               -- tenant (isolamento)
+  contador_id       UUID REFERENCES gs_usuarios(id),          -- contador que paga o custo
 
   -- Identificação
   numero            TEXT NOT NULL UNIQUE,          -- Fatura-2026-0001
@@ -344,10 +361,13 @@ ON CONFLICT (slug) DO NOTHING;
 -- TABELA: gs_contadores (corrige FK órfã em gs_assinaturas.contador_id)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS gs_contadores (
-  id            UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  nome          TEXT NOT NULL,
-  email         TEXT,
-  ar_id         UUID REFERENCES gs_ars(id),
-  ativo         BOOLEAN DEFAULT true,
-  criado_em     TIMESTAMPTZ DEFAULT now()
+  id                UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  usuario_id        UUID REFERENCES gs_usuarios(id),          -- login do contador (CONTADOR)
+  nome              TEXT NOT NULL,
+  email             TEXT,
+  telefone          TEXT,
+  ar_id             UUID REFERENCES gs_ars(id),
+  valor_custo_cert  NUMERIC(10,2),                             -- custo que o contador paga por certificado
+  ativo             BOOLEAN DEFAULT true,
+  criado_em         TIMESTAMPTZ DEFAULT now()
 );

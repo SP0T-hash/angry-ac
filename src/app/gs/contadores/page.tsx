@@ -8,11 +8,14 @@ import GSListClient from "@/components/gs/GSListClient";
 export default async function GSContadoresPage() {
   const sess = await getGSSession();
   if (!sess) redirect("/gs/login");
+  const isContador = sess.usuario.nivel === "CONTADOR";
 
   let rows: any[] = [];
   let erro = "";
   try {
     rows = await gsList("gs_contador_carteira", { usuario: sess.usuario, ordem: "data_expiracao" });
+    // Contador só enxerga a própria carteira (isolamento de tenant).
+    if (isContador) rows = rows.filter((r: any) => r.contador_id === sess.usuario.id);
   } catch (e: any) { erro = e.message; }
 
   // Alerta de renovação: destaca certificados próximos do vencimento

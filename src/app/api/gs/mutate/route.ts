@@ -20,6 +20,11 @@ interface TabelaPolicy {
 }
 
 const POLICY: Record<string, TabelaPolicy> = {
+  gs_formas_pagamento: {
+    minNivel: "AR",
+    campos: ["tipo", "descricao", "ativo", "ordem", "ar_id", "config"],
+    camposTenant: ["ar_id"],
+  },
   gs_ars: {
     minNivel: "ADMIN",
     campos: ["nome", "cnpj", "email", "telefone", "config", "is_active", "slug", "logo_url", "branding"],
@@ -63,10 +68,11 @@ const POLICY: Record<string, TabelaPolicy> = {
   gs_cobrancas: {
     minNivel: "AR",
     campos: [
-      "assinatura_id", "numero", "valor_mensalidade", "valor_excedente",
+      "assinatura_id", "ar_id", "contador_id", "numero", "descricao", "periodo_ref",
+      "data_vencimento", "valor_mensalidade", "valor_excedente",
       "valor_total", "status", "repasse_gs", "repasse_ar", "data_pagamento",
     ],
-    camposTenant: [],
+    camposTenant: ["ar_id"],
   },
   gs_tickets: {
     minNivel: "AR",
@@ -100,6 +106,11 @@ const POLICY: Record<string, TabelaPolicy> = {
       "valor_bruto", "percentual", "valor_comissao",
       "mes_referencia", "status", "ar_id",
     ],
+    camposTenant: ["ar_id"],
+  },
+  gs_contadores: {
+    minNivel: "AR",
+    campos: ["usuario_id", "nome", "email", "telefone", "valor_custo_cert", "ativo", "ar_id"],
     camposTenant: ["ar_id"],
   },
   gs_contador_carteira: {
