@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS gs_ars (
   endereco        JSONB,            -- { cep, logradouro, numero, complemento, bairro, cidade, uf }
   is_active       BOOLEAN DEFAULT true,
   config          JSONB DEFAULT '{}', -- Configurações específicas da AR
+  branding        JSONB DEFAULT '{}', -- Tokens de white-label por AR (primary, verification, background, ink, environmentLabel)
   created_at      TIMESTAMPTZ DEFAULT now(),
   updated_at      TIMESTAMPTZ DEFAULT now()
 );

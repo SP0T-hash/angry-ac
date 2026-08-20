@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getGSSession } from "@/lib/gs/session";
 import { NIVEL_LABEL, isAR } from "@/lib/gs/types";
 import { gsList } from "@/lib/gs/data";
+import { defaultBranding } from "@/lib/gs/tenantBranding";
 import GSListClient from "@/components/gs/GSListClient";
 
 export default async function GSArsPage() {
@@ -11,7 +12,7 @@ export default async function GSArsPage() {
   let ars: any[] = [];
   let erro = "";
   try {
-    ars = await gsList("gs_ars", { colunas: "id,nome,cnpj,email,is_active,created_at", ordem: "created_at" });
+    ars = await gsList("gs_ars", { colunas: "id,nome,cnpj,email,is_active,logo_url,config,created_at", ordem: "created_at" });
   } catch (e: any) { erro = e.message; }
 
   return (
@@ -29,8 +30,18 @@ export default async function GSArsPage() {
         { key: "email", label: "Email" },
         { key: "ativo", label: "Ativo" },
         { key: "criado_em", label: "Criado em" },
+        { key: "marca", label: "Marca" },
       ]}
-      linhas={ars.map((a) => ({ ...a, ativo: a.is_active ? "Sim" : "Não", criado_em: new Date(a.created_at).toLocaleDateString("pt-BR") }))}
+      linhas={ars.map((a) => {
+        const branding = (a.config?.branding ?? {}) as { primary?: string };
+        const primary = branding.primary || defaultBranding().primary;
+        return {
+          ...a,
+          ativo: a.is_active ? "Sim" : "Não",
+          criado_em: new Date(a.created_at).toLocaleDateString("pt-BR"),
+          marca: a.logo_url ? `● logo · ${primary}` : `● ${primary}`,
+        };
+      })}
       campos={[
         { name: "nome", label: "Nome", required: true },
         { name: "cnpj", label: "CNPJ", required: true },
