@@ -1,7 +1,8 @@
 'use client';
 
-import { UserCircle, Zap, LogOut, ShieldCheck } from 'lucide-react';
+import { UserCircle, LogOut, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import BrandMark from "@/components/BrandMark";
 
 export default function Navbar() {
   const router = useRouter();
@@ -13,13 +14,14 @@ export default function Navbar() {
   return (
     <header className="h-[65px] bg-white/80 backdrop-blur-md border-b border-gray-100 px-4 lg:px-8 flex items-center justify-between shrink-0 sticky top-0 z-50 shadow-[0_1px_10px_-5px_rgba(0,0,0,0.1)]">
       <div className="flex items-center gap-4">
-        <div className="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-200 animate-in fade-in zoom-in duration-500">
-          <Zap size={20} fill="currentColor" />
-        </div>
+        <BrandMark
+          iconClassName="w-9 h-9 shadow-lg shadow-brand/20 animate-in fade-in zoom-in duration-500"
+          nameClassName="text-brand font-black text-sm tracking-[0.2em] uppercase leading-none"
+        />
         <div className="flex flex-col">
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded uppercase tracking-wider">AC</span>
-            <h1 className="text-emerald-900 font-black text-sm tracking-[0.2em] uppercase leading-none">ANGRY</h1>
+            <span className="text-[10px] font-black text-brand bg-brand/10 px-1.5 py-0.5 rounded uppercase tracking-wider">AC</span>
+            <h1 className="text-brand font-black text-sm tracking-[0.2em] uppercase leading-none">ANGRY</h1>
           </div>
           <span className="text-[9px] text-gray-400 font-bold tracking-widest uppercase mt-1">Central de Emissão Digital</span>
         </div>

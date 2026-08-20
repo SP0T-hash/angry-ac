@@ -4,6 +4,7 @@ import { NIVEL_LABEL, isAR } from "@/lib/gs/types";
 import { gsList } from "@/lib/gs/data";
 import { defaultBranding } from "@/lib/gs/tenantBranding";
 import GSListClient from "@/components/gs/GSListClient";
+import ArsBrandingPanel from "@/components/gs/ArsBrandingPanel";
 
 export default async function GSArsPage() {
   const sess = await getGSSession();
@@ -12,10 +13,11 @@ export default async function GSArsPage() {
   let ars: any[] = [];
   let erro = "";
   try {
-    ars = await gsList("gs_ars", { colunas: "id,nome,cnpj,email,is_active,logo_url,config,created_at", ordem: "created_at" });
+    ars = await gsList("gs_ars", { colunas: "id,nome,slug,cnpj,email,is_active,logo_url,branding,created_at", ordem: "created_at" });
   } catch (e: any) { erro = e.message; }
 
   return (
+    <>
     <GSListClient
       usuario={sess.usuario}
       nivelLabel={NIVEL_LABEL[sess.usuario.nivel]}
@@ -33,7 +35,7 @@ export default async function GSArsPage() {
         { key: "marca", label: "Marca" },
       ]}
       linhas={ars.map((a) => {
-        const branding = (a.config?.branding ?? {}) as { primary?: string };
+        const branding = (a.branding ?? {}) as { primary?: string };
         const primary = branding.primary || defaultBranding().primary;
         return {
           ...a,
@@ -50,5 +52,7 @@ export default async function GSArsPage() {
         { name: "is_active", label: "Ativo", type: "select", defaultValue: true, options: [{ value: true, label: "Sim" }, { value: false, label: "Não" }] },
       ]}
     />
+    <ArsBrandingPanel ars={ars} />
+    </>
   );
 }

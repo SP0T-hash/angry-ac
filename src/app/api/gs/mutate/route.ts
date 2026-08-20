@@ -22,7 +22,7 @@ interface TabelaPolicy {
 const POLICY: Record<string, TabelaPolicy> = {
   gs_ars: {
     minNivel: "ADMIN",
-    campos: ["nome", "cnpj", "email", "telefone", "config", "is_active"],
+    campos: ["nome", "cnpj", "email", "telefone", "config", "is_active", "slug", "logo_url", "branding"],
     camposTenant: [],
   },
   gs_unidades: {

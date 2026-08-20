@@ -25,6 +25,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS gs_ars (
   id              UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   nome            TEXT NOT NULL,
+  slug            TEXT UNIQUE,        -- Identificador público da AR (white-label): /?ar=<slug>
   cnpj            TEXT NOT NULL UNIQUE,
   email           TEXT NOT NULL,
   telefone        TEXT,

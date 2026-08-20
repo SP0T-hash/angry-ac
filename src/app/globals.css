@@ -35,6 +35,11 @@
   --color-border: 241 245 249;
 
   --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08);
+
+  /* White-label: marca por AR (tenant). Sobrescrito em runtime pelo BrandingProvider.
+     Valores em "R G B" para suportar opacidade via Tailwind (bg-brand/5). */
+  --brand-primary-rgb: 16 185 129;   /* VEMAPI emerald (#10b981) */
+  --brand-verify-rgb: 140 226 186;   /* mint (#8ce2ba) */
 }
 
 @layer utilities {
@@ -92,7 +97,7 @@ html {
   top: 0;
   left: 0;
   pointer-events: none;
-  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgb(var(--brand-primary-rgb) / 0.1) 0%, transparent 50%);
 }
 
 /* EFEITO PARALLAX */
