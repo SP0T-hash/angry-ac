@@ -94,11 +94,11 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
   if (success) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-12 animate-in fade-in zoom-in duration-500">
-        <div className="w-24 h-24 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center mb-8 shadow-xl shadow-emerald-100 ring-4 ring-white">
+        <div className="w-24 h-24 bg-brand/5 text-brand rounded-3xl flex items-center justify-center mb-8 shadow-xl shadow-brand ring-4 ring-white">
           <CheckCircle2 size={48} />
         </div>
         <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Protocolo Gerado!</h2>
-        <p className="text-emerald-600 font-bold uppercase tracking-widest text-sm mb-8">O pedido foi lançado com sucesso</p>
+        <p className="text-brand font-bold uppercase tracking-widest text-sm mb-8">O pedido foi lançado com sucesso</p>
         
         <div className="bg-slate-50 border border-slate-100 rounded-2xl p-8 mb-8 text-center w-full max-w-sm">
            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-2">Número do Protocolo</span>
@@ -107,7 +107,7 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
 
         <button 
           onClick={onProtocolGenerated}
-          className="px-10 py-4 bg-slate-900 text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-emerald-600 transition-all shadow-xl shadow-slate-200"
+          className="px-10 py-4 bg-slate-900 text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-brand transition-all shadow-xl shadow-slate-200"
         >
           Voltar para a Fila
         </button>
@@ -120,7 +120,7 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
       <div className="max-w-4xl mx-auto">
         <header className="mb-12">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+            <div className="w-10 h-10 bg-brand rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand">
               <PlusCircle size={20} />
             </div>
             <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Lançar Novo Pedido</h1>
@@ -133,10 +133,10 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
           {/* Form Section */}
           <div className="lg:col-span-2 space-y-4 lg:space-y-6">
             <div className="bg-white rounded-2xl lg:rounded-3xl p-6 lg:p-8 border border-slate-100 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1.5 bg-emerald-600"></div>
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-brand"></div>
               
               <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-8 flex items-center gap-2">
-                <User size={12} className="text-emerald-600" /> Dados do Titular
+                <User size={12} className="text-brand" /> Dados do Titular
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -146,7 +146,7 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="João Silva..." 
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none transition-all font-medium" 
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:border-brand focus:outline-none transition-all font-medium" 
                   />
                 </FormGroup>
 
@@ -156,7 +156,7 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
                     value={formData.cpf}
                     onChange={handleInputChange}
                     placeholder="000.000.000-00" 
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none transition-all font-medium" 
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:border-brand focus:outline-none transition-all font-medium" 
                   />
                 </FormGroup>
 
@@ -166,7 +166,7 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
                     type="date"
                     value={formData.birthdate}
                     onChange={handleInputChange}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none transition-all font-medium text-slate-600" 
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:border-brand focus:outline-none transition-all font-medium text-slate-600" 
                   />
                 </FormGroup>
 
@@ -175,7 +175,7 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
                     name="certType"
                     value={formData.certType}
                     onChange={handleInputChange}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none transition-all font-bold text-slate-700 appearance-none"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:border-brand focus:outline-none transition-all font-bold text-slate-700 appearance-none"
                   >
                     <option>e-CPF A1 1 Ano</option>
                     <option>e-CPF A3 1 Ano</option>
@@ -191,7 +191,7 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
               {formData.isPJ && (
                 <div className="mt-8 pt-8 border-t border-slate-50 animate-in fade-in slide-in-from-top-4 duration-500">
                   <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-8 flex items-center gap-2">
-                    <Briefcase size={12} className="text-emerald-600" /> Dados da Empresa
+                    <Briefcase size={12} className="text-brand" /> Dados da Empresa
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormGroup label="Razão Social" icon={<Landmark size={14} />}>
@@ -200,7 +200,7 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
                         value={formData.companyName}
                         onChange={handleInputChange}
                         placeholder="Nome da Empresa LTDA" 
-                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none transition-all font-medium" 
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:border-brand focus:outline-none transition-all font-medium" 
                       />
                     </FormGroup>
                     <FormGroup label="CNPJ" icon={<Hash size={14} />}>
@@ -209,7 +209,7 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
                         value={formData.cnpj}
                         onChange={handleInputChange}
                         placeholder="00.000.000/0000-00" 
-                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none transition-all font-medium" 
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:border-brand focus:outline-none transition-all font-medium" 
                       />
                     </FormGroup>
                   </div>
@@ -228,12 +228,12 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
                     onClick={() => setFormData(prev => ({ ...prev, attendanceMode: 'videoconferencia' }))}
                     className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${
                       formData.attendanceMode === 'videoconferencia' 
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-lg shadow-emerald-100' 
+                        ? 'border-brand bg-brand/5 text-brand shadow-lg shadow-brand' 
                         : 'border-slate-50 bg-slate-50/50 text-slate-400 hover:border-slate-200'
                     }`}
                   >
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
-                       formData.attendanceMode === 'videoconferencia' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-400'
+                       formData.attendanceMode === 'videoconferencia' ? 'bg-brand text-white' : 'bg-slate-200 text-slate-400'
                     }`}>
                       <Video size={24} />
                     </div>
@@ -247,12 +247,12 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
                     onClick={() => setFormData(prev => ({ ...prev, attendanceMode: 'presencial' }))}
                     className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${
                       formData.attendanceMode === 'presencial' 
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-lg shadow-emerald-100' 
+                        ? 'border-brand bg-brand/5 text-brand shadow-lg shadow-brand' 
                         : 'border-slate-50 bg-slate-50/50 text-slate-400 hover:border-slate-200'
                     }`}
                   >
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
-                       formData.attendanceMode === 'presencial' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-400'
+                       formData.attendanceMode === 'presencial' ? 'bg-brand text-white' : 'bg-slate-200 text-slate-400'
                     }`}>
                       <Camera size={24} />
                     </div>
@@ -270,8 +270,8 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
             <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm flex flex-col h-full">
               <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Documentação Principal</h3>
               
-              <div className="flex-1 border-2 border-dashed border-slate-100 bg-slate-50/50 rounded-2xl flex flex-col items-center justify-center p-8 text-center group hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer">
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-300 shadow-sm mb-4 group-hover:text-emerald-500 group-hover:shadow-emerald-100 transition-all">
+              <div className="flex-1 border-2 border-dashed border-slate-100 bg-slate-50/50 rounded-2xl flex flex-col items-center justify-center p-8 text-center group hover:border-brand hover:bg-brand/5/30 transition-all cursor-pointer">
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-300 shadow-sm mb-4 group-hover:text-brand group-hover:shadow-brand transition-all">
                   <UploadCloud size={32} />
                 </div>
                 <span className="text-[11px] font-black text-slate-800 uppercase tracking-widest mb-1">Upload de Identidade</span>
@@ -282,7 +282,7 @@ export default function NewOrderForm({ onProtocolGenerated }: NewOrderFormProps)
                  <button 
                    onClick={handleGenerateProtocol}
                    disabled={isGenerating || !formData.name || !formData.cpf}
-                   className="w-full py-4 bg-slate-900 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-slate-200 hover:bg-emerald-600 transition-all disabled:opacity-20 relative overflow-hidden flex items-center justify-center gap-3"
+                   className="w-full py-4 bg-slate-900 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-slate-200 hover:bg-brand transition-all disabled:opacity-20 relative overflow-hidden flex items-center justify-center gap-3"
                  >
                    {isGenerating && (
                      <div className="absolute inset-0 bg-white/10 flex items-center justify-center">
@@ -311,7 +311,7 @@ function FormGroup({ label, icon, children }: { label: string, icon: React.React
   return (
     <div className="space-y-2">
       <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-        <span className="text-emerald-500 opacity-50">{icon}</span> {label}
+        <span className="text-brand opacity-50">{icon}</span> {label}
       </label>
       {children}
     </div>

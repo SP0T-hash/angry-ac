@@ -4,7 +4,7 @@ import { FileText, MoreHorizontal, Check } from 'lucide-react';
 export const StatusItem = ({ label, state }: { label: string, state: 'completed' | 'pending' | 'error' | 'neutral' }) => {
   const getColors = () => {
     switch(state) {
-      case 'completed': return 'bg-emerald-500';
+      case 'completed': return 'bg-brand';
       case 'error': return 'bg-rose-500';
       case 'pending': return 'bg-amber-400';
       default: return 'bg-gray-200';
@@ -27,7 +27,7 @@ export const DocItem = ({ name, status, date, showMenu }: { name: string, status
         <FileText size={18} className="text-gray-400" />
         <div>
           <p className="text-sm font-bold text-gray-800 mb-0.5 group-hover:text-emerald-800 transition-colors">{name}</p>
-          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">{status}</span>
+          <span className="text-[10px] font-bold text-emerald-800 bg-brand/5 px-2 py-0.5 rounded border border-brand/10">{status}</span>
         </div>
       </div>
       <div className="flex items-center gap-6">
@@ -60,8 +60,8 @@ export const FilterItem = ({ opt }: { opt: string }) => {
     <label className="flex items-start gap-3 cursor-pointer group" onClick={() => setIsChecked(!isChecked)}>
       <div className={`w-4 h-4 rounded mt-0.5 transition-colors flex items-center justify-center ${
         isChecked 
-          ? 'bg-emerald-600 border-2 border-emerald-600' 
-          : 'bg-white border-2 border-gray-300 group-hover:border-emerald-400'
+          ? 'bg-brand border-2 border-brand' 
+          : 'bg-white border-2 border-gray-300 group-hover:border-brand'
       }`}>
         {isChecked && <Check size={12} strokeWidth={4} className="text-white" />}
       </div>

@@ -18,8 +18,8 @@ export const RejectionAuthModal = ({ isOpen, onClose, onConfirm }: any) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 border border-emerald-100">
-        <div className="bg-emerald-600 px-8 py-6 text-white relative">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 border border-brand/10">
+        <div className="bg-brand px-8 py-6 text-white relative">
           <button onClick={onClose} className="absolute right-6 top-6 text-white/50 hover:text-white transition-colors">
             <X size={20} />
           </button>
@@ -27,7 +27,7 @@ export const RejectionAuthModal = ({ isOpen, onClose, onConfirm }: any) => {
             <AlertTriangle size={24} />
           </div>
           <h3 className="text-xl font-black uppercase tracking-tight">Confirmar Rejeição</h3>
-          <p className="text-emerald-100 text-xs font-bold mt-1 uppercase tracking-widest opacity-80">Autenticação do Agente (AGR)</p>
+          <p className="text-brand/10 text-xs font-bold mt-1 uppercase tracking-widest opacity-80">Autenticação do Agente (AGR)</p>
         </div>
 
         <div className="p-8 space-y-6">
@@ -38,7 +38,7 @@ export const RejectionAuthModal = ({ isOpen, onClose, onConfirm }: any) => {
               value={pin}
               onChange={(e) => setPin(e.target.value)}
               placeholder="****"
-              className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-center text-lg font-black tracking-[0.5em] focus:border-emerald-500 focus:outline-none transition-all"
+              className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-center text-lg font-black tracking-[0.5em] focus:border-brand focus:outline-none transition-all"
             />
           </div>
 
@@ -48,9 +48,9 @@ export const RejectionAuthModal = ({ isOpen, onClose, onConfirm }: any) => {
               onClick={handleCapture}
               disabled={isCapturing || captured}
               className={`w-20 h-20 rounded-full mx-auto flex items-center justify-center transition-all ${
-                captured ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-100' : 
-                isCapturing ? 'bg-emerald-100 text-emerald-600 animate-pulse' : 
-                'bg-white border-2 border-slate-200 text-slate-300 hover:border-emerald-400 hover:text-emerald-500'
+                captured ? 'bg-brand text-white shadow-lg shadow-brand' : 
+                isCapturing ? 'bg-brand/10 text-brand animate-pulse' : 
+                'bg-white border-2 border-slate-200 text-slate-300 hover:border-brand hover:text-brand'
               }`}
             >
               <Fingerprint size={32} className={isCapturing ? 'animate-bounce' : ''} />
@@ -63,7 +63,7 @@ export const RejectionAuthModal = ({ isOpen, onClose, onConfirm }: any) => {
           <button 
             disabled={!captured || pin.length < 4}
             onClick={() => onConfirm(pin)}
-            className="w-full bg-slate-900 hover:bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-xl shadow-slate-100 transition-all uppercase tracking-widest text-xs disabled:opacity-20 flex items-center justify-center gap-2"
+            className="w-full bg-slate-900 hover:bg-brand text-white font-black py-4 rounded-2xl shadow-xl shadow-slate-100 transition-all uppercase tracking-widest text-xs disabled:opacity-20 flex items-center justify-center gap-2"
           >
             <Check size={16} /> Confirmar Rejeição Definitiva
           </button>

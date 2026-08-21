@@ -19,6 +19,7 @@ export interface ArBranding {
 // Fallback = marca global VEMAPI (emerald), usada quando não há branding de AR.
 const FALLBACK: ArBranding = {
   name: PRODUCT_NAME,
+  logoUrl: "/vemap-logo.png",
   primary: "#10b981",
   verification: "#8ce2ba",
   background: "#f7f8fa",

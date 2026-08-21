@@ -25,8 +25,8 @@ function RejectionAuthModal({ isOpen, onClose, onConfirm, titularName }: any) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 border border-emerald-100">
-        <div className="bg-emerald-600 px-8 py-6 text-white relative">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 border border-brand/10">
+        <div className="bg-brand px-8 py-6 text-white relative">
           <button onClick={onClose} className="absolute right-6 top-6 text-white/50 hover:text-white transition-colors">
             <X size={20} />
           </button>
@@ -34,7 +34,7 @@ function RejectionAuthModal({ isOpen, onClose, onConfirm, titularName }: any) {
             <AlertTriangle size={24} />
           </div>
           <h3 className="text-xl font-black uppercase tracking-tight">Confirmar Rejeição</h3>
-          <p className="text-emerald-100 text-xs font-bold mt-1 uppercase tracking-widest opacity-80">Autenticação do Agente (AGR)</p>
+          <p className="text-brand/10 text-xs font-bold mt-1 uppercase tracking-widest opacity-80">Autenticação do Agente (AGR)</p>
         </div>
 
         <div className="p-8 space-y-6">
@@ -45,7 +45,7 @@ function RejectionAuthModal({ isOpen, onClose, onConfirm, titularName }: any) {
               value={pin}
               onChange={(e) => setPin(e.target.value)}
               placeholder="****"
-              className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-center text-lg font-black tracking-[0.5em] focus:border-emerald-500 focus:outline-none transition-all"
+              className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-center text-lg font-black tracking-[0.5em] focus:border-brand focus:outline-none transition-all"
             />
           </div>
 
@@ -55,9 +55,9 @@ function RejectionAuthModal({ isOpen, onClose, onConfirm, titularName }: any) {
               onClick={handleCapture}
               disabled={isCapturing || captured}
               className={`w-20 h-20 rounded-full mx-auto flex items-center justify-center transition-all ${
-                captured ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-100' : 
-                isCapturing ? 'bg-emerald-100 text-emerald-600 animate-pulse' : 
-                'bg-white border-2 border-slate-200 text-slate-300 hover:border-emerald-400 hover:text-emerald-500'
+                captured ? 'bg-brand text-white shadow-lg shadow-brand' : 
+                isCapturing ? 'bg-brand/10 text-brand animate-pulse' : 
+                'bg-white border-2 border-slate-200 text-slate-300 hover:border-brand hover:text-brand'
               }`}
             >
               <Fingerprint size={32} className={isCapturing ? 'animate-bounce' : ''} />
@@ -70,7 +70,7 @@ function RejectionAuthModal({ isOpen, onClose, onConfirm, titularName }: any) {
           <button 
             disabled={!captured || pin.length < 4}
             onClick={() => onConfirm(pin)}
-            className="w-full bg-slate-900 hover:bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-xl shadow-slate-100 transition-all uppercase tracking-widest text-xs disabled:opacity-20 flex items-center justify-center gap-2"
+            className="w-full bg-slate-900 hover:bg-brand text-white font-black py-4 rounded-2xl shadow-xl shadow-slate-100 transition-all uppercase tracking-widest text-xs disabled:opacity-20 flex items-center justify-center gap-2"
           >
             <Check size={16} /> Confirmar Rejeição Definitiva
           </button>
@@ -773,8 +773,8 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
       {/* Modal de Assunção de Responsabilidade */}
       {showAssumeModal && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-300 border border-emerald-100">
-            <div className="bg-emerald-600 px-10 py-10 text-white relative">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-300 border border-brand/10">
+            <div className="bg-brand px-10 py-10 text-white relative">
               <button onClick={() => setShowAssumeModal(false)} className="absolute right-8 top-8 text-white/50 hover:text-white transition-colors">
                 <X size={24} />
               </button>
@@ -782,20 +782,20 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                 <ShieldCheck size={32} />
               </div>
               <h3 className="text-2xl font-black uppercase tracking-tight leading-tight">Termo de Assunção de Responsabilidade</h3>
-              <p className="text-emerald-100 text-[10px] font-black mt-2 uppercase tracking-[0.2em] opacity-80">Conformidade ICP-Brasil / LGPD</p>
+              <p className="text-brand/10 text-[10px] font-black mt-2 uppercase tracking-[0.2em] opacity-80">Conformidade ICP-Brasil / LGPD</p>
             </div>
 
             <div className="p-10 space-y-8">
-              <div className="bg-emerald-50/50 rounded-2xl p-6 border border-emerald-100/50">
+              <div className="bg-brand/5/50 rounded-2xl p-6 border border-brand/10/50">
                 <p className="text-slate-600 font-bold text-sm leading-relaxed mb-4">
                   Ao assumir essa solicitação, você declara formalmente ser o Agente de Registro (AGR) responsável pela conferência biográfica e biométrica deste titular.
                 </p>
                 <div className="flex items-start gap-3">
-                  <div className="mt-1 text-emerald-600"><Check size={16} /></div>
+                  <div className="mt-1 text-brand"><Check size={16} /></div>
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Responsabilidade pela integridade dos documentos.</p>
                 </div>
                 <div className="flex items-start gap-3 mt-2">
-                  <div className="mt-1 text-emerald-600"><Check size={16} /></div>
+                  <div className="mt-1 text-brand"><Check size={16} /></div>
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Ciência do rito de validação por videoconferência.</p>
                 </div>
               </div>
@@ -809,7 +809,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                 </button>
                 <button 
                   onClick={confirmAssumption}
-                  className="flex-3 px-10 py-4 bg-slate-900 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-xl shadow-slate-100 hover:bg-emerald-600 transition-all font-sans flex items-center justify-center gap-2"
+                  className="flex-3 px-10 py-4 bg-slate-900 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-xl shadow-slate-100 hover:bg-brand transition-all font-sans flex items-center justify-center gap-2"
                 >
                   <Lock size={14} /> Assumir Pedido
                 </button>
@@ -852,7 +852,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
               className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
                 isLocked 
                   ? 'bg-amber-100 text-amber-600 border border-amber-200 shadow-sm hover:bg-amber-200' 
-                  : 'bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm hover:bg-emerald-100'
+                  : 'bg-brand/5 text-brand border border-brand/10 shadow-sm hover:bg-brand/10'
               }`}
               title={isLocked ? "Pedido Seguro (Sua edição)" : "Clique para assumir este pedido"}
             >
@@ -862,9 +862,9 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
           
           <div className="h-6 flex items-center mb-4">
              {isLocked ? (
-               <div className="bg-emerald-50/80 border border-emerald-100 rounded-lg px-2 py-1 flex items-center gap-1.5 animate-in fade-in slide-in-from-left-2 transition-all">
-                 <div className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[8px] font-black">VC</div>
-                 <span className="text-[10px] font-black text-emerald-700 uppercase tracking-tighter">BLOQUEADO POR: {lockedBy || 'VITOR MATHEUS'}</span>
+               <div className="bg-brand/5/80 border border-brand/10 rounded-lg px-2 py-1 flex items-center gap-1.5 animate-in fade-in slide-in-from-left-2 transition-all">
+                 <div className="w-4 h-4 rounded-full bg-brand text-white flex items-center justify-center text-[8px] font-black">VC</div>
+                 <span className="text-[10px] font-black text-brand uppercase tracking-tighter">BLOQUEADO POR: {lockedBy || 'VITOR MATHEUS'}</span>
                </div>
              ) : (
                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">
@@ -877,12 +877,12 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
           {/* Hardware Connection Badge */}
           <div className="mb-4">
             <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-tighter border ${
-              hwStatus === 'connected' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+              hwStatus === 'connected' ? 'bg-brand/5 text-brand border-brand/10' :
               hwStatus === 'connecting' ? 'bg-amber-50 text-amber-600 border-amber-100' :
               'bg-gray-50 text-gray-400 border-gray-100'
             }`}>
               <div className={`w-1.5 h-1.5 rounded-full ${
-                hwStatus === 'connected' ? 'bg-emerald-600' :
+                hwStatus === 'connected' ? 'bg-brand' :
                 hwStatus === 'connecting' ? 'bg-amber-500 animate-pulse' :
                 'bg-gray-300'
               }`}></div>
@@ -894,8 +894,8 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
           
           <div className="flex">
             <span className={`text-[10px] font-black px-3 py-1 rounded-lg border uppercase tracking-wider shadow-sm transition-all ${
-              currentStatus === 'EMITIDO' ? 'bg-emerald-50 text-emerald-700 border-emerald-100 shadow-emerald-50' :
-              currentStatus === 'APROVADO' ? 'bg-emerald-50 text-emerald-700 border-emerald-100 shadow-emerald-50' :
+              currentStatus === 'EMITIDO' ? 'bg-brand/5 text-brand border-brand/10 shadow-brand' :
+              currentStatus === 'APROVADO' ? 'bg-brand/5 text-brand border-brand/10 shadow-brand' :
               currentStatus === 'REJEITADO' ? 'bg-rose-50 text-rose-700 border-rose-100 shadow-rose-50' :
               'bg-slate-100 text-slate-600 border-slate-200'
             }`}>
@@ -980,7 +980,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
               key={tab}
               onClick={() => handleTabClick(tab)}
               className={`px-5 py-5 text-[11px] uppercase tracking-[0.15em] font-black border-b-[3px] transition-all relative ${activeTab === tab || (tab === 'Atendimento' && activeTab === 'Atendimento') || (tab === 'Videoconferência' && activeTab === 'Videoconferência')
-                  ? 'border-emerald-600 text-emerald-800'
+                  ? 'border-brand text-emerald-800'
                   : 'border-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-50/50'
                 }`}
             >
@@ -990,11 +990,11 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                 {tab}
               </div>
               {tab === 'Histórico' && (
-                <span className="ml-2 bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-full text-[9px] font-black group-hover:bg-emerald-100">
+                <span className="ml-2 bg-brand/5 text-brand px-1.5 py-0.5 rounded-full text-[9px] font-black group-hover:bg-brand/10">
                   {auditLogs.length}
                 </span>
               )}
-              {activeTab === tab && <div className="absolute bottom-0 left-0 w-full h-[3px] bg-emerald-600 rounded-t-full shadow-[0_-2px_8px_rgba(79,70,229,0.3)]"></div>}
+              {activeTab === tab && <div className="absolute bottom-0 left-0 w-full h-[3px] bg-brand rounded-t-full shadow-[0_-2px_8px_rgba(79,70,229,0.3)]"></div>}
             </button>
           ))}
         </div>
@@ -1027,16 +1027,16 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
           {!isLocked && activeTab !== 'Dados' && (
             <div className="absolute inset-0 z-[40] bg-white/20 backdrop-blur-sm flex flex-col items-center justify-center animate-in fade-in duration-500">
                <div className="bg-white/80 backdrop-blur-xl border border-slate-100 p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 flex flex-col items-center text-center max-w-sm">
-                  <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 border border-emerald-100 shadow-sm">
+                  <div className="w-14 h-14 bg-brand/5 text-brand rounded-2xl flex items-center justify-center mb-6 border border-brand/10 shadow-sm">
                     <ShieldCheck size={28} />
                   </div>
                   <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight mb-3">Acesso Restrito</h4>
                   <p className="text-slate-500 font-bold text-xs uppercase tracking-widest leading-loose mb-8">
-                    É necessário <span className="text-emerald-600">assumir a responsabilidade</span> deste pedido para visualizar ou operar nestes dados.
+                    É necessário <span className="text-brand">assumir a responsabilidade</span> deste pedido para visualizar ou operar nestes dados.
                   </p>
                   <button 
                     onClick={() => setShowAssumeModal(true)}
-                    className="w-full py-4 bg-emerald-600 text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-lg shadow-emerald-100 hover:bg-emerald-700 transition-all"
+                    className="w-full py-4 bg-brand text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-lg shadow-brand hover:bg-brand transition-all"
                   >
                     Clique para Assumir
                   </button>
@@ -1047,8 +1047,8 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
           {(activeTab === 'Videoconferência' || activeTab === 'Atendimento') && (
             <div className="flex flex-col items-center justify-center mt-10 space-y-6">
               {protocol.is_presencial ? (
-                 <div className="max-w-xl w-full bg-white rounded-2xl shadow-xl border border-emerald-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="bg-emerald-600 p-4 text-white flex items-center justify-between">
+                 <div className="max-w-xl w-full bg-white rounded-2xl shadow-xl border border-brand/10 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="bg-brand p-4 text-white flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Camera size={20} />
                         <span className="font-black text-sm uppercase tracking-widest">Captura de Foto Presencial</span>
@@ -1058,7 +1058,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                       </div>
                     </div>
                     <div className="p-8 flex flex-col items-center">
-                      <div className="w-[320px] aspect-[4/3] bg-slate-900 rounded-xl mb-6 relative overflow-hidden ring-4 ring-emerald-50 group">
+                      <div className="w-[320px] aspect-[4/3] bg-slate-900 rounded-xl mb-6 relative overflow-hidden ring-4 ring-brand group">
                          {capturedPhoto ? (
                            <img 
                              src={capturedPhoto} 
@@ -1078,8 +1078,8 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                            <div className="w-full h-full bg-gradient-to-t from-black/60 to-transparent absolute inset-0 z-10"></div>
                            
                             {!streamRef.current && !capturedPhoto && (
-                             <div className="z-20 flex flex-col items-center text-emerald-400">
-                               <div className="w-12 h-12 border-2 border-emerald-500 rounded-full flex items-center justify-center animate-pulse mb-3">
+                             <div className="z-20 flex flex-col items-center text-brand">
+                               <div className="w-12 h-12 border-2 border-brand rounded-full flex items-center justify-center animate-pulse mb-3">
                                  <Camera size={24} />
                                </div>
                                <span className="text-[10px] font-black uppercase tracking-widest text-white drop-shadow-md">Iniciando Câmera...</span>
@@ -1088,7 +1088,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                            
                            {capturedPhoto && (
                              <div className="z-20 flex flex-col items-center text-white">
-                               <div className="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center mb-3 shadow-lg">
+                               <div className="w-12 h-12 bg-brand rounded-full flex items-center justify-center mb-3 shadow-lg">
                                  <Check size={24} />
                                </div>
                                <span className="text-[10px] font-black uppercase tracking-widest drop-shadow-md">Foto Registrada</span>
@@ -1098,10 +1098,10 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                            {/* Overlay de Foco */}
                            {!capturedPhoto && (
                              <>
-                               <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-emerald-400/50 z-20"></div>
-                               <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-emerald-400/50 z-20"></div>
-                               <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-emerald-400/50 z-20"></div>
-                               <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-emerald-400/50 z-20"></div>
+                               <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-brand/50 z-20"></div>
+                               <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-brand/50 z-20"></div>
+                               <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-brand/50 z-20"></div>
+                               <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-brand/50 z-20"></div>
                              </>
                            )}
                          </div>
@@ -1109,13 +1109,13 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                       <div className="flex flex-col gap-3 w-full">
                         <button 
                          onClick={handleCapturePhoto}
-                         className="px-8 py-3.5 bg-emerald-700 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-200 hover:bg-emerald-800 transition-all flex items-center justify-center gap-2 group"
+                         className="px-8 py-3.5 bg-brand text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-brand hover:bg-emerald-800 transition-all flex items-center justify-center gap-2 group"
                         >
                           <Camera size={18} className="group-hover:rotate-12 transition-transform" /> Capturar Foto Agr
                         </button>
                         <button 
                           onClick={() => handleConsultarPSBIO()}
-                          className="px-8 py-3 bg-white border-2 border-emerald-100 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-emerald-50 transition-all flex items-center justify-center gap-2"
+                          className="px-8 py-3 bg-white border-2 border-brand/10 text-brand font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-brand/5 transition-all flex items-center justify-center gap-2"
                         >
                           <Fingerprint size={16} /> Coletar Digital (Hardware)
                         </button>
@@ -1124,8 +1124,8 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                     </div>
                  </div>
               ) : (
-                  <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-8 text-center max-w-md shadow-sm">
-                    <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600">
+                  <div className="bg-brand/5 border border-brand/10 rounded-xl p-8 text-center max-w-md shadow-sm">
+                    <div className="w-16 h-16 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand">
                       <Video size={32} />
                     </div>
                     <h4 className="text-emerald-950 font-extrabold text-lg mb-2">Sala de Auditoria VIP</h4>
@@ -1134,8 +1134,8 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                     </p>
                     
                     {/* NOVA LÓGICA DE EMISSÃO LGPD/ABNT */}
-                    <div className="bg-white rounded-2xl p-5 mb-6 border border-emerald-100 text-left shadow-inner">
-                      <h5 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <div className="bg-white rounded-2xl p-5 mb-6 border border-brand/10 text-left shadow-inner">
+                      <h5 className="text-[10px] font-black text-brand uppercase tracking-widest mb-3 flex items-center gap-2">
                          <Shield size={12} /> Configurações de Emissão
                       </h5>
                       <div className="space-y-4">
@@ -1145,10 +1145,10 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                             name="delivery_mode" 
                             checked={isCodigoComCliente}
                             onChange={() => setIsCodigoComCliente(true)}
-                            className="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-gray-300"
+                            className="w-4 h-4 text-brand focus:ring-brand border-gray-300"
                           />
                           <div>
-                            <span className="block text-xs font-bold text-slate-800 group-hover:text-emerald-700 transition-colors">Entregar Código ao Cliente</span>
+                            <span className="block text-xs font-bold text-slate-800 group-hover:text-brand transition-colors">Entregar Código ao Cliente</span>
                             <span className="text-[9px] text-slate-400 font-medium uppercase tracking-tighter">O cliente recebe e-mail com Dossiê Reservado</span>
                           </div>
                         </label>
@@ -1158,10 +1158,10 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                             name="delivery_mode" 
                             checked={!isCodigoComCliente}
                             onChange={() => setIsCodigoComCliente(false)}
-                            className="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-gray-300"
+                            className="w-4 h-4 text-brand focus:ring-brand border-gray-300"
                           />
                           <div>
-                            <span className="block text-xs font-bold text-slate-800 group-hover:text-emerald-700 transition-colors">Reter Código (AR/AC Emite)</span>
+                            <span className="block text-xs font-bold text-slate-800 group-hover:text-brand transition-colors">Reter Código (AR/AC Emite)</span>
                             <span className="text-[9px] text-slate-400 font-medium uppercase tracking-tighter">Dossiê salvo apenas no histórico de auditoria</span>
                           </div>
                         </label>
@@ -1174,18 +1174,18 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                         setVideoConcluida(true); // Mock de vídeo concluído após ingresso
                         addAuditLog("Sessão de Videoconferência Iniciada e Gravada localmente (ISO/IEC 27001)");
                       }}
-                      className="font-bold py-3.5 px-8 rounded-xl flex items-center gap-3 shadow-md transition-all bg-emerald-700 hover:bg-emerald-800 hover:shadow-lg text-white w-full justify-center group mb-3"
+                      className="font-bold py-3.5 px-8 rounded-xl flex items-center gap-3 shadow-md transition-all bg-brand hover:bg-emerald-800 hover:shadow-lg text-white w-full justify-center group mb-3"
                     >
-                      <span className="text-emerald-200 group-hover:text-white transition-colors">▶</span> INGRESSAR NA VIDEOCONFERÊNCIA
+                      <span className="text-brand group-hover:text-white transition-colors">▶</span> INGRESSAR NA VIDEOCONFERÊNCIA
                     </button>
 
                     <button 
                       onClick={handleFinalizarEGerarDossie}
                       disabled={isSendingEmail || !videoConcluida}
-                      className="w-full py-3 bg-white border-2 border-emerald-600 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-emerald-50 transition-all flex items-center justify-center gap-2 disabled:opacity-30 shadow-sm"
+                      className="w-full py-3 bg-white border-2 border-brand text-brand font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-brand/5 transition-all flex items-center justify-center gap-2 disabled:opacity-30 shadow-sm"
                     >
                       {isSendingEmail ? (
-                        <div className="w-3.5 h-3.5 border-2 border-emerald-600/30 border-t-emerald-600 rounded-full animate-spin"></div>
+                        <div className="w-3.5 h-3.5 border-2 border-brand/30 border-t-brand rounded-full animate-spin"></div>
                       ) : (
                         <FileText size={16} />
                       )}
@@ -1207,7 +1207,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                   <button 
                     onClick={() => setShowNewDocModal(true)}
                     disabled={!isLocked}
-                    className="px-4 py-1.5 bg-emerald-800 text-white rounded font-bold text-[10px] uppercase tracking-widest hover:bg-emerald-700 shadow-sm transition-colors disabled:opacity-20"
+                    className="px-4 py-1.5 bg-emerald-800 text-white rounded font-bold text-[10px] uppercase tracking-widest hover:bg-brand shadow-sm transition-colors disabled:opacity-20"
                   >
                     Novo
                   </button>
@@ -1215,7 +1215,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
               </div>
 
               <div className="border-b border-gray-200 mb-4 flex gap-6">
-                <button className="text-sm font-semibold border-b-[3px] border-emerald-700 text-emerald-800 pb-2">Documentos</button>
+                <button className="text-sm font-semibold border-b-[3px] border-brand text-emerald-800 pb-2">Documentos</button>
                 <button className="text-sm font-semibold text-gray-500 pb-2">Excluídos</button>
               </div>
 
@@ -1249,7 +1249,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                 </button>
                 <button
                   onClick={() => setShowFiltersModal(true)}
-                  className={`px-4 py-1.5 rounded font-semibold text-sm shadow-sm transition-colors ${!isBiometriaColetada || !isLocked ? 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-20' : 'bg-emerald-800 text-white hover:bg-emerald-700'}`}
+                  className={`px-4 py-1.5 rounded font-semibold text-sm shadow-sm transition-colors ${!isBiometriaColetada || !isLocked ? 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-20' : 'bg-emerald-800 text-white hover:bg-brand'}`}
                   disabled={!isBiometriaColetada || safStatus === 'searching' || safStatus === 'attached' || !isLocked}
                   title={!isBiometriaColetada ? "Necessário realizar Coleta Biométrica primeiro" : !isLocked ? "Assuma o pedido para buscar" : ""}
                 >
@@ -1264,25 +1264,25 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
               )}
 
               {safStatus === 'searching' && (
-                <div className="h-64 border border-emerald-100 rounded-xl mt-8 flex flex-col items-center justify-center bg-emerald-50/30">
-                  <div className="animate-spin w-8 h-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full mb-4"></div>
+                <div className="h-64 border border-brand/10 rounded-xl mt-8 flex flex-col items-center justify-center bg-brand/5/30">
+                  <div className="animate-spin w-8 h-8 border-4 border-brand border-t-brand rounded-full mb-4"></div>
                   <p className="text-emerald-800 font-bold text-sm">Buscando em bases de restrição...</p>
-                  <p className="text-emerald-500 font-medium text-xs mt-1">Comparando características físicas informadas.</p>
+                  <p className="text-brand font-medium text-xs mt-1">Comparando características físicas informadas.</p>
                 </div>
               )}
 
               {safStatus === 'clean' && (
-                <div className="border border-emerald-200 rounded-xl mt-8 bg-emerald-50/30 p-8 flex flex-col items-center text-center animate-in fade-in zoom-in-95">
-                  <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4 text-emerald-600">
+                <div className="border border-brand rounded-xl mt-8 bg-brand/5/30 p-8 flex flex-col items-center text-center animate-in fade-in zoom-in-95">
+                  <div className="w-16 h-16 bg-brand/10 rounded-full flex items-center justify-center mb-4 text-brand">
                     <Check size={32} strokeWidth={3} />
                   </div>
-                  <h3 className="text-lg font-extrabold text-emerald-900 mb-2">Nenhum Registro Encontrado</h3>
-                  <p className="text-emerald-700 font-medium text-sm max-w-md mx-auto mb-6">
+                  <h3 className="text-lg font-extrabold text-brand mb-2">Nenhum Registro Encontrado</h3>
+                  <p className="text-brand font-medium text-sm max-w-md mx-auto mb-6">
                     A varredura nas listas de fraudadores não resultou em matches positivos com as características físicas selecionadas.
                   </p>
                   <button 
                     onClick={() => setSafStatus('attached')}
-                    className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm transition-colors text-sm"
+                    className="px-6 py-2.5 bg-brand hover:bg-brand text-white font-bold rounded-lg shadow-sm transition-colors text-sm"
                   >
                     Confirmar e Anexar Consulta ao SAF
                   </button>
@@ -1290,9 +1290,9 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
               )}
 
               {safStatus === 'attached' && (
-                <div className="border border-emerald-200 rounded-xl mt-8 bg-white p-6 flex flex-col shadow-sm animate-in fade-in zoom-in-95">
+                <div className="border border-brand rounded-xl mt-8 bg-white p-6 flex flex-col shadow-sm animate-in fade-in zoom-in-95">
                   <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-4">
-                    <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 shrink-0">
+                    <div className="w-10 h-10 bg-brand/10 rounded-full flex items-center justify-center text-brand shrink-0">
                       <FileText size={20} />
                     </div>
                     <div>
@@ -1300,7 +1300,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                       <p className="text-xs text-gray-500 font-medium">Validado por AGR em {new Date().toLocaleDateString()}</p>
                     </div>
                     <div className="ml-auto flex items-center gap-2">
-                       <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded text-xs font-bold border border-emerald-100">
+                       <span className="bg-brand/5 text-brand px-3 py-1 rounded text-xs font-bold border border-brand/10">
                         Risco Baixo
                        </span>
                     </div>
@@ -1332,7 +1332,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
                   <h3 className="text-xl font-black text-slate-900 flex items-center gap-3 tracking-tight uppercase">
                     Auditoria do Atendimento
-                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 uppercase tracking-[0.1em] shadow-sm">Real-time Log</span>
+                    <span className="text-[10px] font-black text-brand bg-brand/5 px-3 py-1 rounded-full border border-brand/10 uppercase tracking-[0.1em] shadow-sm">Real-time Log</span>
                   </h3>
                </div>
 
@@ -1343,16 +1343,16 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                         {/* Indicador Temporal */}
                         <div className={`absolute left-0 top-1 w-10 h-10 rounded-2xl flex items-center justify-center border-2 z-10 transition-all shadow-md group-hover:scale-110 ${
                           log.agent === 'SISTEMA' ? 'bg-amber-50 border-amber-200 text-amber-600 shadow-amber-50' : 
-                          log.agent === 'CLIENTE' ? 'bg-emerald-50 border-emerald-200 text-emerald-600 shadow-emerald-50' :
-                          'bg-white border-slate-200 text-slate-400 group-first:border-emerald-600 group-first:text-emerald-600 shadow-sm'
+                          log.agent === 'CLIENTE' ? 'bg-brand/5 border-brand text-brand shadow-brand' :
+                          'bg-white border-slate-200 text-slate-400 group-first:border-brand group-first:text-brand shadow-sm'
                         }`}>
                           {log.agent === 'SISTEMA' ? <ShieldCheck size={18} /> : 
                            log.agent === 'CLIENTE' ? <UserCircle size={18} /> :
-                           <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[8px] font-black uppercase tracking-tighter shadow-inner">AGR</div>}
+                           <div className="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center text-[8px] font-black uppercase tracking-tighter shadow-inner">AGR</div>}
                         </div>
 
                         {/* Conteúdo do Log (Estilo Terminal) */}
-                        <div className="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm hover:shadow-md transition-all border-l-4 border-l-slate-200 group-first:border-l-emerald-600">
+                        <div className="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm hover:shadow-md transition-all border-l-4 border-l-slate-200 group-first:border-l-brand">
                            <div className="flex items-center justify-between mb-2">
                               <span className="text-xs font-black text-slate-900 uppercase tracking-tight">{log.action}</span>
                               <div className="flex items-center gap-2">
@@ -1361,7 +1361,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                            </div>
                            
                             <div className="flex items-center gap-2 mb-2">
-                               <div className="w-1 h-1 rounded-full bg-emerald-500"></div>
+                               <div className="w-1 h-1 rounded-full bg-brand"></div>
                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{log.agent}</span>
                             </div>
 
@@ -1373,7 +1373,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                                    className="w-full flex items-center justify-between p-4 bg-slate-800/20 hover:bg-slate-800/40 transition-colors border-b border-white/5"
                                  >
                                    <div className="flex items-center gap-3">
-                                     <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.8)] animate-pulse"></div>
+                                     <div className="w-2 h-2 rounded-full bg-brand shadow-[0_0_12px_rgba(16,185,129,0.8)] animate-pulse"></div>
                                      <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.25em]">Dossiê de Integridade • LGPD Compliance</span>
                                    </div>
                                    <div className="flex items-center gap-4">
@@ -1397,12 +1397,12 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                                             a.download = `DOSSIE_${protocol.id}_${log.timestamp.replace(/[:\/ ]/g, '_')}.txt`;
                                             a.click();
                                           }}
-                                          className="text-[9px] font-black text-emerald-400 hover:text-white transition-colors flex items-center gap-2 uppercase tracking-widest bg-emerald-400/10 px-3 py-1.5 rounded-lg"
+                                          className="text-[9px] font-black text-brand hover:text-white transition-colors flex items-center gap-2 uppercase tracking-widest bg-brand/10 px-3 py-1.5 rounded-lg"
                                         >
                                           <FileText size={10} /> Baixar Auditoria
                                         </button>
                                       </div>
-                                      <pre className="text-[11px] text-emerald-300/90 font-mono leading-relaxed whitespace-pre-wrap selection:bg-emerald-500/30 font-medium">
+                                      <pre className="text-[11px] text-brand/90 font-mono leading-relaxed whitespace-pre-wrap selection:bg-brand/30 font-medium">
                                         {log.metadata.dossie}
                                       </pre>
                                    </div>
@@ -1411,10 +1411,10 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                             )}
 
                             {log.metadata?.hasDownload && (
-                             <div className="mt-3 pt-3 border-t border-dashed border-slate-100 flex items-center justify-between bg-emerald-50/30 -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
+                             <div className="mt-3 pt-3 border-t border-dashed border-slate-100 flex items-center justify-between bg-brand/5/30 -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
                                 <div className="flex items-center gap-2">
-                                  <FileText size={14} className="text-emerald-600" />
-                                  <span className="text-[10px] font-black text-emerald-900 uppercase tracking-tighter">{log.metadata.docName}</span>
+                                  <FileText size={14} className="text-brand" />
+                                  <span className="text-[10px] font-black text-brand uppercase tracking-tighter">{log.metadata.docName}</span>
                                 </div>
                                 <div className="flex gap-2">
                                   <button 
@@ -1426,13 +1426,13 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                                       a.download = `Certificado_${log.metadata.serialNumber}.crt`;
                                       a.click();
                                     }}
-                                    className="text-[9px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-all uppercase tracking-widest"
+                                    className="text-[9px] font-black text-brand bg-brand/5 border border-brand px-3 py-1.5 rounded-lg hover:bg-brand/10 transition-all uppercase tracking-widest"
                                   >
                                     Baixar .CRT
                                   </button>
                                   <button 
                                     onClick={() => handleDownloadTermo(log)}
-                                    className="text-[9px] font-black text-white bg-emerald-700 px-3 py-1.5 rounded-lg shadow-lg shadow-emerald-900/10 hover:bg-emerald-800 transition-all uppercase tracking-widest"
+                                    className="text-[9px] font-black text-white bg-brand px-3 py-1.5 rounded-lg shadow-lg shadow-brand/10 hover:bg-emerald-800 transition-all uppercase tracking-widest"
                                   >
                                     Termo (PDF)
                                   </button>
@@ -1458,7 +1458,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                 ) : (
                   <button 
                     onClick={() => setIsEditingDados(!isEditingDados)} 
-                    className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded transition-colors bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-100 shadow-sm"
+                    className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded transition-colors bg-brand/5 text-brand hover:bg-brand/10 border border-brand/10 shadow-sm"
                   >
                     {isEditingDados ? <><Check size={14} /> Salvar Edição</> : <><Edit2 size={14} /> Editar Dados</>}
                   </button>
@@ -1472,7 +1472,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                       type="text" 
                       value={editableData.name}
                       onChange={(e) => setEditableData({...editableData, name: e.target.value})}
-                      className="w-full text-sm font-bold text-emerald-900 border-b-2 border-emerald-200 focus:border-emerald-600 focus:outline-none bg-emerald-50/50 px-2 py-1 transition-colors rounded-t-sm"
+                      className="w-full text-sm font-bold text-brand border-b-2 border-brand focus:border-brand focus:outline-none bg-brand/5/50 px-2 py-1 transition-colors rounded-t-sm"
                     />
                   ) : (
                     <p className="text-sm font-bold text-gray-800 px-2 py-1 -ml-2">{editableData.name}</p>
@@ -1485,9 +1485,9 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                     <button 
                       onClick={handleConsultarCPF}
                       disabled={isVerificandoCpf || !isLocked}
-                      className="text-[10px] font-bold text-emerald-600 hover:text-emerald-800 disabled:opacity-30 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 transition-colors"
+                      className="text-[10px] font-bold text-brand hover:text-emerald-800 disabled:opacity-30 flex items-center gap-1 bg-brand/5 px-2 py-0.5 rounded border border-brand/10 transition-colors"
                     >
-                      {isVerificandoCpf ? <div className="w-2.5 h-2.5 border-2 border-emerald-400 border-t-emerald-600 rounded-full animate-spin"></div> : <Search size={10} />}
+                      {isVerificandoCpf ? <div className="w-2.5 h-2.5 border-2 border-brand border-t-brand rounded-full animate-spin"></div> : <Search size={10} />}
                       Validar KYC
                     </button>
                   </div>
@@ -1505,7 +1505,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                         if (val.length > 4) masked = masked.slice(0, 5) + '/' + masked.slice(5, 9);
                         setEditableData({...editableData, birthdate: masked.slice(0, 10)});
                       }}
-                      className="w-full text-sm font-bold text-emerald-900 border-b-2 border-emerald-200 focus:border-emerald-600 focus:outline-none bg-emerald-50/50 px-2 py-1 transition-colors rounded-t-sm"
+                      className="w-full text-sm font-bold text-brand border-b-2 border-brand focus:border-brand focus:outline-none bg-brand/5/50 px-2 py-1 transition-colors rounded-t-sm"
                       placeholder="DD/MM/AAAA"
                     />
                   ) : (
@@ -1515,7 +1515,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                 <div className="col-span-1">
                    <p className="text-xs text-gray-500 font-semibold mb-1 uppercase tracking-tighter">Situação CPF</p>
                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-                     editableData.situacaoCpf === 'REGULAR' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-50 text-gray-500 border-gray-200'
+                     editableData.situacaoCpf === 'REGULAR' ? 'bg-brand/5 text-brand border-brand' : 'bg-gray-50 text-gray-500 border-gray-200'
                    }`}>
                      {editableData.situacaoCpf}
                    </span>
@@ -1527,7 +1527,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                       type="email" 
                       value={editableData.email}
                       onChange={(e) => setEditableData({...editableData, email: e.target.value.replace(/\s/g, '')})}
-                      className="w-full text-sm font-bold text-emerald-900 border-b-2 border-emerald-200 focus:border-emerald-600 focus:outline-none bg-emerald-50/50 px-2 py-1 transition-colors rounded-t-sm"
+                      className="w-full text-sm font-bold text-brand border-b-2 border-brand focus:border-brand focus:outline-none bg-brand/5/50 px-2 py-1 transition-colors rounded-t-sm"
                     />
                   ) : (
                     <p className="text-sm font-bold text-gray-800 px-2 py-1 -ml-2">{editableData.email}</p>
@@ -1540,7 +1540,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                       type="text" 
                       value={editableData.phone}
                       onChange={(e) => setEditableData({...editableData, phone: maskPhone(e.target.value)})}
-                      className="w-full text-sm font-bold text-emerald-900 border-b-2 border-emerald-200 focus:border-emerald-600 focus:outline-none bg-emerald-50/50 px-2 py-1 transition-colors rounded-t-sm"
+                      className="w-full text-sm font-bold text-brand border-b-2 border-brand focus:border-brand focus:outline-none bg-brand/5/50 px-2 py-1 transition-colors rounded-t-sm"
                     />
                   ) : (
                     <p className="text-sm font-bold text-gray-800 px-2 py-1 -ml-2">{editableData.phone}</p>
@@ -1555,7 +1555,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                            type="text" 
                            value={editableData.companyName}
                            onChange={(e) => setEditableData({...editableData, companyName: e.target.value})}
-                           className="w-full text-sm font-bold text-emerald-900 border-b-2 border-emerald-200 focus:border-emerald-600 focus:outline-none bg-emerald-50/50 px-2 py-1 transition-colors rounded-t-sm"
+                           className="w-full text-sm font-bold text-brand border-b-2 border-brand focus:border-brand focus:outline-none bg-brand/5/50 px-2 py-1 transition-colors rounded-t-sm"
                          />
                        ) : (
                          <p className="text-sm font-bold text-gray-800 px-2 py-1 -ml-2">{editableData.companyName}</p>
@@ -1571,7 +1571,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                        <button 
                          onClick={handleConsultarPJ}
                          disabled={isVerificandoPj || !isLocked}
-                         className="mb-1 text-[10px] font-bold text-emerald-600 hover:text-emerald-800 disabled:opacity-30 flex items-center gap-1"
+                         className="mb-1 text-[10px] font-bold text-brand hover:text-emerald-800 disabled:opacity-30 flex items-center gap-1"
                        >
                          <Search size={10} /> Validar na RFB
                        </button>
@@ -1596,7 +1596,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                          Este documento contém o hash de integridade e a trilha de auditoria reservada para a titular Maria Eduarda Fernandes. 
                          As evidências biométricas foram seladas com carimbo de tempo da Autoridade Certificadora.
                        </p>
-                       <div className="flex items-center gap-2 text-emerald-400 text-[10px] font-black uppercase tracking-tighter">
+                       <div className="flex items-center gap-2 text-brand text-[10px] font-black uppercase tracking-tighter">
                          <Check size={14} /> Integridade do Dossiê Verificada
                        </div>
                     </div>
@@ -1621,7 +1621,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                    <button 
                     onClick={handleSalvarDados}
                     disabled={isSalvando}
-                    className="px-6 py-2 bg-emerald-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-200 hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2"
+                    className="px-6 py-2 bg-brand text-white text-sm font-bold rounded-xl shadow-lg shadow-brand hover:bg-brand disabled:opacity-50 flex items-center gap-2"
                    >
                      {isSalvando ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Save size={16} />}
                      Salvar Alterações
@@ -1670,11 +1670,11 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
               className={`text-[10px] py-4 px-4 rounded-xl border font-black uppercase tracking-[0.1em] text-center transition-all flex justify-center items-center shadow-sm relative overflow-hidden ${
                 isVerificandoBio || !isBiometriaColetada 
                   ? 'bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed' 
-                  : 'bg-emerald-600 border-emerald-700 text-white hover:bg-emerald-700 hover:shadow-emerald-100 shadow-lg'
+                  : 'bg-brand border-brand text-white hover:bg-brand hover:shadow-brand shadow-lg'
               }`}
             >
               {isVerificandoBio && (
-                <div className="absolute inset-0 bg-emerald-700/60 flex items-center justify-center">
+                <div className="absolute inset-0 bg-brand/60 flex items-center justify-center">
                   <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 </div>
               )}
@@ -1753,7 +1753,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                 }
               }}
               disabled={!isLocked || currentStatus === 'REJEITADO' || (!videoConcluida && !protocol.is_presencial && protocol.compliance.require_video)}
-              className="px-8 py-3 bg-slate-900 hover:bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-xl shadow-slate-100 disabled:opacity-20 flex items-center gap-2 group border border-slate-700"
+              className="px-8 py-3 bg-slate-900 hover:bg-brand text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-xl shadow-slate-100 disabled:opacity-20 flex items-center gap-2 group border border-slate-700"
             >
               <Fingerprint size={16} className="group-hover:animate-pulse" /> A3 Local
             </button>
@@ -1782,7 +1782,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
             </div>
 
             <div className="flex border-b border-gray-200 px-8 pt-4">
-              <button className="px-2 py-3 text-sm font-bold border-b-2 border-emerald-700 text-emerald-800 mr-6">Características físicas do fraudador</button>
+              <button className="px-2 py-3 text-sm font-bold border-b-2 border-brand text-emerald-800 mr-6">Características físicas do fraudador</button>
               <button className="px-2 py-3 text-sm font-bold border-b-2 border-transparent text-gray-400 hover:text-gray-600">Características da Fraude</button>
             </div>
 
@@ -1802,7 +1802,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
 
             <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50/50">
               <button onClick={() => setShowFiltersModal(false)} className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded hover:bg-gray-50 text-sm shadow-sm transition-colors">Limpar</button>
-              <button onClick={handleBuscarSaf} className="px-6 py-2 bg-emerald-800 text-white font-semibold rounded hover:bg-emerald-700 text-sm shadow-sm transition-colors">Buscar Listas</button>
+              <button onClick={handleBuscarSaf} className="px-6 py-2 bg-emerald-800 text-white font-semibold rounded hover:bg-brand text-sm shadow-sm transition-colors">Buscar Listas</button>
             </div>
 
           </div>
@@ -1818,8 +1818,8 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
             <div className="px-8 py-6 flex justify-between items-start pb-4">
               <div>
                 <h2 className="text-xl font-extrabold text-gray-900 flex items-center gap-3 mb-1">
-                  <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100">
-                    <UploadCloud size={20} className="text-emerald-600" />
+                  <div className="w-10 h-10 rounded-full bg-brand/5 flex items-center justify-center border border-brand/10">
+                    <UploadCloud size={20} className="text-brand" />
                   </div>
                   Anexar Documento ou Consulta
                 </h2>
@@ -1839,7 +1839,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                   <select 
                     value={selectedDocType}
                     onChange={(e) => setSelectedDocType(e.target.value)}
-                    className="w-full border-2 border-gray-200 rounded-xl p-3.5 text-[15px] font-bold text-emerald-900 focus:border-emerald-600 focus:ring-0 outline-none transition-colors appearance-none cursor-pointer bg-white shadow-sm"
+                    className="w-full border-2 border-gray-200 rounded-xl p-3.5 text-[15px] font-bold text-brand focus:border-brand focus:ring-0 outline-none transition-colors appearance-none cursor-pointer bg-white shadow-sm"
                   >
                     <optgroup label="Identificação Pessoal">
                       <option>Documento de Identificação (RG / CNH / Passaporte)</option>
@@ -1866,7 +1866,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                       <option>Procuração / Termo de Representação legal</option>
                     </optgroup>
                   </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-emerald-600">
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-brand">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                   </div>
                 </div>
@@ -1881,20 +1881,20 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                       value={certidaoCode}
                       onChange={(e) => setCertidaoCode(e.target.value)}
                       placeholder="Ex: 1A2B.3C4D.5E6F.7G8H"
-                      className="w-full border-2 border-emerald-100 bg-emerald-50/30 rounded-xl p-3.5 text-[15px] font-bold text-emerald-900 focus:border-emerald-600 focus:bg-white focus:ring-0 outline-none transition-colors placeholder:text-emerald-300"
+                      className="w-full border-2 border-brand/10 bg-brand/5/30 rounded-xl p-3.5 text-[15px] font-bold text-brand focus:border-brand focus:bg-white focus:ring-0 outline-none transition-colors placeholder:text-brand"
                     />
-                    <p className="mt-2 text-[11px] font-semibold text-emerald-600/70 ml-1">Se preenchido, o sistema poderá automatizar a validação e atrelar a consulta ao laudo.</p>
+                    <p className="mt-2 text-[11px] font-semibold text-brand/70 ml-1">Se preenchido, o sistema poderá automatizar a validação e atrelar a consulta ao laudo.</p>
                  </div>
               )}
 
               {/* Upload Dropzone */}
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Arquivo Eletrônico</label>
-                <div className="border-2 border-dashed border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50/80 hover:border-emerald-500 transition-all duration-300 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer group shadow-sm">
-                  <div className="w-14 h-14 bg-white shadow-sm border border-emerald-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
-                    <UploadCloud size={24} className="text-emerald-600" />
+                <div className="border-2 border-dashed border-brand bg-brand/5/40 hover:bg-brand/5/80 hover:border-brand transition-all duration-300 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer group shadow-sm">
+                  <div className="w-14 h-14 bg-white shadow-sm border border-brand/5 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
+                    <UploadCloud size={24} className="text-brand" />
                   </div>
-                  <p className="text-[15px] font-extrabold text-emerald-950 mb-1 group-hover:text-emerald-700 transition-colors">Clique e procure ou arraste o arquivo aqui</p>
+                  <p className="text-[15px] font-extrabold text-emerald-950 mb-1 group-hover:text-brand transition-colors">Clique e procure ou arraste o arquivo aqui</p>
                   <p className="text-xs text-emerald-800/60 font-semibold px-4 text-center">Somente formatos PDF, JPG, PNG e arquivos assinados P7S são suportados (Máx. 10MB)</p>
                 </div>
               </div>
@@ -1910,7 +1910,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
                 >
                   Cancelar
                 </button>
-                <button onClick={() => setShowNewDocModal(false)} className="px-6 py-2.5 bg-emerald-700 text-white font-bold rounded-xl text-sm hover:bg-emerald-800 transition-colors shadow-sm flex items-center gap-2">
+                <button onClick={() => setShowNewDocModal(false)} className="px-6 py-2.5 bg-brand text-white font-bold rounded-xl text-sm hover:bg-emerald-800 transition-colors shadow-sm flex items-center gap-2">
                   <Check size={16} /> Finalizar Inclusão
                 </button>
               </div>
@@ -1941,7 +1941,7 @@ export default function ProtocolViewer({ protocol, onBack }: any) {
             </p>
             <button 
               onClick={() => setShowLockWarningModal(false)}
-              className="w-full py-4 bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-emerald-600 transition-all shadow-xl shadow-slate-200"
+              className="w-full py-4 bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-brand transition-all shadow-xl shadow-slate-200"
             >
               Entendido
             </button>
@@ -1965,7 +1965,7 @@ function DetailRow({ label, value }: { label: string, value: string }) {
 function StatusItem({ label, state }: { label: string, state: 'completed' | 'pending' | 'error' | 'neutral' }) {
   const getColors = () => {
     switch(state) {
-      case 'completed': return 'bg-emerald-500';
+      case 'completed': return 'bg-brand';
       case 'error': return 'bg-rose-500';
       case 'pending': return 'bg-amber-400';
       default: return 'bg-gray-200';
@@ -1988,7 +1988,7 @@ function DocItem({ name, status, date, showMenu }: { name: string, status: strin
         <FileText size={18} className="text-gray-400" />
         <div>
           <p className="text-sm font-bold text-gray-800 mb-0.5 group-hover:text-emerald-800 transition-colors">{name}</p>
-          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">{status}</span>
+          <span className="text-[10px] font-bold text-emerald-800 bg-brand/5 px-2 py-0.5 rounded border border-brand/10">{status}</span>
         </div>
       </div>
       <div className="flex items-center gap-6">
@@ -2021,8 +2021,8 @@ function FilterItem({ opt }: { opt: string }) {
     <label className="flex items-start gap-3 cursor-pointer group" onClick={() => setIsChecked(!isChecked)}>
       <div className={`w-4 h-4 rounded mt-0.5 transition-colors flex items-center justify-center ${
         isChecked 
-          ? 'bg-emerald-600 border-2 border-emerald-600' 
-          : 'bg-white border-2 border-gray-300 group-hover:border-emerald-400'
+          ? 'bg-brand border-2 border-brand' 
+          : 'bg-white border-2 border-gray-300 group-hover:border-brand'
       }`}>
         {isChecked && <Check size={12} strokeWidth={4} className="text-white" />}
       </div>

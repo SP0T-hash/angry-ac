@@ -27,7 +27,7 @@ export const SafTab: React.FC<SafTabProps> = ({
         </button>
         <button
           onClick={() => setShowFiltersModal(true)}
-          className={`px-4 py-1.5 rounded font-semibold text-sm shadow-sm transition-colors ${!isBiometriaColetada || !isLocked ? 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-20' : 'bg-emerald-800 text-white hover:bg-emerald-700'}`}
+          className={`px-4 py-1.5 rounded font-semibold text-sm shadow-sm transition-colors ${!isBiometriaColetada || !isLocked ? 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-20' : 'bg-emerald-800 text-white hover:bg-brand'}`}
           disabled={!isBiometriaColetada || safStatus === 'searching' || safStatus === 'attached' || !isLocked}
           title={!isBiometriaColetada ? "Necessário realizar Coleta Biométrica primeiro" : !isLocked ? "Assuma o pedido para buscar" : ""}
         >
@@ -42,25 +42,25 @@ export const SafTab: React.FC<SafTabProps> = ({
       )}
 
       {safStatus === 'searching' && (
-        <div className="h-64 border border-emerald-100 rounded-xl mt-8 flex flex-col items-center justify-center bg-emerald-50/30">
-          <div className="animate-spin w-8 h-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full mb-4"></div>
+        <div className="h-64 border border-brand/10 rounded-xl mt-8 flex flex-col items-center justify-center bg-brand/5/30">
+          <div className="animate-spin w-8 h-8 border-4 border-brand border-t-brand rounded-full mb-4"></div>
           <p className="text-emerald-800 font-bold text-sm">Buscando em bases de restrição...</p>
-          <p className="text-emerald-500 font-medium text-xs mt-1">Comparando características físicas informadas.</p>
+          <p className="text-brand font-medium text-xs mt-1">Comparando características físicas informadas.</p>
         </div>
       )}
 
       {safStatus === 'clean' && (
-        <div className="border border-emerald-200 rounded-xl mt-8 bg-emerald-50/30 p-8 flex flex-col items-center text-center animate-in fade-in zoom-in-95">
-          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4 text-emerald-600">
+        <div className="border border-brand rounded-xl mt-8 bg-brand/5/30 p-8 flex flex-col items-center text-center animate-in fade-in zoom-in-95">
+          <div className="w-16 h-16 bg-brand/10 rounded-full flex items-center justify-center mb-4 text-brand">
             <Check size={32} strokeWidth={3} />
           </div>
-          <h3 className="text-lg font-extrabold text-emerald-900 mb-2">Nenhum Registro Encontrado</h3>
-          <p className="text-emerald-700 font-medium text-sm max-w-md mx-auto mb-6">
+          <h3 className="text-lg font-extrabold text-brand mb-2">Nenhum Registro Encontrado</h3>
+          <p className="text-brand font-medium text-sm max-w-md mx-auto mb-6">
             A varredura nas listas de fraudadores não resultou em matches positivos com as características físicas selecionadas.
           </p>
           <button 
             onClick={() => setSafStatus('attached')}
-            className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm transition-colors text-sm"
+            className="px-6 py-2.5 bg-brand hover:bg-brand text-white font-bold rounded-lg shadow-sm transition-colors text-sm"
           >
             Confirmar e Anexar Consulta ao SAF
           </button>
@@ -68,9 +68,9 @@ export const SafTab: React.FC<SafTabProps> = ({
       )}
 
       {safStatus === 'attached' && (
-        <div className="border border-emerald-200 rounded-xl mt-8 bg-white p-6 flex flex-col shadow-sm animate-in fade-in zoom-in-95">
+        <div className="border border-brand rounded-xl mt-8 bg-white p-6 flex flex-col shadow-sm animate-in fade-in zoom-in-95">
           <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-4">
-            <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 shrink-0">
+            <div className="w-10 h-10 bg-brand/10 rounded-full flex items-center justify-center text-brand shrink-0">
               <FileText size={20} />
             </div>
             <div>
@@ -78,7 +78,7 @@ export const SafTab: React.FC<SafTabProps> = ({
               <p className="text-xs text-gray-500 font-medium">Validado por Vitor Matheus em {new Date().toLocaleDateString()}</p>
             </div>
             <div className="ml-auto flex items-center gap-2">
-               <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded text-xs font-bold border border-emerald-100">
+               <span className="bg-brand/5 text-brand px-3 py-1 rounded text-xs font-bold border border-brand/10">
                  Risco Baixo
                </span>
             </div>

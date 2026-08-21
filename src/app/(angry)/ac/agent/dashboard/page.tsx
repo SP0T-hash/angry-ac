@@ -9,6 +9,7 @@ import ClientCRM from '@/components/ac-angry/ClientCRM';
 import MessageCenter from '@/components/ac-angry/MessageCenter';
 import { Users, Video, ShieldCheck, MessageSquare, Search, ArrowRight, PlusCircle, CreditCard, Landmark, FileText } from 'lucide-react';
 import NewOrderForm from '@/components/ac-angry/NewOrderForm';
+import GsapReveal from '@/components/gs/GsapReveal';
 
 export default function AgentDashboard() {
   const [protocols, setProtocols] = useState<any[]>([]);
@@ -121,7 +122,7 @@ export default function AgentDashboard() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50 overflow-hidden text-gray-800 font-sans selection:bg-emerald-500/30">
+    <div className="flex flex-col h-screen bg-slate-50 overflow-hidden text-gray-800 font-sans selection:bg-brand/30">
       
       {/* Top Navbar */}
       <Navbar />
@@ -131,37 +132,39 @@ export default function AgentDashboard() {
         <Sidebar activeView={activeView} onChangeView={handleChangeView} />
         
         {/* Área Principal */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-white relative">
-          {renderContent()}
-        </div>
+          <div className="flex-1 flex flex-col overflow-hidden bg-white relative">
+            <GsapReveal className="flex-1 min-h-0">
+              {renderContent()}
+            </GsapReveal>
+          </div>
       </div>
 
       {/* Mobile Bottom Navigation Bar */}
       <div className="md:hidden h-16 bg-white border-t border-gray-100 flex items-center justify-around px-4 sticky bottom-0 z-50 shadow-[0_-1px_10px_rgba(0,0,0,0.05)]">
         <button 
           onClick={() => handleChangeView('protocolos')}
-          className={`flex flex-col items-center gap-1 p-2 ${activeView === 'protocolos' ? 'text-emerald-600' : 'text-gray-400'}`}
+          className={`flex flex-col items-center gap-1 p-2 ${activeView === 'protocolos' ? 'text-brand' : 'text-gray-400'}`}
         >
           <FileText size={18} strokeWidth={activeView === 'protocolos' ? 2.5 : 2} />
           <span className="text-[9px] font-black uppercase">Fila</span>
         </button>
         <button 
           onClick={() => handleChangeView('novo-pedido')}
-          className={`flex flex-col items-center gap-1 p-2 ${activeView === 'novo-pedido' ? 'text-emerald-600' : 'text-gray-400'}`}
+          className={`flex flex-col items-center gap-1 p-2 ${activeView === 'novo-pedido' ? 'text-brand' : 'text-gray-400'}`}
         >
           <PlusCircle size={18} strokeWidth={activeView === 'novo-pedido' ? 2.5 : 2} />
           <span className="text-[9px] font-black uppercase">Novo</span>
         </button>
         <button 
           onClick={() => handleChangeView('clientes')}
-          className={`flex flex-col items-center gap-1 p-2 ${activeView === 'clientes' ? 'text-emerald-600' : 'text-gray-400'}`}
+          className={`flex flex-col items-center gap-1 p-2 ${activeView === 'clientes' ? 'text-brand' : 'text-gray-400'}`}
         >
           <Users size={18} strokeWidth={activeView === 'clientes' ? 2.5 : 2} />
           <span className="text-[9px] font-black uppercase">CRM</span>
         </button>
         <button 
           onClick={() => handleChangeView('mensagens')}
-          className={`flex flex-col items-center gap-1 p-2 ${activeView === 'mensagens' ? 'text-emerald-600' : 'text-gray-400'}`}
+          className={`flex flex-col items-center gap-1 p-2 ${activeView === 'mensagens' ? 'text-brand' : 'text-gray-400'}`}
         >
           <MessageSquare size={18} strokeWidth={activeView === 'mensagens' ? 2.5 : 2} />
           <span className="text-[9px] font-black uppercase">Chat</span>
@@ -182,11 +185,11 @@ function SectionPlaceholder({ icon, title, subtitle, description, features }: {
   return (
     <div className="flex-1 flex items-center justify-center p-12">
       <div className="max-w-lg text-center">
-        <div className="w-24 h-24 bg-emerald-50 rounded-3xl flex items-center justify-center mx-auto mb-8 text-emerald-600 shadow-lg shadow-emerald-100/50">
+        <div className="w-24 h-24 bg-brand/5 rounded-3xl flex items-center justify-center mx-auto mb-8 text-brand shadow-lg shadow-brand/50">
           {icon}
         </div>
         <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-1">{title}</h2>
-        <p className="text-sm font-bold text-emerald-600 uppercase tracking-widest mb-4">{subtitle}</p>
+        <p className="text-sm font-bold text-brand uppercase tracking-widest mb-4">{subtitle}</p>
         <p className="text-sm text-slate-500 leading-relaxed mb-8 max-w-md mx-auto">{description}</p>
         
         <div className="bg-slate-50 rounded-2xl p-6 text-left border border-slate-100">
@@ -194,8 +197,8 @@ function SectionPlaceholder({ icon, title, subtitle, description, features }: {
           <ul className="space-y-3">
             {features.map((f, i) => (
               <li key={i} className="flex items-start gap-3">
-                <div className="w-5 h-5 bg-emerald-100 rounded-md flex items-center justify-center shrink-0 mt-0.5">
-                  <ArrowRight size={10} className="text-emerald-600" />
+                <div className="w-5 h-5 bg-brand/10 rounded-md flex items-center justify-center shrink-0 mt-0.5">
+                  <ArrowRight size={10} className="text-brand" />
                 </div>
                 <span className="text-sm text-slate-600 font-medium">{f}</span>
               </li>

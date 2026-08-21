@@ -28,15 +28,15 @@ export default function Sidebar({ activeView, onChangeView }: { activeView: stri
             onClick={() => onChangeView(item.id)}
             className={`w-full aspect-square rounded-xl flex items-center justify-center transition-all duration-300 relative group ${
               activeView === item.id 
-                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200 ring-4 ring-emerald-50' 
-                : 'text-gray-400 hover:text-emerald-600 hover:bg-emerald-50/80 transition-all hover:scale-105'
+                ? 'bg-brand text-white shadow-lg shadow-brand ring-4 ring-brand' 
+                : 'text-gray-400 hover:text-brand hover:bg-brand/5/80 transition-all hover:scale-105'
             }`}
           >
             <item.icon size={20} strokeWidth={activeView === item.id ? 2.5 : 2} />
             
             {/* Indicador Ativo Lateral */}
             {activeView === item.id && (
-              <div className="absolute -left-2 top-1/4 bottom-1/4 w-1 bg-emerald-600 rounded-r-full"></div>
+              <div className="absolute -left-2 top-1/4 bottom-1/4 w-1 bg-brand rounded-r-full"></div>
             )}
             
             {/* Tooltip Custom (Opcional, usando title por enquanto) */}

@@ -17,7 +17,7 @@ export default function ClientCRM() {
           <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all">
             <Filter size={14} /> Filtrar
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100">
+          <button className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-xl text-xs font-bold hover:bg-brand transition-all shadow-lg shadow-brand">
             <Download size={14} /> Exportar Base
           </button>
         </div>
@@ -29,7 +29,7 @@ export default function ClientCRM() {
         <input 
           type="text" 
           placeholder="Buscar por Nome, CPF ou Serial Number..." 
-          className="w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-emerald-500/20 outline-none font-bold text-slate-700 transition-all"
+          className="w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-brand/20 outline-none font-bold text-slate-700 transition-all"
         />
       </div>
 
@@ -50,7 +50,7 @@ export default function ClientCRM() {
               <tr key={client.id} className="hover:bg-slate-50/30 transition-colors group">
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-all">
+                    <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-brand/10 group-hover:text-brand transition-all">
                       <User size={18} />
                     </div>
                     <div>
@@ -64,7 +64,7 @@ export default function ClientCRM() {
                 </td>
                 <td className="px-6 py-5">
                   <span className={`text-[10px] font-black px-2.5 py-1 rounded-full border uppercase tracking-tighter ${
-                    client.status === 'ATIVO' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                    client.status === 'ATIVO' ? 'bg-brand/5 text-brand border-brand/10' :
                     client.status === 'EXPIRADO' ? 'bg-amber-50 text-amber-700 border-amber-100' :
                     'bg-rose-50 text-rose-700 border-rose-100'
                   }`}>
@@ -78,7 +78,7 @@ export default function ClientCRM() {
                   </div>
                 </td>
                 <td className="px-6 py-5 text-right">
-                  <button className="text-[10px] font-black text-emerald-600 hover:text-emerald-800 uppercase tracking-widest bg-emerald-50/50 hover:bg-emerald-50 px-3 py-1.5 rounded-lg transition-all">
+                  <button className="text-[10px] font-black text-brand hover:text-emerald-800 uppercase tracking-widest bg-brand/5/50 hover:bg-brand/5 px-3 py-1.5 rounded-lg transition-all">
                     Visualizar
                   </button>
                 </td>
@@ -91,7 +91,7 @@ export default function ClientCRM() {
       {/* Stats Summary */}
       <div className="grid grid-cols-3 gap-6 mt-8">
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
-           <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 border border-emerald-100">
+           <div className="w-12 h-12 bg-brand/5 rounded-2xl flex items-center justify-center text-brand border border-brand/10">
              <ShieldCheck size={24} />
            </div>
            <div>

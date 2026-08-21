@@ -180,24 +180,24 @@ export default function AgentLoginPage() {
       <div className="max-w-4xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-slate-200">
         
         {/* Left Col - Branding VEMAPI */}
-        <div className="md:w-5/12 bg-emerald-900 p-10 flex flex-col justify-between relative overflow-hidden text-white">
+        <div className="md:w-5/12 bg-brand p-10 flex flex-col justify-between relative overflow-hidden text-white">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop')] mix-blend-overlay opacity-10 bg-cover bg-center"></div>
           
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-10">
-              <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-900/50">
+              <div className="w-10 h-10 bg-brand rounded-lg flex items-center justify-center shadow-lg shadow-brand/50">
                 <Zap size={24} className="text-white" fill="currentColor" />
               </div>
-              <span className="font-extrabold text-2xl tracking-tight uppercase">AC <span className="text-emerald-400">ANGRY</span></span>
+              <span className="font-extrabold text-2xl tracking-tight uppercase">AC <span className="text-brand">ANGRY</span></span>
             </div>
             
             <h1 className="text-3xl font-black mb-4 leading-tight uppercase tracking-tighter">Portal A3 Exclusivo</h1>
-            <p className="text-emerald-200 text-sm leading-relaxed max-w-sm font-medium">
+            <p className="text-brand text-sm leading-relaxed max-w-sm font-medium">
               Ambiente restrito para Agentes de Registro (AGR) com acesso exclusivo via certificado digital A3 ICP-Brasil.
             </p>
           </div>
 
-          <div className="relative z-10 flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">
+          <div className="relative z-10 flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-brand">
              <ShieldCheck size={16} /> Auditoria ICP-Brasil Ativa
           </div>
         </div>
@@ -207,10 +207,10 @@ export default function AgentLoginPage() {
           
           {/* Machine Diagnostics Widget */}
           <div className="absolute top-4 right-4 flex gap-2">
-            <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border transition-colors ${diagnostics.webPki === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+            <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border transition-colors ${diagnostics.webPki === 'active' ? 'bg-brand/5 text-brand border-brand' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
               <Globe size={10} /> A3-PKI
             </div>
-            <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border transition-colors ${diagnostics.hwDrivers === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+            <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border transition-colors ${diagnostics.hwDrivers === 'active' ? 'bg-brand/5 text-brand border-brand' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
               <HardDrive size={10} /> TOKEN
             </div>
           </div>
@@ -223,10 +223,10 @@ export default function AgentLoginPage() {
               <div className="space-y-4 mb-8">
                 <button 
                   onClick={handleUniversalA3Login}
-                  className="w-full flex items-center justify-center p-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl transition-all group shadow-lg shadow-emerald-600/20"
+                  className="w-full flex items-center justify-center p-4 bg-brand hover:bg-brand text-white rounded-2xl transition-all group shadow-lg shadow-brand/20"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <div className="w-12 h-12 bg-brand rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
                       <ShieldCheck size={24} className="text-white" />
                     </div>
                     <div className="text-center">
@@ -242,10 +242,10 @@ export default function AgentLoginPage() {
           {authStatus === 'scanning' && (
             <div className="flex flex-col items-center justify-center h-64 animate-in fade-in duration-500">
                <div className="relative w-24 h-24 mb-6">
-                 <div className="absolute inset-0 border-4 border-emerald-100 rounded-full"></div>
-                 <div className="absolute inset-0 border-4 border-emerald-600 rounded-full border-t-transparent animate-spin"></div>
+                 <div className="absolute inset-0 border-4 border-brand/10 rounded-full"></div>
+                 <div className="absolute inset-0 border-4 border-brand rounded-full border-t-transparent animate-spin"></div>
                  <div className="absolute inset-0 flex items-center justify-center">
-                   <MonitorSmartphone size={32} className="text-emerald-600 animate-pulse" />
+                   <MonitorSmartphone size={32} className="text-brand animate-pulse" />
                  </div>
                </div>
                <h3 className="text-lg font-bold text-slate-900 mb-2">Analisando Portas USB...</h3>
@@ -255,11 +255,11 @@ export default function AgentLoginPage() {
 
           {authStatus === 'pin' && (
             <div className="animate-in fade-in slide-in-from-right-8 duration-500 flex flex-col items-center text-center">
-              <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                <ShieldCheck size={40} className="text-emerald-600" />
+              <div className="w-20 h-20 bg-brand/5 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                <ShieldCheck size={40} className="text-brand" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-1">Certificado Identificado!</h3>
-              <p className="text-emerald-600 text-[10px] font-black uppercase tracking-widest mb-2 border border-emerald-200 px-3 py-1 rounded-full bg-emerald-50">
+              <p className="text-brand text-[10px] font-black uppercase tracking-widest mb-2 border border-brand px-3 py-1 rounded-full bg-brand/5">
                 A3 Hardware / Token
               </p>
               <p className="text-slate-900 text-sm font-bold mb-8">
@@ -274,19 +274,19 @@ export default function AgentLoginPage() {
                     required
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
-                    className="w-full h-12 border-2 border-slate-200 rounded-xl px-4 text-center tracking-[0.5em] font-mono text-xl focus:border-emerald-600 focus:ring-0 transition-colors"
+                    className="w-full h-12 border-2 border-slate-200 rounded-xl px-4 text-center tracking-[0.5em] font-mono text-xl focus:border-brand focus:ring-0 transition-colors"
                     maxLength={8}
                     autoFocus
                   />
                 </div>
-                <button type="submit" className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition-transform active:scale-95">
+                <button type="submit" className="w-full h-12 bg-brand hover:bg-brand text-white font-bold rounded-xl shadow-lg shadow-brand/30 transition-transform active:scale-95">
                   Confirmar Autenticação
                 </button>
               </form>
 
               <button 
                 onClick={() => setAuthStatus('idle')}
-                className="mt-6 text-xs font-bold text-slate-400 hover:text-emerald-700 transition-colors uppercase tracking-widest"
+                className="mt-6 text-xs font-bold text-slate-400 hover:text-brand transition-colors uppercase tracking-widest"
               >
                 Voltar para opções de acesso
               </button>
@@ -334,12 +334,12 @@ export default function AgentLoginPage() {
           )}
 
           {authStatus === 'success' && (
-            <div className="flex flex-col items-center justify-center h-64 animate-in fade-in zoom-in-95 duration-500 text-emerald-600">
-               <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-emerald-500/20">
-                 <Fingerprint size={48} className="text-emerald-600 animate-pulse" />
+            <div className="flex flex-col items-center justify-center h-64 animate-in fade-in zoom-in-95 duration-500 text-brand">
+               <div className="w-24 h-24 bg-brand/10 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-brand/20">
+                 <Fingerprint size={48} className="text-brand animate-pulse" />
                </div>
                <h3 className="text-2xl font-bold mb-2">Certificado A3 Validado!</h3>
-               <p className="text-emerald-700/80 text-sm font-medium">Acesso autorizado via certificado digital ICP-Brasil.</p>
+               <p className="text-brand/80 text-sm font-medium">Acesso autorizado via certificado digital ICP-Brasil.</p>
             </div>
           )}
 

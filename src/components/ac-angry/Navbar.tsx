@@ -29,7 +29,7 @@ export default function Navbar() {
 
       <div className="flex items-center gap-4 lg:gap-6">
         <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-100 h-9">
-          <ShieldCheck size={14} className="text-emerald-500" />
+          <ShieldCheck size={14} className="text-brand" />
           <span className="text-[10px] font-black text-slate-500 uppercase tracking-tight">Ambiente Seguro (AGR)</span>
         </div>
 
@@ -38,7 +38,7 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           <div className="hidden md:flex flex-col items-end">
             <span className="text-[11px] font-black text-gray-800 tracking-tight uppercase leading-none mb-1">VITOR MATHEUS</span>
-            <span className="text-[9px] text-emerald-600 font-bold uppercase tracking-wider leading-none">Agente de Registro</span>
+            <span className="text-[9px] text-brand font-bold uppercase tracking-wider leading-none">Agente de Registro</span>
           </div>
           
           <button 

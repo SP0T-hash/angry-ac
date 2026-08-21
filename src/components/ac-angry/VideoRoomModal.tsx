@@ -152,7 +152,7 @@ export default function VideoRoomModal({ protocol, onClose, onRecordingFinished,
             )}
             {!dailyRoomUrl && !isLoadingRoom && (
               <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-xs font-bold flex items-center gap-2 z-10">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <div className="w-2 h-2 rounded-full bg-brand animate-pulse"></div>
                 {protocol.titular.name} (Cliente - Ambiente Simulado)
               </div>
             )}

@@ -67,9 +67,7 @@ export default function GSLayout({
     <div className="min-h-screen flex bg-[var(--color-surface)]">
       <aside className="hidden md:flex w-60 bg-white border-r border-slate-200 h-screen flex-col py-4 shrink-0 z-40">
         <div className="px-4 mb-6 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-brand text-white flex items-center justify-center shadow-sm">
-            <Building2 size={18} />
-          </div>
+          <img src="/vemap-logo.png" alt="VEMAPI" className="w-9 h-9 rounded-lg object-contain bg-white" />
           <div className="leading-tight">
             <span className="text-[10px] font-black text-brand bg-brand/10 px-1.5 py-0.5 rounded uppercase tracking-wider">GS</span>
             <p className="text-slate-900 font-black text-sm tracking-tight">Core-AR · Gestão</p>

@@ -27,8 +27,8 @@ export const NewDocModal: React.FC<NewDocModalProps> = ({
         <div className="px-8 py-6 flex justify-between items-start pb-4">
           <div>
             <h2 className="text-xl font-extrabold text-gray-900 flex items-center gap-3 mb-1">
-              <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100">
-                <UploadCloud size={20} className="text-emerald-600" />
+              <div className="w-10 h-10 rounded-full bg-brand/5 flex items-center justify-center border border-brand/10">
+                <UploadCloud size={20} className="text-brand" />
               </div>
               Anexar Documento ou Consulta
             </h2>
@@ -46,7 +46,7 @@ export const NewDocModal: React.FC<NewDocModalProps> = ({
               <select 
                 value={selectedDocType}
                 onChange={(e) => setSelectedDocType(e.target.value)}
-                className="w-full border-2 border-gray-200 rounded-xl p-3.5 text-[15px] font-bold text-emerald-900 focus:border-emerald-600 focus:ring-0 outline-none transition-colors appearance-none cursor-pointer bg-white shadow-sm"
+                className="w-full border-2 border-gray-200 rounded-xl p-3.5 text-[15px] font-bold text-brand focus:border-brand focus:ring-0 outline-none transition-colors appearance-none cursor-pointer bg-white shadow-sm"
               >
                 <optgroup label="Identificação Pessoal">
                   <option>Documento de Identificação (RG / CNH / Passaporte)</option>
@@ -73,7 +73,7 @@ export const NewDocModal: React.FC<NewDocModalProps> = ({
                   <option>Procuração / Termo de Representação legal</option>
                 </optgroup>
               </select>
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-emerald-600">
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-brand">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
               </div>
             </div>
@@ -87,19 +87,19 @@ export const NewDocModal: React.FC<NewDocModalProps> = ({
                   value={certidaoCode}
                   onChange={(e) => setCertidaoCode(e.target.value)}
                   placeholder="Ex: 1A2B.3C4D.5E6F.7G8H"
-                  className="w-full border-2 border-emerald-100 bg-emerald-50/30 rounded-xl p-3.5 text-[15px] font-bold text-emerald-900 focus:border-emerald-600 focus:bg-white focus:ring-0 outline-none transition-colors placeholder:text-emerald-300"
+                  className="w-full border-2 border-brand/10 bg-brand/5/30 rounded-xl p-3.5 text-[15px] font-bold text-brand focus:border-brand focus:bg-white focus:ring-0 outline-none transition-colors placeholder:text-brand"
                 />
-                <p className="mt-2 text-[11px] font-semibold text-emerald-600/70 ml-1">Se preenchido, o sistema poderá automatizar a validação e atrelar a consulta ao laudo.</p>
+                <p className="mt-2 text-[11px] font-semibold text-brand/70 ml-1">Se preenchido, o sistema poderá automatizar a validação e atrelar a consulta ao laudo.</p>
              </div>
           )}
 
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Arquivo Eletrônico</label>
-            <div className="border-2 border-dashed border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50/80 hover:border-emerald-500 transition-all duration-300 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer group shadow-sm">
-              <div className="w-14 h-14 bg-white shadow-sm border border-emerald-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
-                <UploadCloud size={24} className="text-emerald-600" />
+            <div className="border-2 border-dashed border-brand bg-brand/5/40 hover:bg-brand/5/80 hover:border-brand transition-all duration-300 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer group shadow-sm">
+              <div className="w-14 h-14 bg-white shadow-sm border border-brand/5 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
+                <UploadCloud size={24} className="text-brand" />
               </div>
-              <p className="text-[15px] font-extrabold text-emerald-950 mb-1 group-hover:text-emerald-700 transition-colors">Clique e procure ou arraste o arquivo aqui</p>
+              <p className="text-[15px] font-extrabold text-emerald-950 mb-1 group-hover:text-brand transition-colors">Clique e procure ou arraste o arquivo aqui</p>
               <p className="text-xs text-emerald-800/60 font-semibold px-4 text-center">Somente formatos PDF, JPG, PNG e arquivos assinados P7S são suportados (Máx. 10MB)</p>
             </div>
           </div>
@@ -114,7 +114,7 @@ export const NewDocModal: React.FC<NewDocModalProps> = ({
             >
               Cancelar
             </button>
-            <button onClick={onClose} className="px-6 py-2.5 bg-emerald-700 text-white font-bold rounded-xl text-sm hover:bg-emerald-800 transition-colors shadow-sm flex items-center gap-2">
+            <button onClick={onClose} className="px-6 py-2.5 bg-brand text-white font-bold rounded-xl text-sm hover:bg-emerald-800 transition-colors shadow-sm flex items-center gap-2">
               <Check size={16} /> Finalizar Inclusão
             </button>
           </div>

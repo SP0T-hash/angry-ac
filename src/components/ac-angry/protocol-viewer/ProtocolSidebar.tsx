@@ -41,7 +41,7 @@ export const ProtocolSidebar: React.FC<ProtocolSidebarProps> = ({
             className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
               isLocked 
                 ? 'bg-amber-100 text-amber-600 border border-amber-200 shadow-sm hover:bg-amber-200' 
-                : 'bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm hover:bg-emerald-100'
+                : 'bg-brand/5 text-brand border border-brand/10 shadow-sm hover:bg-brand/10'
             }`}
             title={isLocked ? "Pedido Seguro (Sua edição)" : "Clique para assumir este pedido"}
           >
@@ -51,9 +51,9 @@ export const ProtocolSidebar: React.FC<ProtocolSidebarProps> = ({
         
         <div className="h-6 flex items-center mb-4">
            {isLocked ? (
-             <div className="bg-emerald-50/80 border border-emerald-100 rounded-lg px-2 py-1 flex items-center gap-1.5 animate-in fade-in slide-in-from-left-2 transition-all">
-               <div className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[8px] font-black">VC</div>
-               <span className="text-[10px] font-black text-emerald-700 uppercase tracking-tighter">BLOQUEADO POR: {lockedBy || 'VITOR MATHEUS'}</span>
+             <div className="bg-brand/5/80 border border-brand/10 rounded-lg px-2 py-1 flex items-center gap-1.5 animate-in fade-in slide-in-from-left-2 transition-all">
+               <div className="w-4 h-4 rounded-full bg-brand text-white flex items-center justify-center text-[8px] font-black">VC</div>
+               <span className="text-[10px] font-black text-brand uppercase tracking-tighter">BLOQUEADO POR: {lockedBy || 'VITOR MATHEUS'}</span>
              </div>
            ) : (
              <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">
@@ -65,12 +65,12 @@ export const ProtocolSidebar: React.FC<ProtocolSidebarProps> = ({
 
         <div className="mb-4">
           <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-tighter border ${
-            hwStatus === 'connected' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+            hwStatus === 'connected' ? 'bg-brand/5 text-brand border-brand/10' :
             hwStatus === 'connecting' ? 'bg-amber-50 text-amber-600 border-amber-100' :
             'bg-gray-50 text-gray-400 border-gray-100'
           }`}>
             <div className={`w-1.5 h-1.5 rounded-full ${
-              hwStatus === 'connected' ? 'bg-emerald-600' :
+              hwStatus === 'connected' ? 'bg-brand' :
               hwStatus === 'connecting' ? 'bg-amber-500 animate-pulse' :
               'bg-gray-300'
             }`}></div>
@@ -82,8 +82,8 @@ export const ProtocolSidebar: React.FC<ProtocolSidebarProps> = ({
         
         <div className="flex">
           <span className={`text-[10px] font-black px-3 py-1 rounded-lg border uppercase tracking-wider shadow-sm transition-all ${
-            currentStatus === 'EMITIDO' ? 'bg-emerald-50 text-emerald-700 border-emerald-100 shadow-emerald-50' :
-            currentStatus === 'APROVADO' ? 'bg-emerald-50 text-emerald-700 border-emerald-100 shadow-emerald-50' :
+            currentStatus === 'EMITIDO' ? 'bg-brand/5 text-brand border-brand/10 shadow-brand' :
+            currentStatus === 'APROVADO' ? 'bg-brand/5 text-brand border-brand/10 shadow-brand' :
             currentStatus === 'REJEITADO' ? 'bg-rose-50 text-rose-700 border-rose-100 shadow-rose-50' :
             'bg-slate-100 text-slate-600 border-slate-200'
           }`}>

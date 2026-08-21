@@ -21,7 +21,7 @@ export const AuditTab: React.FC<AuditTabProps> = ({
        <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
           <h3 className="text-xl font-black text-slate-900 flex items-center gap-3 tracking-tight uppercase">
             Auditoria do Atendimento
-            <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 uppercase tracking-[0.1em] shadow-sm">Real-time Log</span>
+            <span className="text-[10px] font-black text-brand bg-brand/5 px-3 py-1 rounded-full border border-brand/10 uppercase tracking-[0.1em] shadow-sm">Real-time Log</span>
           </h3>
        </div>
 
@@ -32,16 +32,16 @@ export const AuditTab: React.FC<AuditTabProps> = ({
                 {/* Indicador Temporal */}
                 <div className={`absolute left-0 top-1 w-10 h-10 rounded-2xl flex items-center justify-center border-2 z-10 transition-all shadow-md group-hover:scale-110 ${
                   log.agent === 'SISTEMA' ? 'bg-amber-50 border-amber-200 text-amber-600 shadow-amber-50' : 
-                  log.agent === 'CLIENTE' ? 'bg-emerald-50 border-emerald-200 text-emerald-600 shadow-emerald-50' :
-                  'bg-white border-slate-200 text-slate-400 group-first:border-emerald-600 group-first:text-emerald-600 shadow-sm'
+                  log.agent === 'CLIENTE' ? 'bg-brand/5 border-brand text-brand shadow-brand' :
+                  'bg-white border-slate-200 text-slate-400 group-first:border-brand group-first:text-brand shadow-sm'
                 }`}>
                   {log.agent === 'SISTEMA' ? <ShieldCheck size={18} /> : 
                    log.agent === 'CLIENTE' ? <UserCircle size={18} /> :
-                   <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[8px] font-black uppercase tracking-tighter shadow-inner">AGR</div>}
+                   <div className="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center text-[8px] font-black uppercase tracking-tighter shadow-inner">AGR</div>}
                 </div>
 
                 {/* Conteúdo do Log (Estilo Terminal) */}
-                <div className="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm hover:shadow-md transition-all border-l-4 border-l-slate-200 group-first:border-l-emerald-600">
+                <div className="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm hover:shadow-md transition-all border-l-4 border-l-slate-200 group-first:border-l-brand">
                    <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-black text-slate-900 uppercase tracking-tight">{log.action}</span>
                       <div className="flex items-center gap-2">
@@ -50,7 +50,7 @@ export const AuditTab: React.FC<AuditTabProps> = ({
                    </div>
                    
                     <div className="flex items-center gap-2 mb-2">
-                       <div className="w-1 h-1 rounded-full bg-emerald-500"></div>
+                       <div className="w-1 h-1 rounded-full bg-brand"></div>
                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{log.agent}</span>
                     </div>
 
@@ -62,7 +62,7 @@ export const AuditTab: React.FC<AuditTabProps> = ({
                            className="w-full flex items-center justify-between p-4 bg-slate-800/20 hover:bg-slate-800/40 transition-colors border-b border-white/5"
                          >
                            <div className="flex items-center gap-3">
-                             <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.8)] animate-pulse"></div>
+                             <div className="w-2 h-2 rounded-full bg-brand shadow-[0_0_12px_rgba(16,185,129,0.8)] animate-pulse"></div>
                              <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.25em]">Dossiê de Integridade • LGPD Compliance</span>
                            </div>
                            <div className="flex items-center gap-4">
@@ -86,12 +86,12 @@ export const AuditTab: React.FC<AuditTabProps> = ({
                                     a.download = `DOSSIE_${protocol.id}_${log.timestamp.replace(/[:\/ ]/g, '_')}.txt`;
                                     a.click();
                                   }}
-                                  className="text-[9px] font-black text-emerald-400 hover:text-white transition-colors flex items-center gap-2 uppercase tracking-widest bg-emerald-400/10 px-3 py-1.5 rounded-lg"
+                                  className="text-[9px] font-black text-brand hover:text-white transition-colors flex items-center gap-2 uppercase tracking-widest bg-brand/10 px-3 py-1.5 rounded-lg"
                                 >
                                   <FileText size={10} /> Baixar Auditoria
                                 </button>
                               </div>
-                              <pre className="text-[11px] text-emerald-300/90 font-mono leading-relaxed whitespace-pre-wrap selection:bg-emerald-500/30 font-medium">
+                              <pre className="text-[11px] text-brand/90 font-mono leading-relaxed whitespace-pre-wrap selection:bg-brand/30 font-medium">
                                 {log.metadata.dossie}
                               </pre>
                            </div>
@@ -100,10 +100,10 @@ export const AuditTab: React.FC<AuditTabProps> = ({
                     )}
 
                     {log.metadata?.hasDownload && (
-                     <div className="mt-3 pt-3 border-t border-dashed border-slate-100 flex items-center justify-between bg-emerald-50/30 -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
+                     <div className="mt-3 pt-3 border-t border-dashed border-slate-100 flex items-center justify-between bg-brand/5/30 -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
                         <div className="flex items-center gap-2">
-                          <FileText size={14} className="text-emerald-600" />
-                          <span className="text-[10px] font-black text-emerald-900 uppercase tracking-tighter">{log.metadata.docName}</span>
+                          <FileText size={14} className="text-brand" />
+                          <span className="text-[10px] font-black text-brand uppercase tracking-tighter">{log.metadata.docName}</span>
                         </div>
                         <div className="flex gap-2">
                           <button 
@@ -115,13 +115,13 @@ export const AuditTab: React.FC<AuditTabProps> = ({
                               a.download = `Certificado_${log.metadata.serialNumber}.crt`;
                               a.click();
                             }}
-                            className="text-[9px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-all uppercase tracking-widest"
+                            className="text-[9px] font-black text-brand bg-brand/5 border border-brand px-3 py-1.5 rounded-lg hover:bg-brand/10 transition-all uppercase tracking-widest"
                           >
                             Baixar .CRT
                           </button>
                           <button 
                             onClick={() => handleDownloadTermo(log)}
-                            className="text-[9px] font-black text-white bg-emerald-700 px-3 py-1.5 rounded-lg shadow-lg shadow-emerald-900/10 hover:bg-emerald-800 transition-all uppercase tracking-widest"
+                            className="text-[9px] font-black text-white bg-brand px-3 py-1.5 rounded-lg shadow-lg shadow-brand/10 hover:bg-emerald-800 transition-all uppercase tracking-widest"
                           >
                             Termo (PDF)
                           </button>

@@ -10,12 +10,12 @@ export default function ProtocolQueue({ protocols, onSelect }: any) {
       <div className="px-10 py-10 bg-white border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-6 relative shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em]">Painel de Operações Real-time</span>
+            <div className="w-2 h-2 rounded-full bg-brand animate-pulse"></div>
+            <span className="text-[10px] font-black text-brand uppercase tracking-[0.2em]">Painel de Operações Real-time</span>
           </div>
           <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-1">Fila de Validação</h2>
           <p className="text-sm font-medium text-slate-400">
-            Agente, você possui <span className="font-bold text-emerald-600 underline decoration-emerald-200 underline-offset-4">{protocols.length} protocolos</span> aguardando sua assinatura.
+            Agente, você possui <span className="font-bold text-brand underline decoration-brand underline-offset-4">{protocols.length} protocolos</span> aguardando sua assinatura.
           </p>
         </div>
         
@@ -26,17 +26,17 @@ export default function ProtocolQueue({ protocols, onSelect }: any) {
               placeholder="Buscar por CPF, Nome ou ID..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-50 border-none rounded-xl py-3.5 pl-12 pr-4 text-sm text-slate-700 placeholder-slate-400 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:bg-white transition-all shadow-inner"
+              className="w-full bg-slate-50 border-none rounded-xl py-3.5 pl-12 pr-4 text-sm text-slate-700 placeholder-slate-400 outline-none focus:ring-2 focus:ring-brand/20 focus:bg-white transition-all shadow-inner"
             />
             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
           </div>
-          <button className="bg-white border border-slate-200 p-3.5 rounded-xl text-slate-500 hover:text-emerald-600 transition-all hover:bg-slate-50 shadow-sm flex items-center justify-center">
+          <button className="bg-white border border-slate-200 p-3.5 rounded-xl text-slate-500 hover:text-brand transition-all hover:bg-slate-50 shadow-sm flex items-center justify-center">
             <Filter size={18} />
           </button>
         </div>
 
         {/* Efeito Decorativo de Fundo */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50/30 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl -z-0"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-brand/5/30 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl -z-0"></div>
       </div>
 
       {/* Tabela Clean Full-Width (Light Mode) / Cards on Mobile */}
@@ -53,10 +53,10 @@ export default function ProtocolQueue({ protocols, onSelect }: any) {
               <div className="flex justify-between items-start mb-4">
                 <div className="flex flex-col gap-1">
                   <span className="text-xs font-black text-slate-800 uppercase tracking-tight">{p.id}</span>
-                  <span className="text-[8px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 w-fit">{p.product}</span>
+                  <span className="text-[8px] font-black text-brand bg-brand/5 px-2 py-0.5 rounded-full border border-brand/10 w-fit">{p.product}</span>
                 </div>
                 <span className={`text-[8px] font-black px-2 py-1 rounded-md border uppercase tracking-widest ${
-                  p.status === 'APROVADO' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
+                  p.status === 'APROVADO' ? 'bg-brand/5 text-brand border-brand/10' : 
                   'bg-slate-50 text-slate-600 border-slate-100'
                 }`}>
                   {p.status}
@@ -67,7 +67,7 @@ export default function ProtocolQueue({ protocols, onSelect }: any) {
               
               <div className="flex items-center justify-between pt-4 border-t border-slate-50">
                  <div className="flex items-center gap-2">
-                    <div className={`w-1.5 h-1.5 rounded-full ${p.compliance.biometria === 'APROVADA' ? 'bg-emerald-500' : 'bg-amber-400'}`}></div>
+                    <div className={`w-1.5 h-1.5 rounded-full ${p.compliance.biometria === 'APROVADA' ? 'bg-brand' : 'bg-amber-400'}`}></div>
                     <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Bio: {p.compliance.biometria}</span>
                  </div>
                  <ArrowRight size={14} className="text-slate-300" />
@@ -93,15 +93,15 @@ export default function ProtocolQueue({ protocols, onSelect }: any) {
               {protocols.map((p: any) => (
                 <tr 
                   key={p.id} 
-                  className="hover:bg-emerald-50/30 transition-all group cursor-pointer bg-white"
+                  className="hover:bg-brand/5/30 transition-all group cursor-pointer bg-white"
                   onClick={() => onSelect(p)}
                 >
                   
                   {/* ID / Produto */}
                   <td className="py-6 px-8">
                     <div className="flex flex-col items-start gap-2">
-                      <span className="text-sm font-black text-slate-800 group-hover:text-emerald-600 transition-colors uppercase tracking-tight">{p.id}</span>
-                      <span className="text-[9px] font-black text-emerald-500 bg-emerald-50/50 px-2 py-0.5 rounded-full border border-emerald-100/50 uppercase tracking-widest">
+                      <span className="text-sm font-black text-slate-800 group-hover:text-brand transition-colors uppercase tracking-tight">{p.id}</span>
+                      <span className="text-[9px] font-black text-brand bg-brand/5/50 px-2 py-0.5 rounded-full border border-brand/10/50 uppercase tracking-widest">
                         {p.product}
                       </span>
                     </div>
@@ -130,7 +130,7 @@ export default function ProtocolQueue({ protocols, onSelect }: any) {
                     <div className="flex flex-col gap-1.5">
                       <div className="flex items-center gap-2">
                         <div className={`w-1.5 h-1.5 rounded-full shadow-sm ${
-                          p.compliance.biometria === 'APROVADA' ? 'bg-emerald-500 shadow-emerald-200' :
+                          p.compliance.biometria === 'APROVADA' ? 'bg-brand shadow-brand' :
                           p.compliance.biometria === 'REPROVADA' ? 'bg-rose-500 shadow-rose-200' :
                           'bg-amber-500 shadow-amber-200'
                         }`}></div>
@@ -140,7 +140,7 @@ export default function ProtocolQueue({ protocols, onSelect }: any) {
                       </div>
                       <div className="w-24 h-1 bg-slate-100 rounded-full overflow-hidden">
                         <div className={`h-full rounded-full ${
-                          p.compliance.biometria === 'APROVADA' ? 'w-full bg-emerald-500' :
+                          p.compliance.biometria === 'APROVADA' ? 'w-full bg-brand' :
                           p.compliance.biometria === 'REPROVADA' ? 'w-full bg-rose-500' :
                           'w-1/2 bg-amber-500'
                         }`}></div>
@@ -151,7 +151,7 @@ export default function ProtocolQueue({ protocols, onSelect }: any) {
                   {/* Status */}
                   <td className="py-6 px-8">
                      <span className={`text-[10px] font-black px-3 py-1.5 rounded-lg border uppercase tracking-wider shadow-sm ${
-                        p.status === 'APROVADO' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
+                        p.status === 'APROVADO' ? 'bg-brand/5 text-brand border-brand/10' : 
                         p.status === 'REJEITADO' ? 'bg-rose-50 text-rose-700 border-rose-100' :
                         p.status === 'EMITIDO' ? 'bg-sky-50 text-sky-700 border-sky-100' :
                         p.status === 'AGUARDANDO_VIDEO' ? 'bg-amber-50 text-amber-700 border-amber-100' : 
@@ -168,7 +168,7 @@ export default function ProtocolQueue({ protocols, onSelect }: any) {
                         e.stopPropagation();
                         onSelect({ ...p, assumed: true });
                       }}
-                      className="bg-slate-900 hover:bg-emerald-600 text-white font-black text-[10px] uppercase tracking-[0.15em] px-5 py-3 rounded-xl transition-all shadow-lg hover:shadow-emerald-200 flex items-center gap-2 ml-auto"
+                      className="bg-slate-900 hover:bg-brand text-white font-black text-[10px] uppercase tracking-[0.15em] px-5 py-3 rounded-xl transition-all shadow-lg hover:shadow-brand flex items-center gap-2 ml-auto"
                     >
                       Assumir <ArrowRight size={14} />
                     </button>

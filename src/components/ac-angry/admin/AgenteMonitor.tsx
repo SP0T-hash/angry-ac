@@ -35,7 +35,7 @@ export default function AgenteMonitor() {
           <Card key={h.id} className="bg-[#0f172a]/40 border-white/5 hover:border-blue-500/30 transition-all group p-4">
             <Flex alignItems="center" justifyContent="between">
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center border border-white/10 ${h.status === 'ONLINE' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-slate-800 text-slate-500'}`}>
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center border border-white/10 ${h.status === 'ONLINE' ? 'bg-brand/10 text-brand' : 'bg-slate-800 text-slate-500'}`}>
                   {h.type === 'PC' && <Monitor size={18} />}
                   {h.type === 'SMARTPHONE' && <Smartphone size={18} />}
                   {h.type === 'TERMINAL' && <Terminal size={18} />}
@@ -50,7 +50,7 @@ export default function AgenteMonitor() {
                   {h.status}
                 </Badge>
                 <div className="flex items-center gap-1.5">
-                   {h.status === 'ONLINE' ? <SignalHigh size={10} className="text-emerald-500" /> : <SignalLow size={10} className="text-slate-600" />}
+                   {h.status === 'ONLINE' ? <SignalHigh size={10} className="text-brand" /> : <SignalLow size={10} className="text-slate-600" />}
                    <span className="text-[10px] font-mono text-slate-600">{h.lastPing}</span>
                 </div>
               </div>

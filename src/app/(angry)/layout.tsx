@@ -11,6 +11,14 @@ import { getArBranding } from "@/lib/gs/tenantBranding";
 export const metadata: Metadata = {
   title: 'AC Angry - Validação Digital',
   description: 'Sistema de Atendimento para Certificação Digital Integrado à VEMAPI',
+  icons: {
+    icon: [
+      { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default async function AngryLayout({
@@ -24,8 +32,8 @@ export default async function AngryLayout({
 
   return (
     <html lang="pt-BR">
-      <body className={`${GeistSans.className} min-h-screen bg-slate-50 text-slate-900 selection:bg-emerald-100 selection:text-emerald-900 font-sans antialiased overflow-hidden`}>
-        <div className="fixed inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-emerald-50/50 via-transparent to-transparent pointer-events-none"></div>
+      <body className={`${GeistSans.className} min-h-screen bg-slate-50 text-slate-900 selection:bg-brand/10 selection:text-brand font-sans antialiased overflow-hidden`}>
+        <div className="fixed inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-brand/50 via-transparent to-transparent pointer-events-none"></div>
         <ErrorBoundary>
           <BrandingProvider branding={branding}>
             <EnvironmentBanner />

@@ -51,7 +51,7 @@ export const IdentityTab: React.FC<IdentityTabProps> = ({
         ) : (
           <button 
             onClick={() => setIsEditingDados(!isEditingDados)} 
-            className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded transition-colors bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-100 shadow-sm"
+            className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded transition-colors bg-brand/5 text-brand hover:bg-brand/10 border border-brand/10 shadow-sm"
           >
             {isEditingDados ? <><Check size={14} /> Salvar Edição</> : <><Edit2 size={14} /> Editar Dados</>}
           </button>
@@ -65,7 +65,7 @@ export const IdentityTab: React.FC<IdentityTabProps> = ({
               type="text" 
               value={editableData.name}
               onChange={(e) => setEditableData({...editableData, name: e.target.value})}
-              className="w-full text-sm font-bold text-emerald-900 border-b-2 border-emerald-200 focus:border-emerald-600 focus:outline-none bg-emerald-50/50 px-2 py-1 transition-colors rounded-t-sm"
+              className="w-full text-sm font-bold text-brand border-b-2 border-brand focus:border-brand focus:outline-none bg-brand/5/50 px-2 py-1 transition-colors rounded-t-sm"
             />
           ) : (
             <p className="text-sm font-bold text-gray-800 px-2 py-1 -ml-2">{editableData.name}</p>
@@ -78,9 +78,9 @@ export const IdentityTab: React.FC<IdentityTabProps> = ({
             <button 
               onClick={handleConsultarCPF}
               disabled={isVerificandoCpf || !isLocked}
-              className="text-[10px] font-bold text-emerald-600 hover:text-emerald-800 disabled:opacity-30 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 transition-colors"
+              className="text-[10px] font-bold text-brand hover:text-emerald-800 disabled:opacity-30 flex items-center gap-1 bg-brand/5 px-2 py-0.5 rounded border border-brand/10 transition-colors"
             >
-              {isVerificandoCpf ? <div className="w-2.5 h-2.5 border-2 border-emerald-400 border-t-emerald-600 rounded-full animate-spin"></div> : <Search size={10} />}
+              {isVerificandoCpf ? <div className="w-2.5 h-2.5 border-2 border-brand border-t-brand rounded-full animate-spin"></div> : <Search size={10} />}
               Validar KYC
             </button>
           </div>
@@ -98,7 +98,7 @@ export const IdentityTab: React.FC<IdentityTabProps> = ({
                 if (val.length > 4) masked = masked.slice(0, 5) + '/' + masked.slice(5, 9);
                 setEditableData({...editableData, birthdate: masked.slice(0, 10)});
               }}
-              className="w-full text-sm font-bold text-emerald-900 border-b-2 border-emerald-200 focus:border-emerald-600 focus:outline-none bg-emerald-50/50 px-2 py-1 transition-colors rounded-t-sm"
+              className="w-full text-sm font-bold text-brand border-b-2 border-brand focus:border-brand focus:outline-none bg-brand/5/50 px-2 py-1 transition-colors rounded-t-sm"
               placeholder="DD/MM/AAAA"
             />
           ) : (
@@ -108,7 +108,7 @@ export const IdentityTab: React.FC<IdentityTabProps> = ({
         <div className="col-span-1">
            <p className="text-xs text-gray-500 font-semibold mb-1 uppercase tracking-tighter">Situação CPF</p>
            <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-             editableData.situacaoCpf === 'REGULAR' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-50 text-gray-500 border-gray-200'
+             editableData.situacaoCpf === 'REGULAR' ? 'bg-brand/5 text-brand border-brand' : 'bg-gray-50 text-gray-500 border-gray-200'
            }`}>
              {editableData.situacaoCpf}
            </span>
@@ -120,7 +120,7 @@ export const IdentityTab: React.FC<IdentityTabProps> = ({
               type="email" 
               value={editableData.email}
               onChange={(e) => setEditableData({...editableData, email: e.target.value.replace(/\s/g, '')})}
-              className="w-full text-sm font-bold text-emerald-900 border-b-2 border-emerald-200 focus:border-emerald-600 focus:outline-none bg-emerald-50/50 px-2 py-1 transition-colors rounded-t-sm"
+              className="w-full text-sm font-bold text-brand border-b-2 border-brand focus:border-brand focus:outline-none bg-brand/5/50 px-2 py-1 transition-colors rounded-t-sm"
             />
           ) : (
             <p className="text-sm font-bold text-gray-800 px-2 py-1 -ml-2">{editableData.email}</p>
@@ -133,7 +133,7 @@ export const IdentityTab: React.FC<IdentityTabProps> = ({
               type="text" 
               value={editableData.phone}
               onChange={(e) => setEditableData({...editableData, phone: maskPhone(e.target.value)})}
-              className="w-full text-sm font-bold text-emerald-900 border-b-2 border-emerald-200 focus:border-emerald-600 focus:outline-none bg-emerald-50/50 px-2 py-1 transition-colors rounded-t-sm"
+              className="w-full text-sm font-bold text-brand border-b-2 border-brand focus:border-brand focus:outline-none bg-brand/5/50 px-2 py-1 transition-colors rounded-t-sm"
             />
           ) : (
             <p className="text-sm font-bold text-gray-800 px-2 py-1 -ml-2">{maskPhone(editableData.phone)}</p>
@@ -148,7 +148,7 @@ export const IdentityTab: React.FC<IdentityTabProps> = ({
                    type="text" 
                    value={editableData.companyName}
                    onChange={(e) => setEditableData({...editableData, companyName: e.target.value})}
-                   className="w-full text-sm font-bold text-emerald-900 border-b-2 border-emerald-200 focus:border-emerald-600 focus:outline-none bg-emerald-50/50 px-2 py-1 transition-colors rounded-t-sm"
+                   className="w-full text-sm font-bold text-brand border-b-2 border-brand focus:border-brand focus:outline-none bg-brand/5/50 px-2 py-1 transition-colors rounded-t-sm"
                  />
                ) : (
                  <p className="text-sm font-bold text-gray-800 px-2 py-1 -ml-2">{editableData.companyName}</p>
@@ -164,7 +164,7 @@ export const IdentityTab: React.FC<IdentityTabProps> = ({
                <button 
                  onClick={handleConsultarPJ}
                  disabled={isVerificandoPj || !isLocked}
-                 className="mb-1 text-[10px] font-bold text-emerald-600 hover:text-emerald-800 disabled:opacity-30 flex items-center gap-1"
+                 className="mb-1 text-[10px] font-bold text-brand hover:text-emerald-800 disabled:opacity-30 flex items-center gap-1"
                >
                  <Search size={10} /> Validar na RFB
                </button>
@@ -189,7 +189,7 @@ export const IdentityTab: React.FC<IdentityTabProps> = ({
                  Este documento contém o hash de integridade e a trilha de auditoria reservada para a titular Maria Eduarda Fernandes. 
                  As evidências biométricas foram seladas com carimbo de tempo da Autoridade Certificadora.
                </p>
-               <div className="flex items-center gap-2 text-emerald-400 text-[10px] font-black uppercase tracking-tighter">
+               <div className="flex items-center gap-2 text-brand text-[10px] font-black uppercase tracking-tighter">
                  <Check size={14} /> Integridade do Dossiê Verificada
                </div>
             </div>
@@ -214,7 +214,7 @@ export const IdentityTab: React.FC<IdentityTabProps> = ({
            <button 
             onClick={handleSalvarDados}
             disabled={isSalvando}
-            className="px-6 py-2 bg-emerald-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-200 hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-2 bg-brand text-white text-sm font-bold rounded-xl shadow-lg shadow-brand hover:bg-brand disabled:opacity-50 flex items-center gap-2"
            >
              {isSalvando ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Save size={16} />}
              Salvar Alterações

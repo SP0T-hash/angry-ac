@@ -120,10 +120,10 @@ export const VideoConferenceTab: React.FC<VideoConferenceTabProps> = ({
 
   return (
     <div className="flex flex-col items-center justify-center mt-2 space-y-6">
-      <div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl border border-emerald-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl border border-brand/10 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="bg-slate-900 p-5 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 rounded-full ${recording ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'}`}></div>
+            <div className={`w-3 h-3 rounded-full ${recording ? 'bg-red-500 animate-pulse' : 'bg-brand'}`}></div>
             <span className="font-black text-xs uppercase tracking-widest">
               {protocol.is_presencial ? 'Captura Presencial' : 'Videoconferência ao Vivo'}
             </span>
@@ -157,7 +157,7 @@ export const VideoConferenceTab: React.FC<VideoConferenceTabProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <button 
                 onClick={handleCapturePhoto}
-                className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-4 bg-brand hover:bg-brand text-white font-black text-[10px] uppercase tracking-widest rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2"
               >
                 <Camera size={16} /> Tirar Foto
               </button>
@@ -178,13 +178,13 @@ export const VideoConferenceTab: React.FC<VideoConferenceTabProps> = ({
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-3">Checklist de Auditoria</p>
                 <ul className="space-y-2">
                    <li className="flex items-center gap-2 text-[11px] font-bold text-slate-600">
-                      <div className={`w-4 h-4 rounded-full flex items-center justify-center ${capturedPhoto ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400'}`}>
+                      <div className={`w-4 h-4 rounded-full flex items-center justify-center ${capturedPhoto ? 'bg-brand text-white' : 'bg-slate-200 text-slate-400'}`}>
                         <Check size={10} />
                       </div>
                       Foto capturada
                    </li>
                    <li className="flex items-center gap-2 text-[11px] font-bold text-slate-600">
-                      <div className={`w-4 h-4 rounded-full flex items-center justify-center ${videoConcluida ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400'}`}>
+                      <div className={`w-4 h-4 rounded-full flex items-center justify-center ${videoConcluida ? 'bg-brand text-white' : 'bg-slate-200 text-slate-400'}`}>
                         <Check size={10} />
                       </div>
                       Vídeo gravado
@@ -195,14 +195,14 @@ export const VideoConferenceTab: React.FC<VideoConferenceTabProps> = ({
              {recordingResult && (
                <button 
                  onClick={downloadRecording}
-                 className="w-full py-4 bg-white border-2 border-emerald-600 text-emerald-700 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-emerald-50 transition-all flex items-center justify-center gap-2 shadow-sm"
+                 className="w-full py-4 bg-white border-2 border-brand text-brand font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-brand/5 transition-all flex items-center justify-center gap-2 shadow-sm"
                >
                  <Download size={16} /> Baixar Vídeo (.webm)
                </button>
              )}
 
-             <div className="bg-emerald-50 rounded-2xl p-5 border border-emerald-100">
-                <h5 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+             <div className="bg-brand/5 rounded-2xl p-5 border border-brand/10">
+                <h5 className="text-[10px] font-black text-brand uppercase tracking-widest mb-3 flex items-center gap-2">
                    <Shield size={12} /> Fluxo de Emissão
                 </h5>
                 <div className="space-y-3">
@@ -211,7 +211,7 @@ export const VideoConferenceTab: React.FC<VideoConferenceTabProps> = ({
                       type="radio" 
                       checked={isCodigoComCliente}
                       onChange={() => setIsCodigoComCliente(true)}
-                      className="text-emerald-600 focus:ring-emerald-500"
+                      className="text-brand focus:ring-brand"
                     />
                     <span className="text-[10px] font-black text-slate-700 uppercase">Enviar ao Cliente</span>
                   </label>
@@ -220,7 +220,7 @@ export const VideoConferenceTab: React.FC<VideoConferenceTabProps> = ({
                       type="radio" 
                       checked={!isCodigoComCliente}
                       onChange={() => setIsCodigoComCliente(false)}
-                      className="text-emerald-600 focus:ring-emerald-500"
+                      className="text-brand focus:ring-brand"
                     />
                     <span className="text-[10px] font-black text-slate-700 uppercase">Reter Código</span>
                   </label>
@@ -230,7 +230,7 @@ export const VideoConferenceTab: React.FC<VideoConferenceTabProps> = ({
              <button 
                 onClick={handleFinalizarEGerarDossie}
                 disabled={isSendingEmail || !videoConcluida}
-                className="w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[11px] uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-emerald-100 transition-all disabled:opacity-30 disabled:shadow-none"
+                className="w-full py-5 bg-brand hover:bg-brand text-white font-black text-[11px] uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-brand transition-all disabled:opacity-30 disabled:shadow-none"
              >
                 {isSendingEmail ? 'Processando...' : 'Finalizar Atendimento'}
              </button>

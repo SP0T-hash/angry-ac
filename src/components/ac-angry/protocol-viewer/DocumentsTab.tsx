@@ -18,7 +18,7 @@ export const DocumentsTab: React.FC<DocumentsTabProps> = ({ isLocked, setShowNew
           <button 
             onClick={() => setShowNewDocModal(true)}
             disabled={!isLocked}
-            className="px-4 py-1.5 bg-emerald-800 text-white rounded font-bold text-[10px] uppercase tracking-widest hover:bg-emerald-700 shadow-sm transition-colors disabled:opacity-20"
+            className="px-4 py-1.5 bg-emerald-800 text-white rounded font-bold text-[10px] uppercase tracking-widest hover:bg-brand shadow-sm transition-colors disabled:opacity-20"
           >
             Novo
           </button>
@@ -26,7 +26,7 @@ export const DocumentsTab: React.FC<DocumentsTabProps> = ({ isLocked, setShowNew
       </div>
 
       <div className="border-b border-gray-200 mb-4 flex gap-6">
-        <button className="text-sm font-semibold border-b-[3px] border-emerald-700 text-emerald-800 pb-2">Documentos</button>
+        <button className="text-sm font-semibold border-b-[3px] border-brand text-emerald-800 pb-2">Documentos</button>
         <button className="text-sm font-semibold text-gray-500 pb-2">Excluídos</button>
       </div>
 
