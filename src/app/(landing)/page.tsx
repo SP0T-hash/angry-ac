@@ -5,6 +5,7 @@ import { Zap, Globe, Shield, Award, Cpu, MousePointer2, ArrowRight, Sun, Moon, X
 import { supabase } from '@/lib/supabase';
 import LandingBranding from "@/components/LandingBranding";
 import BrandMark from "@/components/BrandMark";
+import GsapReveal from "@/components/gs/GsapReveal";
 
 export default function VEMAPIPage() {
   const [currentSuffix, setCurrentSuffix] = useState(0);
@@ -548,7 +549,7 @@ export default function VEMAPIPage() {
         </div>
         
         {/* PLANOS DE SUPORTE PME */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch mb-12">
+        <GsapReveal className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch mb-12">
           
           {/* Plano 1: VEMAPI START */}
           <div className="bg-white/95 border border-slate-200 dark:bg-slate-900/40 dark:border-white/5 rounded-[20px] p-6 lg:p-8 hover:border-brand/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.1)] transition-all duration-300 spotlight-card relative overflow-hidden backdrop-blur-xl flex flex-col h-full">
@@ -661,7 +662,7 @@ export default function VEMAPIPage() {
               </div>
             </div>
           </div>
-        </div>
+        </GsapReveal>
       </section>
       {/* FAQ EDUCATIVO - DESCOMPLICANDO A TECNOLOGIA */}
       <section className="py-20 px-6 sm:px-12 max-w-6xl mx-auto relative z-10 reveal">
