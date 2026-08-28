@@ -9,6 +9,7 @@ import {
 } from '@tremor/react';
 import GSLayout from "@/components/gs/GSLayout";
 import { buildGSNav } from "@/components/gs/GSLayout";
+import GsapReveal from "@/components/gs/GsapReveal";
 
 interface DashboardProps {
   usuario: { nome: string; nivel: string; email: string };
@@ -50,6 +51,7 @@ export default function GSDashboardClient({ usuario, nivelLabel, isAdmin, isAR, 
         </div>
       )}
 
+      <GsapReveal className="space-y-6">
       <Grid numItemsSm={2} numItemsLg={4} className="gap-6">
         {cards.map((k) => (
           <Card key={k.title} decoration="top" decorationColor={k.color} className="bg-white border border-slate-100 rounded-2xl shadow-card">
@@ -78,7 +80,7 @@ export default function GSDashboardClient({ usuario, nivelLabel, isAdmin, isAR, 
               <button
                 key={n.id}
                 onClick={() => window.location.href = n.href}
-                className="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/40 transition text-slate-600 hover:text-emerald-700"
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 hover:border-brand/30 hover:bg-brand/5 transition text-slate-600 hover:text-brand"
               >
                 <n.icon size={20} />
                 <span className="text-[11px] font-bold">{n.label}</span>
@@ -104,6 +106,7 @@ export default function GSDashboardClient({ usuario, nivelLabel, isAdmin, isAR, 
           </div>
         </Card>
       </div>
+      </GsapReveal>
     </GSLayout>
   );
 }

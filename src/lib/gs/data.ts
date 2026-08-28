@@ -18,7 +18,7 @@ const AR_SCOPED_TABLES = new Set([
 const ALLOWED_TABLES = new Set([
   ...AR_SCOPED_TABLES,
   "gs_ars", "gs_planos", "gs_usuarios", "gs_sessoes",
-  "gs_permissoes", "gs_taxas", "gs_contadores", "gs_integracoes_ac",
+  "gs_permissoes", "gs_taxas", "gs_contadores", "gs_integracoes_ac", "gs_formas_pagamento",
   "gs_ticket_respostas", "gs_notificacoes", "gs_audit_logs",
 ]);
 

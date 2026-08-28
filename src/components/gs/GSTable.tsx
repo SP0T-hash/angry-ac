@@ -29,7 +29,7 @@ export default function GSTable({
         {onNovo && (
           <button
             onClick={onNovo}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition active:scale-95"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand hover:bg-brand text-white text-xs font-bold transition active:scale-95"
           >
             <Plus size={14} /> Novo
           </button>
@@ -57,7 +57,7 @@ export default function GSTable({
                 <tr
                   key={row.id ?? i}
                   onClick={() => onLinha?.(row)}
-                  className={`border-b border-slate-50 last:border-0 hover:bg-emerald-50/30 transition cursor-pointer ${i % 2 ? 'bg-slate-50/40' : ''}`}
+                  className={`border-b border-slate-50 last:border-0 hover:bg-brand/5 transition cursor-pointer ${i % 2 ? 'bg-slate-50/40' : ''}`}
                 >
                   {colunas.map((c) => (
                     <td key={c.key} className={`px-5 py-3 text-slate-700 ${c.mono ? 'font-mono text-xs' : ''}`}>

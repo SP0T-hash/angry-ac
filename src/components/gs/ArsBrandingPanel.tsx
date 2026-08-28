@@ -24,7 +24,7 @@ export default function ArsBrandingPanel({ ars }: { ars: Record<string, any>[] }
             <button
               key={a.id}
               onClick={() => setEditando(a)}
-              className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-emerald-300 hover:bg-emerald-50/40 transition text-left"
+              className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-brand/40 hover:bg-brand/5 transition text-left"
             >
               <div
                 className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-black shrink-0"

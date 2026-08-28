@@ -60,7 +60,7 @@ export default function ArBrandingEditor({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1.5 w-full py-2.5 px-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-400 text-sm text-slate-800 bg-white"
+        className="mt-1.5 w-full py-2.5 px-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand text-sm text-slate-800 bg-white"
       />
     </div>
   );
@@ -118,7 +118,7 @@ export default function ArBrandingEditor({
 
           <div className="flex items-center justify-end pt-2">
             <button type="submit" disabled={saving}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow-lg shadow-emerald-600/20 transition active:scale-95 disabled:opacity-50">
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-brand hover:bg-brand text-white text-sm font-bold shadow-lg shadow-brand/20 transition active:scale-95 disabled:opacity-50">
               <Save size={15} /> {saving ? "Salvando..." : "Salvar marca"}
             </button>
           </div>

@@ -26,7 +26,11 @@ interface GSFormModalProps {
 function buildForm(campos: CampoForm[], registro?: Record<string, any> | null) {
   const init: Record<string, any> = {};
   campos.forEach((c) => {
-    init[c.name] = registro?.[c.name] ?? c.defaultValue ?? "";
+    let v = registro?.[c.name];
+    if (v === undefined || v === null) v = c.defaultValue ?? "";
+    // <select> espera string; normaliza boolean para evitar value mísmatch.
+    if (typeof v === "boolean") v = v ? "true" : "false";
+    init[c.name] = v;
   });
   return init;
 }
@@ -117,7 +121,7 @@ export default function GSFormModal({
                   <select
                     value={form[c.name] ?? ""}
                     onChange={(e) => handleChange(c.name, e.target.value)}
-                    className="w-full py-2.5 px-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-400 text-sm text-slate-800 bg-white"
+                    className="w-full py-2.5 px-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand text-sm text-slate-800 bg-white"
                   >
                     <option value="">Selecione...</option>
                     {c.options?.map((o) => (
@@ -129,14 +133,14 @@ export default function GSFormModal({
                     value={form[c.name] ?? ""}
                     onChange={(e) => handleChange(c.name, e.target.value)}
                     rows={3}
-                    className="w-full py-2.5 px-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-400 text-sm text-slate-800"
+                    className="w-full py-2.5 px-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand text-sm text-slate-800"
                   />
                 ) : (
                   <input
                     type={c.type === "date" ? "date" : c.type === "number" ? "number" : c.type === "email" ? "email" : "text"}
                     value={form[c.name] ?? ""}
                     onChange={(e) => handleChange(c.name, e.target.value)}
-                    className="w-full py-2.5 px-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-400 text-sm text-slate-800"
+                    className="w-full py-2.5 px-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand text-sm text-slate-800"
                   />
                 )}
               </div>
@@ -155,7 +159,7 @@ export default function GSFormModal({
               </button>
             ) : <span />}
             <button type="submit" disabled={saving}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow-lg shadow-emerald-600/20 transition active:scale-95 disabled:opacity-50">
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-brand hover:bg-brand text-white text-sm font-bold shadow-lg shadow-brand/20 transition active:scale-95 disabled:opacity-50">
               <Save size={15} /> {saving ? "Salvando..." : "Salvar"}
             </button>
           </div>

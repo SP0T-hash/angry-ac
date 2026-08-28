@@ -82,7 +82,7 @@ export default function GSLoginPage() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-11 h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+            <div className="w-11 h-11 rounded-xl bg-brand text-white flex items-center justify-center">
               <Building2 size={22} />
             </div>
             <div>
@@ -94,8 +94,8 @@ export default function GSLoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div>
               <label htmlFor="email" className="text-xs font-bold text-slate-500 uppercase tracking-wide">Email</label>
-              <div className={`mt-1.5 flex items-center gap-2 rounded-xl border px-3 transition focus-within:ring-2 focus-within:ring-emerald-500/40 ${
-                emailError && touched.email ? 'border-rose-300 bg-rose-50/30' : 'border-slate-200 focus-within:border-emerald-400'
+              <div className={`mt-1.5 flex items-center gap-2 rounded-xl border px-3 transition focus-within:ring-2 focus-within:ring-brand/40 ${
+                emailError && touched.email ? 'border-rose-300 bg-rose-50/30' : 'border-slate-200 focus-within:border-brand'
               }`}>
                 <Mail size={16} className="text-slate-400" />
                 <input
@@ -120,8 +120,8 @@ export default function GSLoginPage() {
 
             <div>
               <label htmlFor="senha" className="text-xs font-bold text-slate-500 uppercase tracking-wide">Senha</label>
-              <div className={`mt-1.5 flex items-center gap-2 rounded-xl border px-3 transition focus-within:ring-2 focus-within:ring-emerald-500/40 ${
-                senhaError && touched.senha ? 'border-rose-300 bg-rose-50/30' : 'border-slate-200 focus-within:border-emerald-400'
+              <div className={`mt-1.5 flex items-center gap-2 rounded-xl border px-3 transition focus-within:ring-2 focus-within:ring-brand/40 ${
+                senhaError && touched.senha ? 'border-rose-300 bg-rose-50/30' : 'border-slate-200 focus-within:border-brand'
               }`}>
                 <Lock size={16} className="text-slate-400" />
                 <input
@@ -153,7 +153,7 @@ export default function GSLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full h-11 rounded-xl bg-brand hover:bg-brand text-white font-bold text-sm transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <LogIn size={16} />
               {loading ? 'Entrando...' : 'Entrar'}

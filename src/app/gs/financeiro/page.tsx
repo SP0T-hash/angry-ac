@@ -3,7 +3,8 @@ import { getGSSession } from "@/lib/gs/session";
 import { NIVEL_LABEL, isAR } from "@/lib/gs/types";
 import { gsList } from "@/lib/gs/data";
 import GSLayout from "@/components/gs/GSLayout";
-import { Wallet, FileText, CreditCard } from "lucide-react";
+import GsapReveal from "@/components/gs/GsapReveal";
+import { Wallet, FileText, CreditCard, QrCode } from "lucide-react";
 
 export default async function GSFinanceiroPage() {
   const sess = await getGSSession();
@@ -23,6 +24,7 @@ export default async function GSFinanceiroPage() {
     { titulo: "Planos", subtitulo: "Assinatura AR/AC/Contador", href: "/gs/financeiro/planos", icon: Wallet, count: planos.length },
     { titulo: "Cobranças", subtitulo: "Faturas e pagamentos", href: "/gs/financeiro/cobrancas", icon: FileText, count: cobrancas.length },
     { titulo: "Assinaturas", subtitulo: "Split de receita GS/AR", href: "/gs/financeiro/assinaturas", icon: CreditCard, count: assinaturas.length },
+    { titulo: "Formas de pagamento", subtitulo: "PIX, cartão, boleto", href: "/gs/financeiro/pagamentos", icon: QrCode, count: 0 },
   ];
 
   return (
@@ -36,24 +38,24 @@ export default async function GSFinanceiroPage() {
       {erro && (
         <div role="alert" className="text-rose-600 text-sm bg-rose-50 border border-rose-100 rounded-lg px-3 py-2 mb-4">{erro}</div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <GsapReveal className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {cards.map((c) => (
           <a
             key={c.href}
             href={c.href}
-            className="bg-white border border-slate-100 rounded-2xl shadow-card p-6 hover:border-emerald-200 hover:bg-emerald-50/30 transition flex flex-col gap-4"
+            className="group bg-white border border-slate-100 rounded-2xl shadow-card p-6 hover:border-brand/30 hover:bg-brand/5 transition flex flex-col gap-4"
           >
-            <div className="w-11 h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+            <div className="w-11 h-11 rounded-xl bg-brand text-white flex items-center justify-center transition-transform group-hover:scale-105">
               <c.icon size={22} />
             </div>
             <div>
               <h3 className="text-slate-900 font-black text-lg tracking-tight">{c.titulo}</h3>
               <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-0.5">{c.subtitulo}</p>
             </div>
-            <span className="text-3xl font-black text-emerald-600">{c.count}</span>
+            <span className="text-3xl font-black text-brand">{c.count}</span>
           </a>
         ))}
-      </div>
+      </GsapReveal>
     </GSLayout>
   );
 }

@@ -33,6 +33,7 @@
   "exclude": [
     "node_modules",
     "gs.vemapi",
-    "ar-biometric-extension"
+    "ar-biometric-extension",
+    "tools"
   ]
 }
