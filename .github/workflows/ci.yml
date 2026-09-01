@@ -24,7 +24,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: "24"
   DOTNET_VERSION: "8.0"
 
 jobs:
@@ -123,8 +123,7 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: 🔍 npm audit
-        run: npm audit --audit-level=high || true
-        continue-on-error: true
+        run: npm audit --audit-level=high
 
       - name: 🛡️ Verificar secrets expostos
         run: |

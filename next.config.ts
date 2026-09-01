@@ -5,7 +5,7 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://*.daily.co",
+      "script-src 'self' 'unsafe-inline' https://*.supabase.co https://*.daily.co",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://via.placeholder.com https://grainy-gradients.vercel.app",
       "font-src 'self' https://fonts.gstatic.com",
@@ -14,6 +14,7 @@ const securityHeaders = [
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
+      "frame-ancestors 'none'",
     ].join("; "),
   },
   {
@@ -35,10 +36,6 @@ const securityHeaders = [
   {
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
-  },
-  {
-    key: "X-XSS-Protection",
-    value: "1; mode=block",
   },
 ];
 

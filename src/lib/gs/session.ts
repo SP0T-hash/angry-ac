@@ -101,6 +101,7 @@ export async function setGSSession(sess: GSSessao) {
   const store = await cookies();
   store.set(COOKIE, sess.token, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     path: "/",
     maxAge: MAX_AGE,

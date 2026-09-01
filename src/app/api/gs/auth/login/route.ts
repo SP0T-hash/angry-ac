@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { gsLogin, setGSSession } from "@/lib/gs/session";
+import { RateLimiter, RateLimitError } from "@/lib/ac-angry/security";
+
+function clientIp(req: NextRequest): string {
+  return (
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    req.headers.get("x-real-ip") ??
+    "unknown"
+  );
+}
 
 async function verificarRecaptcha(token: string | undefined): Promise<boolean> {
   const secret = process.env.RECAPTCHA_SECRET_KEY;
@@ -15,7 +24,21 @@ async function verificarRecaptcha(token: string | undefined): Promise<boolean> {
 }
 
 export async function POST(req: NextRequest) {
+  const ip = clientIp(req);
   try {
+    // Rate limiting por IP (anti força bruta) — mesmas buckets do AC
+    try {
+      await RateLimiter.check(`gs-login:${ip}`, "LOGIN");
+    } catch (e) {
+      if (e instanceof RateLimitError) {
+        return NextResponse.json(
+          { error: e.message, retryAfter: e.retryAfterSeconds },
+          { status: 429, headers: { "Retry-After": String(e.retryAfterSeconds) } },
+        );
+      }
+      throw e;
+    }
+
     const { email, senha, recaptcha } = await req.json();
     if (!email || !senha) {
       return NextResponse.json(
@@ -42,7 +65,7 @@ export async function POST(req: NextRequest) {
       usuario: sess.usuario,
       redirect: "/gs/dashboard",
     });
-  } catch (e: any) {
+  } catch (e) {
     console.error("[gs/auth/login]", e);
     return NextResponse.json(
       { error: "Erro interno no login." },
