@@ -60,7 +60,10 @@ const POLICY: Record<string, TabelaPolicy> = {
     minNivel: "AR",
     campos: [
       "cliente_id", "usuario_id", "ponto_id", "protocolo",
-      "tipo_certificado", "produto", "ac_provider", "status",
+      "tipo_certificado", "modelo_certificado", "tipo_pessoa",
+      "dossier_tipo", "dossier_status", "escopos", "contador_id",
+      "forma_pagamento", "pagador", "valor_cobrado_contabilidade",
+      "pago_contabilidade", "produto", "ac_provider", "status",
       "valor_total", "valor_comissao", "pago_em", "ar_id", "unidade_id",
     ],
     camposTenant: ["ar_id", "unidade_id"],
@@ -94,8 +97,9 @@ const POLICY: Record<string, TabelaPolicy> = {
     minNivel: "AR",
     campos: [
       "cliente_nome", "cliente_telefone", "cliente_email",
-      "data", "hora_inicio", "hora_fim", "tipo_servico",
-      "status", "agente_nome", "observacoes", "ar_id", "unidade_id",
+      "data", "hora_inicio", "hora_fim", "duracao_min", "tipo_servico",
+      "status", "agente_nome", "observacoes", "usuario_id", "contador_id",
+      "ar_id", "unidade_id",
     ],
     camposTenant: ["ar_id", "unidade_id"],
   },
@@ -110,7 +114,7 @@ const POLICY: Record<string, TabelaPolicy> = {
   },
   gs_contadores: {
     minNivel: "AR",
-    campos: ["usuario_id", "nome", "email", "telefone", "valor_custo_cert", "ativo", "ar_id"],
+    campos: ["usuario_id", "nome", "email", "telefone", "valor_custo_cert", "valor_cobranca", "ativo", "ar_id"],
     camposTenant: ["ar_id"],
   },
   gs_contador_carteira: {
@@ -142,9 +146,17 @@ const POLICY: Record<string, TabelaPolicy> = {
   },
 };
 
-function nivelPermite(minNivel: NivelMinimo, nivel: GSNivel): boolean {
+function nivelPermite(minNivel: NivelMinimo, nivel: GSNivel, tabela: string): boolean {
   if (minNivel === "ADMIN") return isAdmin(nivel);
-  return isAR(nivel); // AR ou ADMIN (CONTADOR/VENDEDOR não passam)
+  // CONTADOR opera sua própria carteira/cobrança (escopo reforçado por contador_id/ar_id).
+  if (nivel === "CONTADOR" && (
+    tabela === "gs_pedidos" || tabela === "gs_cobrancas" ||
+    tabela === "gs_contador_carteira" || tabela === "gs_clientes" ||
+    tabela === "gs_agenda"
+  )) {
+    return true;
+  }
+  return isAR(nivel); // AR ou ADMIN (VENDEDOR não passa)
 }
 
 // ─── RBAC granular via gs_permissoes (best-effort) ──────────────────────────
@@ -238,7 +250,7 @@ export async function POST(req: NextRequest) {
     if (!policy) {
       return NextResponse.json({ error: "Tabela não permitida." }, { status: 403 });
     }
-    if (!nivelPermite(policy.minNivel, usuario.nivel)) {
+    if (!nivelPermite(policy.minNivel, usuario.nivel, tabela)) {
       return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
     }
     if (!data || typeof data !== "object" || Array.isArray(data)) {
@@ -257,6 +269,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Dados inválidos." }, { status: 400 });
     }
 
+    // Auto-preenche o criador ("quem criou") em registros de operação.
+    const TABELAS_CRIADOR = new Set(["gs_pedidos", "gs_agenda", "gs_tickets"]);
+    if (!id && TABELAS_CRIADOR.has(tabela) && policy.campos.includes("usuario_id")) {
+      allowedData.usuario_id = usuario.id;
+    }
+
+    // Se a contabilidade paga e não há valor explícito, usa o valor de cobrança do perfil.
+    // contador_id em gs_pedidos referencia gs_usuarios(id) (o login do contador),
+    // então buscamos o perfil gs_contadores pelo seu usuario_id.
+    if (
+      !id && tabela === "gs_pedidos" &&
+      allowedData.pagador === "CONTABILIDADE" && allowedData.contador_id &&
+      allowedData.valor_cobrado_contabilidade == null
+    ) {
+      const { data: contador } = await admin
+        .from("gs_contadores")
+        .select("valor_cobranca")
+        .eq("usuario_id", allowedData.contador_id as string)
+        .maybeSingle();
+      if (contador?.valor_cobranca != null) {
+        allowedData.valor_cobrado_contabilidade = contador.valor_cobranca;
+      }
+    }
+
     if (id) {
       // UPDATE: verificar isolamento de tenant antes de gravar
       const { data: row, error: selErr } = await admin
@@ -271,12 +307,25 @@ export async function POST(req: NextRequest) {
       if (!row) {
         return NextResponse.json({ error: "Registro não encontrado." }, { status: 404 });
       }
-      if (
-        "ar_id" in row &&
-        !isAdmin(usuario.nivel) &&
-        row.ar_id !== usuario.ar_id
-      ) {
-        return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
+      if (!isAdmin(usuario.nivel)) {
+        // Isolamento por AR
+        if (
+          "ar_id" in row && row.ar_id != null &&
+          row.ar_id !== usuario.ar_id
+        ) {
+          return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
+        }
+        // Isolamento por posse: CONTADOR só mexe no que é seu quando há um
+        // dono explícito (contador_id / usuario_id) na linha. AR/UNIDADE
+        // gerenciam a unidade inteira e não são bloqueados aqui.
+        if (usuario.nivel === "CONTADOR") {
+          if ("contador_id" in row && row.contador_id != null && row.contador_id !== usuario.id) {
+            return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
+          }
+          if ("usuario_id" in row && row.usuario_id != null && row.usuario_id !== usuario.id) {
+            return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
+          }
+        }
       }
 
       const { error } = await admin.from(tabela).update(allowedData).eq("id", id);
@@ -330,7 +379,7 @@ export async function DELETE(req: NextRequest) {
     if (!policy || !id) {
       return NextResponse.json({ error: "Requisição inválida." }, { status: 400 });
     }
-    if (!nivelPermite(policy.minNivel, usuario.nivel)) {
+    if (!nivelPermite(policy.minNivel, usuario.nivel, tabela)) {
       return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
     }
 
@@ -352,12 +401,21 @@ export async function DELETE(req: NextRequest) {
     if (!row) {
       return NextResponse.json({ error: "Registro não encontrado." }, { status: 404 });
     }
-    if (
-      "ar_id" in row &&
-      !isAdmin(usuario.nivel) &&
-      row.ar_id !== usuario.ar_id
-    ) {
-      return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
+    if (!isAdmin(usuario.nivel)) {
+      if (
+        "ar_id" in row && row.ar_id != null &&
+        row.ar_id !== usuario.ar_id
+      ) {
+        return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
+      }
+      if (usuario.nivel === "CONTADOR") {
+        if ("contador_id" in row && row.contador_id != null && row.contador_id !== usuario.id) {
+          return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
+        }
+        if ("usuario_id" in row && row.usuario_id != null && row.usuario_id !== usuario.id) {
+          return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
+        }
+      }
     }
 
     const { error } = await admin.from(tabela).delete().eq("id", id);
