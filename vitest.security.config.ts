@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config';
+import path from 'path';
 
 /**
  * Configuração específica para testes de segurança (penetration test).
@@ -11,6 +12,11 @@ import { defineConfig } from 'vitest/config';
  *   AGR_TOKEN    — Token JWT para testes autenticados (opcional)
  */
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   test: {
     name: 'security',
     include: ['src/lib/ac-angry/__security__/**/*.test.ts'],
