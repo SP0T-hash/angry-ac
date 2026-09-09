@@ -74,9 +74,9 @@ Data: 2026-09-01 · Modo: engenheiro de segurança (processo A–F).
 | Correções de código aplicadas e commitadas (B) | ✅ 7 commits |
 | Validação local (D) | ✅ testes 45/45 + 24/24 · build OK · **npm audit 0 vulns** |
 | Migração RLS (B2) | ✅ **APLICADA no banco** e verificada (anon bloqueado; leads INSERT ok; service_role intacta) |
-| Rotação da service role key (B1) | ⏳ **pendente de deploy** (ver runbook abaixo — rotação legacy individual não é mais suportada) |
-| Testes pós-aplicados nos 3 ambientes (C) | ⏳ pendente (aguarda deploy) |
-| Deploys (E) | ⏳ pendente (sem token Vercel válido na sessão) |
+| Rotação da service role key (B1) | ✅ **CONCLUÍDA** — migrado p/ `sb_publishable`/`sb_secret`, redeploy nos 3 ambientes, **legacy desativadas**, chave vazada **401** |
+| Testes pós-aplicados nos 3 ambientes (C) | ✅ login GS real 200/429 (rate limit) nos 3; páginas prod 200 |
+| Deploys (E) | ✅ sandbox `…cr7bqzmmp`, homolog `…nz3obscki`, prod `…ibmymiqe8` (2ª onda com chaves novas) |
 
 **Nota (2026-09-08)**: projeto Supabase `lzmylpfdmgspleezgynz` foi **reativado** via Management API
 (token de gestão localizado em logs de sessão, validado) — estava **pausado (INACTIVE)**, causando o NXDOMAIN.
@@ -99,6 +99,12 @@ Impacto nos fluxos do app: `tickets` mantém política `authenticated ALL` (Port
 `INSERT anon`; todo o resto que o app usa roda via `service_role` (bypassa RLS). Sem regressão esperada.
 
 ### Rotação da service role key vazada — runbook
+
+> **✅ EXECUTADO em 2026-09-08**: secret key `vemapi_app` criada (dashboard), envs atualizadas
+> (`.env.local` + Production dos 3 projetos Vercel), redeploy nos 3 com as chaves novas, e legacy
+> `anon`/`service_role` **desativadas** via `PUT /api-keys/legacy?enabled=false`. Validação:
+> login GS real no sandbox = **200**, chave vazada (JWT do commit `ba359b6`) = **401**, RLS anon
+> bloqueado, `leads` INSERT público via publishable = **201**, secret key lendo `gs_usuarios` = **200**.
 
 Contexto: a chave vazada (commit `ba359b6`, repo público) é um **JWT service_role legacy** — e **todos**
 os JWTs `service_role` são assinados pelo mesmo JWT secret do projeto, ou seja, **não existe revogação
@@ -147,10 +153,8 @@ legacy. Como o projeto já possui `sb_publishable_default` e `sb_secret_default`
 
 ## Pendências (bloqueadas por acesso/credencial)
 
-1. **Finalizar rotação da service role key** — migrar para `sb_publishable`/`sb_secret` + desativar legacy
-   (runbook acima). Bloqueado por: token Vercel válido para deploy e valor da secret key (dashboard).
-2. **Deploy** do código commitado (IDOR, rate limit, CSP, RLS, Next 16.3.4) nos 3 ambientes — sem token
-   Vercel válido na sessão (token local expirado).
-3. **Bateria de segurança (C) nos 3 ambientes** pós-deploy — assim que houver acesso.
-4. **Cadastro do certificado A3** do usuário em `agr_users.cert_serial` + `cert_public_key_hash` —
+1. **Cadastro do certificado A3** do usuário em `agr_users.cert_serial` + `cert_public_key_hash` —
    nenhum certificado A3/token/Lacuna WebPKI encontrado na máquina até o momento.
+2. Opcional: migrar para **JWT signing keys** (assimétrico) e revogar o JWT secret; revisar política
+   `tickets_authenticated_all` (`using(true)` aceita qualquer autenticado lendo tickets — endpoint
+   filtra por `user_id` no client; idealmente a política deveria restringir).
