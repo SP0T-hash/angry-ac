@@ -10,6 +10,7 @@ export const GET = withAuth(async (_req: NextRequest, { session, ip }) => {
     const { data, error } = await supabase
       .from("protocols")
       .select("*")
+      .eq("agr_id", session.agrId)
       .order("created_at", { ascending: false });
     if (error) throw error;
     return NextResponse.json({ protocols: data ?? [] });
