@@ -24,6 +24,9 @@ Analise somente os arquivos modificados e dependências diretas. Não use tokens
 - `lib/ac-angry/api-middleware.ts` (commit `ea311356`): verifica no banco se AGR está ativo e aplica `requireRole` quando solicitado; falha fechada se consulta de permissões falhar. **Atenção:** checar valores reais de `agr_users.role`, cobertura dos endpoints e custo da consulta por request; não implementa isolamento entre ARs.
 - `api/auth/pki/route.ts` permanece **insegura para autenticação ICP-Brasil em produção**: checagem por texto do emissor não valida cadeia de confiança, CRL/OCSP real nem prova de dispositivo A3. Exige arquitetura de validação confiável antes de liberar.
 
+- `api/protocols/route.ts` (commit `71ed1e6a`) limita listagem a `agr_id` da sessão; `api/protocol/update/route.ts` (commit `6593b079`) limita edição ao mesmo `agr_id` e retorna 404 se nenhum registro autorizado foi atualizado. **Restrição provisória por agente, não isolamento completo por AR**: supervisores e equipes podem precisar de acesso por unidade; validar schema, permissões e fluxos antes de produção.
+- Pesquisa futura: comparar controles publicamente documentados da SafeWeb e da Syngular/Singular, sem presumir arquitetura interna; considerar normas ICP-Brasil, LGPD, OWASP ASVS, proteção contra zip bombs, abuso automatizado e fornecedores.
+
 ## Estado de validação
 Código gravado na branch, **sem execução confirmada de lint, testes ou build**. Não afirmar que a segurança foi certificada ou que o produto está pronto para produção.
 
