@@ -27,6 +27,9 @@ Analise somente os arquivos modificados e dependências diretas. Não use tokens
 - `api/protocols/route.ts` (commit `71ed1e6a`) limita listagem a `agr_id` da sessão; `api/protocol/update/route.ts` (commit `6593b079`) limita edição ao mesmo `agr_id` e retorna 404 se nenhum registro autorizado foi atualizado. **Restrição provisória por agente, não isolamento completo por AR**: supervisores e equipes podem precisar de acesso por unidade; validar schema, permissões e fluxos antes de produção.
 - Pesquisa futura: comparar controles publicamente documentados da SafeWeb e da Syngular/Singular, sem presumir arquitetura interna; considerar normas ICP-Brasil, LGPD, OWASP ASVS, proteção contra zip bombs, abuso automatizado e fornecedores.
 
+- `api/protocols/audit/route.ts` (commit `24509e73`): restringe evento originado do navegador a `UI_PROTOCOL_VIEWED`, verifica propriedade por `agr_id` e descarta metadados arbitrários do cliente. **Compatibilidade:** verificar nomes de eventos usados no frontend; eventos de auditoria de segurança devem ser gerados no servidor. **Não testado**.
+- `api/gs/mutate/route.ts` continua crítico: mutações genéricas com service-role sem política de campos e escopo por tenant. Revisar esquema e papéis antes de qualquer liberação.
+
 ## Estado de validação
 Código gravado na branch, **sem execução confirmada de lint, testes ou build**. Não afirmar que a segurança foi certificada ou que o produto está pronto para produção.
 
