@@ -36,18 +36,20 @@ export async function gsLogin(
 
   if (error || !user) return null;
 
-  // Validar senha: usa comparação direta (seed usa texto puro) ou bcrypt
+  // Only password hashes are accepted; plaintext seed credentials are unsafe.
   const ok = await verificarSenha(senha, user.password_hash);
   if (!ok) return null;
 
   const token = gerarToken();
   const expira = new Date(Date.now() + MAX_AGE * 1000).toISOString();
 
-  await admin.from("gs_sessoes").insert({
+  const { error: sessionError } = await admin.from("gs_sessoes").insert({
     usuario_id: user.id,
     token,
     expires_at: expira,
   });
+
+  if (sessionError) return null;
 
   return { usuario: mapUsuario(user), token, expira_em: expira };
 }
@@ -57,7 +59,7 @@ async function verificarSenha(
   hash: string | null,
 ): Promise<boolean> {
   if (!hash) return false;
-  // Tento bcrypt primeiro
+  // Verify a supported password hash.
   try {
     const bcrypt = await import("bcryptjs").catch(() => null);
     if (bcrypt && hash.startsWith("$2")) {
@@ -66,8 +68,8 @@ async function verificarSenha(
   } catch {
     /* ignore */
   }
-  // Fallback: seed usa texto puro (ex: admin123)
-  return senha === hash;
+  // Fail closed: never compare against plaintext passwords.
+  return false;
 }
 
 function gerarToken(): string {
@@ -87,7 +89,7 @@ export async function getGSSession(): Promise<GSSessao | null> {
     .gte("expires_at", new Date().toISOString())
     .maybeSingle();
 
-  if (error || !sess || !sess.usuario) return null;
+  if (error || !sess || sess.is_active !== true || !sess.usuario || sess.usuario.is_active !== true) return null;
   return {
     usuario: mapUsuario(sess.usuario),
     token,
@@ -99,6 +101,7 @@ export async function setGSSession(sess: GSSessao) {
   const store = await cookies();
   store.set(COOKIE, sess.token, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: "lax",
     path: "/",
     maxAge: MAX_AGE,

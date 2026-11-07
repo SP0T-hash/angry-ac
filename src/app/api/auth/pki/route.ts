@@ -33,7 +33,15 @@ const AUTH_JWT_SECRET = () => {
 // GET — Gera nonce para desafio de assinatura
 // ===========================================================================
 
+function productionUnavailable() {
+  return NextResponse.json(
+    { error: 'Autenticação PKI indisponível até a validação confiável da cadeia e revogação ICP-Brasil.' },
+    { status: 503 },
+  );
+}
+
 export async function GET() {
+  if (process.env.NODE_ENV === 'production') return productionUnavailable();
   try {
     // Gera e persiste o nonce (one-time challenge) no banco para o POST consumir.
     const nonce = await NonceManager.generate('AUTH');
@@ -52,6 +60,8 @@ export async function GET() {
 // ===========================================================================
 
 export async function POST(req: NextRequest) {
+  const production = process.env.NODE_ENV === 'production';
+  if (production) return productionUnavailable();
   try {
     const ip =
       req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
@@ -206,12 +216,15 @@ export async function POST(req: NextRequest) {
 
     // Verificar se certificado não foi revogado
     try {
-      const { data: revoked } = await supabase
+      const { data: revoked, error: revocationError } = await supabase
         .from('certificate_revocation_list')
         .select('id')
         .eq('serial_number', certInfo.serialNumber)
         .maybeSingle();
 
+      if (revocationError) {
+        return NextResponse.json({ error: 'Verificação de revogação indisponível.' }, { status: 503 });
+      }
       if (revoked) {
         await AuditLogger.log({
           eventType: 'AUTH_CERT_REVOKED',
@@ -226,7 +239,7 @@ export async function POST(req: NextRequest) {
         );
       }
     } catch {
-      // Tabela CRL pode não existir ainda
+      return NextResponse.json({ error: 'Verificação de revogação indisponível.' }, { status: 503 });
     }
 
     // Sucesso! Criar sessão
@@ -275,7 +288,7 @@ export async function POST(req: NextRequest) {
     // Define o cookie de sessão (httpOnly) usado pelo route guard em /ac/*
     response.cookies.set('ac_angry_session', jwt, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: production,
       sameSite: 'lax',
       path: '/',
       maxAge: 8 * 60 * 60, // 8h

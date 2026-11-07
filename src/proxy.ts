@@ -1,20 +1,11 @@
-/**
- * Route Guard Global — AC Angry 🛡️
- *
- * Bloqueia qualquer rota /ac/* (exceto /ac/auth/login e a própria API de
- * autenticação) se o visitante não tiver um JWT válido no cookie de sessão.
- *
- * Princípio de segurança: acesso NUNCA é liberado sem validação prévia do
- * certificado A3 (token físico). O middleware apenas confere a assinatura do
- * JWT emitido por /api/auth/pki após a validação criptográfica real.
- */
+/** Guard de páginas AC: JWT vinculado à sessão persistida e conta ativa. */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyJWT } from '@/lib/ac-angry/security';
+import { SessionManager } from '@/lib/ac-angry/security';
 
 const SESSION_COOKIE = 'ac_angry_session';
 
-export function proxy(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Rotas públicas (login e API de desafio) ficam fora do guard
@@ -41,7 +32,8 @@ export function proxy(req: NextRequest) {
   }
 
   try {
-    verifyJWT(token);
+    const adminRoute = pathname === '/ac/admin' || pathname.startsWith('/ac/admin/');
+    await SessionManager.validatePageJWT(token, adminRoute ? 'ADMIN' : undefined);
     return NextResponse.next();
   } catch {
     if (!pathname.startsWith('/api/')) {

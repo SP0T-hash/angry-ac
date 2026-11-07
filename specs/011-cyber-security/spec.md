@@ -4,7 +4,7 @@
 
 **Created**: 2026-07-07
 
-**Status**: Planned
+**Status**: Contenções parciais implementadas; auditoria e homologação pendentes
 
 **Input**: Soluções de segurança digital para proteção do sistema
 
@@ -80,3 +80,22 @@ O sistema deve monitorar e alertar sobre atividades suspeitas.
 ## Status
 
 Esta funcionalidade está em fase de planejamento. Implementação prevista para Q3 2026.
+
+## Requisitos da recuperação de segurança — 2026-11-07
+- **FR-006**: Sessões GS revogadas, usuários inativos e falhas de persistência DEVEM negar autenticação. Implementado e testado em `77b686c`.
+- **FR-007**: A rota genérica GS DEVE negar gravações de qualquer papel diferente de AC_ADMIN ativo enquanto não houver política por tabela/campo/organização. Implementado; operações dos demais papéis permanecem temporariamente bloqueadas.
+- **FR-008**: Eventos enviados pelo navegador NÃO DEVEM ser tratados como prova de autenticação, biometria ou emissão; auditoria de visualização DEVE conferir proprietário e descartar metadados arbitrários. Contenção implementada; compatibilidade da interface pendente.
+- **FR-009**: Toda rota administrativa AC DEVE conferir sessão persistida ativa, vínculo entre sujeito JWT e AGR, conta ativa e papel ADMIN no servidor. Implementado para o guard `/ac/*` e a página servidor `/ac/admin`: consulta persistida e papel atual; não confiar no papel do JWT. Revisão das demais rotas administrativas/API permanece pendente.
+- **FR-010**: Indisponibilidade do banco de permissões/sessões NÃO DEVE liberar acesso. Não aceitar um JWT apenas porque a assinatura ainda é válida após revogação da sessão.
+- **FR-011**: Diagnósticos de banco NÃO DEVEM ser acessíveis em produção. `/test-db` retorna 404; teste e smoke HTTP aprovados em `33e812f`.
+
+Validação disponível: instalação limpa sem legacy-peer-deps, build Webpack/TypeScript e 79 testes aprovados; lint direcionado sem erros. Lint global, testes com provedores reais e análise completa OWASP continuam pendentes. Os percentuais aspiracionais desta spec não são resultados medidos. Ver `CODEX_HANDOFF.md`.
+
+### Critérios de aceitação — cookie JWT e portal administrativo
+1. JWT válido com sessão revogada/expirada ou `sub` divergente do `agr_id` DEVE ser negado. Expiração ausente ou inválida no banco também DEVE negar.
+2. Conta inativa ou consulta indisponível DEVE negar acesso, mesmo com assinatura e expiração JWT válidas.
+3. Alteração de ADMIN para AGR no banco DEVE bloquear o próximo acesso administrativo, independentemente do papel gravado no JWT.
+4. A página servidor `/ac/admin` DEVE validar ADMIN antes de renderizar, inclusive quando chamada sem execução do proxy.
+5. APIs com Bearer opaque DEVEM continuar validando sessão/papel em `withAuth`; não aceitar JWT como substituto implícito.
+
+Critérios 1–4 cobertos por testes unitários de sessão, proxy e página com banco mockado. Sem homologação de certificado real.

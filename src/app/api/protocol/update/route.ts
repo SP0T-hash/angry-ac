@@ -7,15 +7,30 @@ export const POST = withAuth(async (req: NextRequest, { session, ip }) => {
   try {
     const body = await req.json();
     const { id, updates } = body;
+    // Restrict this generic endpoint to non-decisional fields only.
+    // Status, identity, approvals and issuance require dedicated authorized workflows.
+    const allowedFields = new Set(['holder_telefone', 'holder_email']);
+    if (!updates || typeof updates !== 'object' || Array.isArray(updates) ||
+        Object.keys(updates).length === 0 ||
+        Object.keys(updates).some(key => !allowedFields.has(key)) ||
+        Object.values(updates).some(value => typeof value !== 'string')) {
+      return NextResponse.json({ error: 'Campos de atualização não permitidos.' }, { status: 400 });
+    }
 
     if (!id || !updates) {
       return NextResponse.json({ error: 'ID e Dados são obrigatórios' }, { status: 400 });
     }
 
     const supabase = await getSupabaseAdmin();
-    const { error } = await supabase.from('protocols').update(updates).eq('id', id);
+    const { data, error } = await supabase.from('protocols')
+      .update(updates)
+      .eq('id', id)
+      .eq('agr_id', session.agrId)
+      .select('id')
+      .maybeSingle();
 
     if (error) throw error;
+    if (!data) return NextResponse.json({ error: 'Protocolo não encontrado ou sem permissão.' }, { status: 404 });
 
     await AuditLogger.log({
       eventType: 'PROTOCOL_UPDATED',

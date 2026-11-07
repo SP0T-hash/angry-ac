@@ -77,6 +77,10 @@ async function ensureCAInitialized(): Promise<void> {
 export const POST = withAuth(
   async (req: NextRequest, { session, ip }) => {
     try {
+      // Never expose the demonstration CA on a production deployment.
+      if (process.env.NODE_ENV === 'production') {
+        return NextResponse.json({ error: 'Emissão simulada desabilitada em produção.' }, { status: 503 });
+      }
       // Garantir que a CA está inicializada
       await ensureCAInitialized();
 

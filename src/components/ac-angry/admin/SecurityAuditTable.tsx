@@ -9,7 +9,6 @@ import {
   createColumnHelper,
   flexRender,
 } from '@tanstack/react-table';
-import { Card, Table, TableHead, TableRow, TableHeaderCell, TableBody, TableCell, Text, Badge } from "@tremor/react";
 import { ShieldCheck, Clock, User, Fingerprint } from "lucide-react";
 
 interface AuditLog {
@@ -39,7 +38,7 @@ export default function SecurityAuditTable() {
       cell: (info) => (
         <div className="flex items-center gap-2">
           <Clock size={12} className="text-slate-500" />
-          <Text className="text-[10px] font-mono text-slate-400">{info.getValue()}</Text>
+          <p className="text-[10px] font-mono text-slate-400">{info.getValue()}</p>
         </div>
       ),
     }),
@@ -48,7 +47,7 @@ export default function SecurityAuditTable() {
       cell: (info) => (
         <div className="flex items-center gap-2">
           <ShieldCheck size={14} className="text-[#10b981]" />
-          <Text className="text-xs font-bold text-white uppercase tracking-tight">{info.getValue()}</Text>
+          <p className="text-xs font-bold text-white uppercase tracking-tight">{info.getValue()}</p>
         </div>
       ),
     }),
@@ -57,23 +56,20 @@ export default function SecurityAuditTable() {
       cell: (info) => (
         <div className="flex items-center gap-2">
           <User size={12} className="text-blue-400" />
-          <Text className="text-xs font-medium text-slate-300">{info.getValue()}</Text>
+          <p className="text-xs font-medium text-slate-300">{info.getValue()}</p>
         </div>
       ),
     }),
     ch.accessor('entidade', {
       header: 'Titular',
-      cell: (info) => <Text className="text-xs font-medium text-slate-400">{info.getValue()}</Text>,
+      cell: (info) => <p className="text-xs font-medium text-slate-400">{info.getValue()}</p>,
     }),
     ch.accessor('status', {
       header: 'Status',
       cell: (info) => (
-        <Badge 
-          color={info.getValue() === 'SUCESSO' ? 'emerald' : info.getValue() === 'PENDENTE' ? 'amber' : 'red'} 
-          size="xs"
-        >
+        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs ${info.getValue() === 'SUCESSO' ? 'bg-emerald-500/10 text-emerald-500' : info.getValue() === 'PENDENTE' ? 'bg-amber-500/10 text-amber-500' : 'bg-red-500/10 text-red-500'}`}>
           {info.getValue()}
-        </Badge>
+        </span>
       ),
     }),
     ch.accessor('hash', {
@@ -81,7 +77,7 @@ export default function SecurityAuditTable() {
       cell: (info) => (
         <div className="flex items-center gap-2 pr-4">
           <Fingerprint size={12} className="text-slate-600" />
-          <Text className="text-[9px] font-mono text-slate-600 truncate max-w-[100px]">{info.getValue()}</Text>
+          <p className="text-[9px] font-mono text-slate-600 truncate max-w-[100px]">{info.getValue()}</p>
         </div>
       ),
     }),
@@ -96,49 +92,49 @@ export default function SecurityAuditTable() {
   });
 
   return (
-    <Card className="bg-[#0f172a]/50 border-white/10 backdrop-blur-xl p-0 overflow-hidden">
+    <div className="rounded-xl border bg-[#0f172a]/50 border-white/10 backdrop-blur-xl p-0 overflow-hidden">
       <div className="p-6 border-b border-white/5 flex items-center justify-between">
         <div>
           <h3 className="text-sm font-black uppercase tracking-widest text-[#10b981]">Log de Auditoria em Tempo Real</h3>
           <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Conformidade ICP-Brasil e Segurança Transacional</p>
         </div>
-        <Badge color="emerald">LIVE FEED</Badge>
+        <span className="inline-flex rounded-full px-2 py-0.5 text-xs bg-emerald-500/10 text-emerald-500">LIVE FEED</span>
       </div>
       
       <div className="overflow-x-auto">
-        <Table>
-          <TableHead className="bg-[#020617]/50">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-[#020617]/50">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHeaderCell key={header.id} className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 py-4 px-6 border-white/5">
+                  <th key={header.id} className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 py-4 px-6 border-white/5">
                     {flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHeaderCell>
+                  </th>
                 ))}
-              </TableRow>
+              </tr>
             ))}
-          </TableHead>
-          <TableBody className="divide-y divide-white/5">
+          </thead>
+          <tbody className="divide-y divide-white/5">
             {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} className="hover:bg-white/5 transition-all">
+              <tr key={row.id} className="hover:bg-white/5 transition-all">
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="py-4 px-6 border-white/5">
+                  <td key={cell.id} className="py-4 px-6 border-white/5">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
+                  </td>
                 ))}
-              </TableRow>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
       </div>
       
       <div className="p-4 border-t border-white/5 bg-[#020617]/30 flex items-center justify-between">
-        <Text className="text-[10px] text-slate-600 font-bold uppercase">Auditoria AC Angry v1.2</Text>
+        <p className="text-[10px] text-slate-600 font-bold uppercase">Auditoria AC Angry v1.2</p>
         <div className="flex gap-2">
             <button className="px-3 py-1 bg-white/5 text-[9px] font-black text-slate-400 rounded-md border border-white/10">Anterior</button>
             <button className="px-3 py-1 bg-white/5 text-[9px] font-black text-slate-400 rounded-md border border-white/10">Próximo</button>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

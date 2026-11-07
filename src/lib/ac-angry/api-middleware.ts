@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { SessionManager, RateLimiter, RateLimitError, AuditLogger } from './security';
+import { getSupabaseAdmin } from '@/lib/infra/supabase/client';
 
 interface AuthContext {
   session: Awaited<ReturnType<typeof SessionManager.validate>>;
@@ -81,6 +82,28 @@ export function withAuth(handler: AuthHandler, opts: MiddlewareOptions = {}) {
         { error: e instanceof Error ? e.message : 'Sessão inválida.' },
         { status: 401 },
       );
+    }
+
+    // Verify account status and role on every authenticated request, not from client claims.
+    // A deactivated AGR must lose access even when their session token is still valid.
+    try {
+      const supabase = await getSupabaseAdmin();
+      const { data: agent, error: agentError } = await supabase
+        .from('agr_users')
+        .select('id, is_active, role')
+        .eq('id', session.agrId)
+        .maybeSingle();
+
+      if (agentError) throw agentError;
+      if (!agent || agent.is_active !== true) {
+        return NextResponse.json({ error: 'Conta inativa ou não encontrada.' }, { status: 403 });
+      }
+      if (opts.requireRole && agent.role !== opts.requireRole) {
+        return NextResponse.json({ error: 'Permissão insuficiente.' }, { status: 403 });
+      }
+    } catch (e) {
+      console.error('[withAuth] Falha ao verificar conta e permissões:', e);
+      return NextResponse.json({ error: 'Não foi possível verificar as permissões.' }, { status: 503 });
     }
 
     // 3. Executar handler

@@ -37,6 +37,15 @@ export function verifyJWT(token: string): Record<string, unknown> {
   if (parts.length !== 3) throw new Error('JWT malformado');
 
   const [headerB64, payloadB64, signatureB64] = parts;
+  let header: Record<string, unknown>;
+  try {
+    header = JSON.parse(base64urlDecode(headerB64));
+  } catch {
+    throw new Error('Cabeçalho JWT inválido');
+  }
+  if (header.alg !== 'HS256' || header.typ !== 'JWT') {
+    throw new Error('Algoritmo ou tipo JWT não permitido');
+  }
   const expectedSig = createHmac('sha256', secret).update(`${headerB64}.${payloadB64}`).digest('base64url');
 
   const expectedBuf = Buffer.from(expectedSig);
@@ -46,7 +55,10 @@ export function verifyJWT(token: string): Record<string, unknown> {
   }
 
   const payload = JSON.parse(base64urlDecode(payloadB64)) as Record<string, unknown>;
-  if (typeof payload.exp === 'number' && payload.exp * 1000 < Date.now()) {
+  if (typeof payload.exp !== 'number' || !Number.isFinite(payload.exp)) {
+    throw new Error('JWT sem expiração válida');
+  }
+  if (payload.exp * 1000 <= Date.now()) {
     throw new Error('JWT expirado');
   }
   return payload;
@@ -168,6 +180,24 @@ export interface AgrSession {
 const SESSION_TTL_HOURS = 8; // Jornada de trabalho
 
 export const SessionManager = {
+  /** Valida o JWT de páginas contra a sessão e permissões atuais do banco. */
+  async validatePageJWT(token: string, requireRole?: 'AGR' | 'SUPERVISOR' | 'ADMIN'): Promise<AgrSession> {
+    const payload = verifyJWT(token);
+    if (typeof payload.sub !== 'string' || !payload.sub ||
+        typeof payload.session_token !== 'string' || !payload.session_token) {
+      throw new Error('JWT sem vínculo de sessão.');
+    }
+    const session = await SessionManager.validate(payload.session_token);
+    if (session.agrId !== payload.sub) throw new Error('Identidade de sessão divergente.');
+
+    const supabase = await getSupabase();
+    const { data: agent, error } = await supabase.from('agr_users')
+      .select('id, is_active, role').eq('id', session.agrId).maybeSingle();
+    if (error || !agent || agent.is_active !== true) throw new Error('Conta indisponível ou inativa.');
+    if (requireRole && agent.role !== requireRole) throw new Error('Permissão insuficiente.');
+    return session;
+  },
+
   /**
    * Cria uma nova sessão após autenticação bem-sucedida.
    */
@@ -215,8 +245,10 @@ export const SessionManager = {
       .single();
 
     if (error || !data) throw new Error('Sessão não encontrada.');
-    if (!data.is_active) throw new Error('Sessão encerrada.');
-    if (new Date(data.expires_at) < new Date()) {
+    if (data.is_active !== true) throw new Error('Sessão encerrada.');
+    const expiry = typeof data.expires_at === 'string' ? Date.parse(data.expires_at) : NaN;
+    if (!Number.isFinite(expiry)) throw new Error('Expiração de sessão inválida.');
+    if (expiry <= Date.now()) {
       await SessionManager.revoke(token);
       throw new Error('Sessão expirada.');
     }

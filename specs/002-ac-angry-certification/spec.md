@@ -4,7 +4,7 @@
 
 **Created**: 2026-07-07
 
-**Status**: Implemented
+**Status**: Implementação parcial; produção bloqueada até homologação ICP-Brasil
 
 **Input**: Motor de emissão e gestão de certificados digitais ICP-Brasil
 
@@ -168,3 +168,14 @@ O sistema gerencia sessões autenticadas para Agentes de Registro com controle d
 - `src/lib/ac-angry/pki.ts` - Operações PKI
 - `src/lib/ac-angry/api-middleware.ts` - Middleware de autenticação
 - `src/lib/ac-angry/supabase-admin.ts` - Cliente Supabase admin
+
+## Estado verificável — revisão de 2026-11-07
+Branch de recuperação: `security/fail-closed-critical-flows-20261107`.
+- Login PKI e emissão pela CA demonstrativa DEVEM retornar 503 em produção até validação confiável de cadeia, revogação, identidade e prova de posse. OAuth PSC aprovado isoladamente NÃO autoriza login ou emissão.
+- Sem provedor biométrico configurado, produção DEVE negar a validação; nunca fabricar evidência de aprovação.
+- A atualização genérica de protocolo aceita somente contato; alterações decisórias precisam de fluxos próprios autorizados. Listagem, atualização e auditoria devem respeitar o AGR autenticado.
+- Situação atual é contenção, não homologação ICP-Brasil. Ainda pendem PSC/AC reais, isolamento completo por organização e persistência verificável de evidências/vídeo.
+- Evidência: commits `77b686c` (contenções/testes) e `33e812f` (instalação/build); 79 testes passaram. Detalhes e riscos em `CODEX_HANDOFF.md`.
+
+### Autorização das páginas AC
+JWT de navegação DEVE estar vinculado a sessão persistida ativa e ao mesmo AGR. Conta ativa e papel administrativo são consultados no banco em cada verificação. Revogação ou mudança de papel impede o próximo acesso; falhas de consulta não liberam entrada. A autenticação PKI em produção permanece bloqueada até homologação.

@@ -1,8 +1,10 @@
-import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, vi, beforeEach, beforeAll, afterAll, afterEach } from 'vitest';
 import { createHmac } from 'crypto';
 
-const mockCreateClient = vi.fn();
-const mockFrom = vi.fn();
+const { mockCreateClient, mockFrom } = vi.hoisted(() => ({
+  mockCreateClient: vi.fn(),
+  mockFrom: vi.fn(),
+}));
 
 vi.mock('@supabase/supabase-js', () => ({
   createClient: mockCreateClient,
@@ -676,5 +678,83 @@ describe('ProtocolLocker', () => {
 
       await expect(ProtocolLocker.unlock('protocol-1', 'wrong-agr')).resolves.toBeUndefined();
     });
+  });
+});
+
+describe('JWT fail-closed header and expiration', () => {
+  function token(header: unknown, payload: unknown) {
+    const parts = [header, payload].map(value => Buffer.from(JSON.stringify(value)).toString('base64url'));
+    return `${parts.join('.')}.${createHmac('sha256', 'test-jwt-secret').update(parts.join('.')).digest('base64url')}`;
+  }
+  it.each([{ alg: 'none', typ: 'JWT' }, { alg: 'HS512', typ: 'JWT' }, { alg: 'HS256', typ: 'other' }])('rejects misleading header %j even with valid HMAC', async (header) => {
+    vi.stubEnv('AUTH_JWT_SECRET', 'test-jwt-secret');
+    const { verifyJWT } = await import('../security');
+    try { expect(() => verifyJWT(token(header, { exp: Date.now() / 1000 + 60 }))).toThrow(); }
+    finally { vi.unstubAllEnvs(); }
+  });
+  it.each([undefined, null, '9999999999', 1])('rejects invalid or expired expiration %s', async (exp) => {
+    vi.stubEnv('AUTH_JWT_SECRET', 'test-jwt-secret');
+    const { verifyJWT } = await import('../security');
+    try { expect(() => verifyJWT(token({ alg: 'HS256', typ: 'JWT' }, { exp }))).toThrow(); }
+    finally { vi.unstubAllEnvs(); }
+  });
+});
+
+describe('Page JWT persisted session and role boundary', () => {
+  beforeEach(() => vi.stubEnv('AUTH_JWT_SECRET', 'page-test-secret'));
+  afterEach(() => vi.unstubAllEnvs());
+  function pageToken(payload: Record<string, unknown> = {}) {
+    const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+    const body = Buffer.from(JSON.stringify({ sub: 'agr-1', session_token: 'opaque-token', exp: Date.now() / 1000 + 60, ...payload })).toString('base64url');
+    return `${header}.${body}.${createHmac('sha256', 'page-test-secret').update(`${header}.${body}`).digest('base64url')}`;
+  }
+  function configure(sessionOverrides: Record<string, unknown> = {}, agentOverrides: Record<string, unknown> = {}, accountError = false) {
+    const query = createChain({ single: vi.fn().mockResolvedValue({ data: { session_token: 'opaque-token', agr_id: 'agr-1', is_active: true, expires_at: FUTURE, ...sessionOverrides }, error: null }) });
+    const account = createChain({ maybeSingle: vi.fn().mockResolvedValue({ data: { id: 'agr-1', is_active: true, role: 'ADMIN', ...agentOverrides }, error: accountError ? new Error('offline') : null }) });
+    mockFrom.mockImplementation((table: string) => table === 'secure_sessions' ? query : account);
+    return { query, account };
+  }
+  it('accepts the active persisted session and database ADMIN role', async () => {
+    const { query, account } = configure();
+    expect((await SessionManager.validatePageJWT(pageToken({ role: 'AGR' }), 'ADMIN')).agrId).toBe('agr-1');
+    expect(query.eq).toHaveBeenCalledWith('session_token', 'opaque-token');
+    expect(account.eq).toHaveBeenCalledWith('id', 'agr-1');
+  });
+  it.each([undefined, null, '', 123])('rejects missing or invalid session reference %s', async (session_token) => {
+    await expect(SessionManager.validatePageJWT(pageToken({ session_token }))).rejects.toThrow('vínculo');
+    expect(mockFrom).not.toHaveBeenCalled();
+  });
+  it('rejects revoked persisted sessions despite valid JWT signature', async () => {
+    configure({ is_active: false });
+    await expect(SessionManager.validatePageJWT(pageToken())).rejects.toThrow('encerrada');
+  });
+  it.each([null, 'invalid-date'])('rejects malformed database expiration %s', async (expires_at) => {
+    configure({ expires_at });
+    await expect(SessionManager.validatePageJWT(pageToken())).rejects.toThrow('Expiração');
+  });
+  it('rejects expired persisted session despite future JWT expiration', async () => {
+    configure({ expires_at: PAST });
+    await expect(SessionManager.validatePageJWT(pageToken())).rejects.toThrow('expirada');
+  });
+  it('rejects subject linked to a different AGR', async () => {
+    configure();
+    await expect(SessionManager.validatePageJWT(pageToken({ sub: 'other-agr' }))).rejects.toThrow('divergente');
+    expect(mockFrom).not.toHaveBeenCalledWith('agr_users');
+  });
+  it('rejects inactive accounts', async () => {
+    configure({}, { is_active: false });
+    await expect(SessionManager.validatePageJWT(pageToken())).rejects.toThrow('inativa');
+  });
+  it('does not trust the ADMIN role claimed by a signed JWT', async () => {
+    configure({}, { role: 'AGR' });
+    await expect(SessionManager.validatePageJWT(pageToken({ role: 'ADMIN' }), 'ADMIN')).rejects.toThrow('Permissão');
+  });
+  it('fails closed when account lookup is unavailable', async () => {
+    configure({}, {}, true);
+    await expect(SessionManager.validatePageJWT(pageToken())).rejects.toThrow('indisponível');
+  });
+  it('fails closed when session lookup is unavailable', async () => {
+    mockFrom.mockReturnValue(createChain({ single: vi.fn().mockResolvedValue({ data: null, error: new Error('offline') }) }));
+    await expect(SessionManager.validatePageJWT(pageToken())).rejects.toThrow('não encontrada');
   });
 });
