@@ -47,3 +47,6 @@ P3: UX de atendimento e métricas de produtividade; só depois comercialização
 - `33e812f`: remoção de dependências incompatíveis/não utilizadas, cliente Supabase 2.90.1 fixado, build Webpack e diagnóstico indisponível em produção.
 - 79 testes aprovados; instalação limpa com scripts de terceiros desativados; build/TypeScript aprovados. Smoke local: login 200, diagnóstico 404, PKI 503. Não houve merge, deploy ou alteração de dados reais.
 - Specs 002 e 011 atualizadas com distinção entre contenções comprovadas e homologação pendente. Próxima revisão pontual: consumidor do cookie JWT e rotas administrativas AC.
+
+### Continuidade: sessão persistida e ADMIN
+O consumidor JWT de navegação foi vinculado a `secure_sessions` e à conta AGR ativa. O papel é obtido do banco, com ADMIN obrigatório no proxy da área administrativa e na própria página servidor. A expiração inválida da sessão passou a negar acesso. 101 testes passaram; as demais APIs administrativas e políticas GS por organização continuam na fila. Sem flexibilizar o bloqueio PKI em produção.

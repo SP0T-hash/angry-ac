@@ -77,3 +77,15 @@ Sessões GS com is_active diferente de true serão negadas; falha ao persistir s
 - Testes: 79 aprovados em 6 arquivos após instalação limpa. Lint dos seis arquivos alterados/novos: zero erros, um aviso existente de compatibilidade de memoização no TanStack Table. `git diff --check` passou. Lint global permanece pendente; os erros fora deste escopo não foram suprimidos.
 - `npm run build` aprovado após instalação limpa, incluindo TypeScript e geração das 37 páginas. Smoke HTTP com `next start` somente em localhost: `/auth/login` 200, `/test-db` 404 e `/api/auth/pki` 503. Servidor de teste encerrado. Sem dados ou credenciais reais.
 - Permanecem as restrições e riscos PKI/GS da revisão anterior. Sem push, merge ou deploy. Próxima etapa: corrigir os erros de lint globais por módulo e implementar permissões GS por organização, mantendo a contenção até a homologação.
+
+## Publicação e próxima correção — 2026-11-07
+Commits `77b686c`, `33e812f` e `e922b97` enviados a `origin/security/fail-closed-critical-flows-20261107`, sem merge ou deploy. Specs 002/011 e auditoria atualizadas.
+Risco de compatibilidade registrado antes da mudança: o guard de páginas AC passará a exigir JWT com `sub` e `session_token` vinculados a sessão persistida ativa e conta ativa. JWT antigo sem vínculo, sessão revogada, conta desativada ou indisponibilidade do banco perderão acesso. `/ac/admin` exigirá papel ADMIN lido do banco, também na página servidor. Nenhuma migração ou dado real envolvido. APIs continuarão usando Bearer opaque e `withAuth`; não serão convertidas para confiar no JWT.
+
+## Continuidade — vínculo de sessão e portal ADMIN
+- Implementado `SessionManager.validatePageJWT`: valida JWT, exige sub/session_token, confere sessão persistida e vínculo agr_id, conta ativa e papel atual no banco. Sessões com is_active não verdadeiro ou expiração inválida também são negadas.
+- Proxy `/ac/*` usa essa validação; `/ac/admin` e subrotas exigem ADMIN. A própria página servidor `/ac/admin` repete a autorização antes de renderizar; APIs Bearer opaque continuam com seu contrato anterior.
+- 101 testes aprovados em 8 arquivos: regressões anteriores e vínculo divergente, sessão revogada/expirada, expiração inválida, conta inativa, papel ADMIN desatualizado, banco indisponível, proxy e acesso direto à página. Dados fictícios/mocks.
+- Lint do proxy, página e dois novos arquivos de teste: zero erros/avisos. O core/teste de segurança conserva tipagens any preexistentes; lint global não foi limpo nem desabilitado.
+- `npm run build` aprovado com TypeScript e geração das páginas após a correção. Nenhum dado real acessado; specs 002/011 atualizadas.
+- Riscos remanescentes: PKI/PSC real e cadeia ICP-Brasil não homologados; GS genérico permanece AC_ADMIN-only até política por tabela/AR/campo; conferir demais APIs administrativas e compatibilidade frontend de auditoria/Bearer; limpar lint global por módulos. O guard adiciona consultas por requisição e indisponibilidade nega navegação. Não reabrir produção por fallback.

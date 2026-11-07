@@ -176,3 +176,6 @@ Branch de recuperação: `security/fail-closed-critical-flows-20261107`.
 - A atualização genérica de protocolo aceita somente contato; alterações decisórias precisam de fluxos próprios autorizados. Listagem, atualização e auditoria devem respeitar o AGR autenticado.
 - Situação atual é contenção, não homologação ICP-Brasil. Ainda pendem PSC/AC reais, isolamento completo por organização e persistência verificável de evidências/vídeo.
 - Evidência: commits `77b686c` (contenções/testes) e `33e812f` (instalação/build); 79 testes passaram. Detalhes e riscos em `CODEX_HANDOFF.md`.
+
+### Autorização das páginas AC
+JWT de navegação DEVE estar vinculado a sessão persistida ativa e ao mesmo AGR. Conta ativa e papel administrativo são consultados no banco em cada verificação. Revogação ou mudança de papel impede o próximo acesso; falhas de consulta não liberam entrada. A autenticação PKI em produção permanece bloqueada até homologação.

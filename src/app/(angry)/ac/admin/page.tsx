@@ -1,9 +1,19 @@
 import React from 'react';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { SessionManager } from '@/lib/ac-angry/security';
 import AgenteMonitor from "@/components/ac-angry/admin/AgenteMonitor";
 import KpiGrid from "@/components/ac-angry/admin/KpiGrid";
 import SecurityAuditTable from "@/components/ac-angry/admin/SecurityAuditTable";
 
-export default function AdminPortalPage() {
+export default async function AdminPortalPage() {
+  const token = (await cookies()).get('ac_angry_session')?.value;
+  if (!token) redirect('/auth/login');
+  try {
+    await SessionManager.validatePageJWT(token, 'ADMIN');
+  } catch {
+    redirect('/auth/login');
+  }
   return (
     <div className="min-h-screen bg-slate-50 p-6 max-w-7xl mx-auto">
       <div className="mb-6">
