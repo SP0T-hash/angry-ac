@@ -22,9 +22,15 @@ export const POST = withAuth(async (req: NextRequest, { session, ip }) => {
     }
 
     const supabase = await getSupabaseAdmin();
-    const { error } = await supabase.from('protocols').update(updates).eq('id', id);
+    const { data, error } = await supabase.from('protocols')
+      .update(updates)
+      .eq('id', id)
+      .eq('agr_id', session.agrId)
+      .select('id')
+      .maybeSingle();
 
     if (error) throw error;
+    if (!data) return NextResponse.json({ error: 'Protocolo não encontrado ou sem permissão.' }, { status: 404 });
 
     await AuditLogger.log({
       eventType: 'PROTOCOL_UPDATED',
