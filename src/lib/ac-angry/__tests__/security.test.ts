@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 import { createHmac } from 'crypto';
 
-const mockCreateClient = vi.fn();
-const mockFrom = vi.fn();
+const { mockCreateClient, mockFrom } = vi.hoisted(() => ({
+  mockCreateClient: vi.fn(),
+  mockFrom: vi.fn(),
+}));
 
 vi.mock('@supabase/supabase-js', () => ({
   createClient: mockCreateClient,
@@ -676,5 +678,24 @@ describe('ProtocolLocker', () => {
 
       await expect(ProtocolLocker.unlock('protocol-1', 'wrong-agr')).resolves.toBeUndefined();
     });
+  });
+});
+
+describe('JWT fail-closed header and expiration', () => {
+  function token(header: unknown, payload: unknown) {
+    const parts = [header, payload].map(value => Buffer.from(JSON.stringify(value)).toString('base64url'));
+    return `${parts.join('.')}.${createHmac('sha256', 'test-jwt-secret').update(parts.join('.')).digest('base64url')}`;
+  }
+  it.each([{ alg: 'none', typ: 'JWT' }, { alg: 'HS512', typ: 'JWT' }, { alg: 'HS256', typ: 'other' }])('rejects misleading header %j even with valid HMAC', async (header) => {
+    vi.stubEnv('AUTH_JWT_SECRET', 'test-jwt-secret');
+    const { verifyJWT } = await import('../security');
+    try { expect(() => verifyJWT(token(header, { exp: Date.now() / 1000 + 60 }))).toThrow(); }
+    finally { vi.unstubAllEnvs(); }
+  });
+  it.each([undefined, null, '9999999999', 1])('rejects invalid or expired expiration %s', async (exp) => {
+    vi.stubEnv('AUTH_JWT_SECRET', 'test-jwt-secret');
+    const { verifyJWT } = await import('../security');
+    try { expect(() => verifyJWT(token({ alg: 'HS256', typ: 'JWT' }, { exp }))).toThrow(); }
+    finally { vi.unstubAllEnvs(); }
   });
 });

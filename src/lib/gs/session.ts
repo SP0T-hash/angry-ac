@@ -43,11 +43,13 @@ export async function gsLogin(
   const token = gerarToken();
   const expira = new Date(Date.now() + MAX_AGE * 1000).toISOString();
 
-  await admin.from("gs_sessoes").insert({
+  const { error: sessionError } = await admin.from("gs_sessoes").insert({
     usuario_id: user.id,
     token,
     expires_at: expira,
   });
+
+  if (sessionError) return null;
 
   return { usuario: mapUsuario(user), token, expira_em: expira };
 }
@@ -87,7 +89,7 @@ export async function getGSSession(): Promise<GSSessao | null> {
     .gte("expires_at", new Date().toISOString())
     .maybeSingle();
 
-  if (error || !sess || !sess.usuario || sess.usuario.is_active !== true) return null;
+  if (error || !sess || sess.is_active !== true || !sess.usuario || sess.usuario.is_active !== true) return null;
   return {
     usuario: mapUsuario(sess.usuario),
     token,

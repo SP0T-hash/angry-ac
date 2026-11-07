@@ -45,3 +45,24 @@ Código gravado na branch, **sem execução confirmada de lint, testes ou build*
 
 ## Aprovação
 Nenhuma alteração desta branch deve ser mesclada na main sem revisão e aprovação do proprietário.
+
+## Contenções adicionais planejadas — 2026-11-07 (Mordomo/ODIN)
+Risco de compatibilidade registrado antes da implementação: login PKI em produção será bloqueado (503), pois não existe validação confiável da cadeia ICP-Brasil. Não habilitar por variável de ambiente enquanto isso não for implementado. A consulta local de revogação também deve falhar fechada.
+A rota genérica GS passará a aceitar apenas AC_ADMIN ativo. AR_ADMIN, unidades e contadores perderão temporariamente essas gravações; o endpoint usa service-role sem política de tenant e possui tabelas com vínculos indiretos. Reabrir somente com políticas por tabela/campo/relacionamento e testes entre organizações. Nenhuma migração ou alteração de dados é necessária para a contenção.
+Sessões GS com is_active diferente de true serão negadas; falha ao persistir sessão não retornará login bem-sucedido.
+
+## Resultado da revisão direcionada — 2026-11-07
+- Checkout isolado da branch autorizada em `work/angry-security`; checkout original `opencode/comercial` preservado. Comparação com main limitada ao diff e dependências diretas de autenticação/GS. ODIN fez revisão pontual somente leitura; sem auditoria integral ou pesquisa externa duplicada.
+- Implementado: PKI GET/POST retorna 503 em produção antes de nonce/banco; erro ou exceção na consulta de revogação nega login; mutação genérica GS exige AC_ADMIN ativo e não devolve mensagens internas do banco; sessões GS revogadas/inconsistentes são rejeitadas; erro de persistência da sessão nega login.
+- Testes: 78 aprovados em 5 arquivos. Cobrem revogação GS, falha de persistência, todos os papéis GS não administrativos, protocolos de outro AGR, campos decisórios proibidos, auditoria forjada, bloqueios produtivos de PKI/biometria/CA simulada, falhas de consulta CRL e cabeçalho/expiração JWT. Corrigido mock preexistente com hoisting inválido que impedia a suíte antiga de iniciar. Testes usam mocks/dados fictícios; não homologam ICP-Brasil real.
+- Instalação: `npm ci --ignore-scripts --no-audit --no-fund` falhou ERESOLVE (Tremor 3.18.2 exige React 18, projeto usa 19.2.3). Instalação com `--legacy-peer-deps` passou sem alterar lockfile ou versões. Node isolado 24.22.2.
+- Lint global: 134 erros e 82 avisos, principalmente any e problemas React preexistentes. Lint direcionado da rota GS e quatro novos arquivos de teste passou. Não corrigidos arquivos alheios ao escopo.
+- Build padrão Turbopack interrompido por ausência de progresso na compilação neste ambiente. `next build --webpack` falhou: `test-db/page.tsx doesn't have a root layout`. A página e layouts não diferem da main. Build NÃO aprovado; variáveis reais não foram fornecidas.
+- TypeScript: `tsc --noEmit` aprovado. `git diff --check` aprovado.
+- Sem merge, deploy, push, migração ou acesso a dados reais.
+
+### Riscos pendentes / próxima etapa
+1. PKI de desenvolvimento continua sem validar cadeia confiável; nunca usar com identidades reais. Para reabrir produção: confiança ICP-Brasil, revogação confiável, vínculo da identidade/serial e prova de posse homologados. Aprovação OAuth PSC isolada não é prova suficiente.
+2. A contenção GS não implementa permissões finas/isolamento por AR: bloqueia não administradores. AC_ADMIN ainda é global e a mutação genérica precisa política de campos e relacionamentos antes de ser reaberta a outros papéis.
+3. Protocolos estão isolados por AGR, não por equipe/AR completa. Consumidores do cookie JWT precisam revisão direcionada para revogação da sessão persistida. Compatibilidade do frontend com auditoria restrita e bearer opaque continua pendente.
+4. Próxima ação: corrigir o bloqueio de build/layout e a instalação React/Tremor; depois políticas GS por tabela e revisão dos consumidores de sessão. Não considerar esta branch pronta para produção.
