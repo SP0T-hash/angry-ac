@@ -7,6 +7,15 @@ export const POST = withAuth(async (req: NextRequest, { session, ip }) => {
   try {
     const body = await req.json();
     const { id, updates } = body;
+    // Restrict this generic endpoint to non-decisional fields only.
+    // Status, identity, approvals and issuance require dedicated authorized workflows.
+    const allowedFields = new Set(['holder_telefone', 'holder_email']);
+    if (!updates || typeof updates !== 'object' || Array.isArray(updates) ||
+        Object.keys(updates).length === 0 ||
+        Object.keys(updates).some(key => !allowedFields.has(key)) ||
+        Object.values(updates).some(value => typeof value !== 'string')) {
+      return NextResponse.json({ error: 'Campos de atualização não permitidos.' }, { status: 400 });
+    }
 
     if (!id || !updates) {
       return NextResponse.json({ error: 'ID e Dados são obrigatórios' }, { status: 400 });
