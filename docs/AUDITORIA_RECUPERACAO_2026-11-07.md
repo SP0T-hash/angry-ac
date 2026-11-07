@@ -41,3 +41,9 @@ P2: integrações PSC e AC com ambientes sandbox e contratos oficiais.
 P3: UX de atendimento e métricas de produtividade; só depois comercialização.
 
 **Importante:** correções são contenções pontuais e não certificam segurança ou conformidade regulatória.
+
+## Atualização técnica — Mordomo, 2026-11-07
+- `77b686c`: contenção PKI em produção, CRL fail-closed, GS genérico somente AC_ADMIN ativo, revogação/persistência GS e regressões de segurança.
+- `33e812f`: remoção de dependências incompatíveis/não utilizadas, cliente Supabase 2.90.1 fixado, build Webpack e diagnóstico indisponível em produção.
+- 79 testes aprovados; instalação limpa com scripts de terceiros desativados; build/TypeScript aprovados. Smoke local: login 200, diagnóstico 404, PKI 503. Não houve merge, deploy ou alteração de dados reais.
+- Specs 002 e 011 atualizadas com distinção entre contenções comprovadas e homologação pendente. Próxima revisão pontual: consumidor do cookie JWT e rotas administrativas AC.

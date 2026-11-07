@@ -4,7 +4,7 @@
 
 **Created**: 2026-07-07
 
-**Status**: Planned
+**Status**: Contenções parciais implementadas; auditoria e homologação pendentes
 
 **Input**: Soluções de segurança digital para proteção do sistema
 
@@ -80,3 +80,13 @@ O sistema deve monitorar e alertar sobre atividades suspeitas.
 ## Status
 
 Esta funcionalidade está em fase de planejamento. Implementação prevista para Q3 2026.
+
+## Requisitos da recuperação de segurança — 2026-11-07
+- **FR-006**: Sessões GS revogadas, usuários inativos e falhas de persistência DEVEM negar autenticação. Implementado e testado em `77b686c`.
+- **FR-007**: A rota genérica GS DEVE negar gravações de qualquer papel diferente de AC_ADMIN ativo enquanto não houver política por tabela/campo/organização. Implementado; operações dos demais papéis permanecem temporariamente bloqueadas.
+- **FR-008**: Eventos enviados pelo navegador NÃO DEVEM ser tratados como prova de autenticação, biometria ou emissão; auditoria de visualização DEVE conferir proprietário e descartar metadados arbitrários. Contenção implementada; compatibilidade da interface pendente.
+- **FR-009**: Toda rota administrativa AC DEVE conferir sessão persistida ativa, vínculo entre sujeito JWT e AGR, conta ativa e papel ADMIN no servidor. Revisão e testes do consumidor de cookie JWT pendentes.
+- **FR-010**: Indisponibilidade do banco de permissões/sessões NÃO DEVE liberar acesso. Não aceitar um JWT apenas porque a assinatura ainda é válida após revogação da sessão.
+- **FR-011**: Diagnósticos de banco NÃO DEVEM ser acessíveis em produção. `/test-db` retorna 404; teste e smoke HTTP aprovados em `33e812f`.
+
+Validação disponível: instalação limpa sem legacy-peer-deps, build Webpack/TypeScript e 79 testes aprovados; lint direcionado sem erros. Lint global, testes com provedores reais e análise completa OWASP continuam pendentes. Os percentuais aspiracionais desta spec não são resultados medidos. Ver `CODEX_HANDOFF.md`.
