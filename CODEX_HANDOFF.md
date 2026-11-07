@@ -19,6 +19,8 @@ Analise somente os arquivos modificados e dependências diretas. Não use tokens
 - `api/protocol/update/route.ts`: restringe campos genéricos a `holder_telefone` e `holder_email`. **Atenção:** ainda falta autorização por AR e verificação de existência/ownership.
 - `lib/gs/session.ts`: remove fallback de senha em texto puro, exige conta ativa na consulta da sessão, marca cookie Secure em produção. **Atenção:** usuários antigos com senha sem hash precisarão migrar credenciais; não restaurar comparação em texto puro.
 
+- `lib/ac-angry/security.ts` (commit `dcfe1c84`): valida explicitamente cabeçalho JWT `HS256`/`JWT` e exige `exp` numérico válido; não substitui validação de revogação de sessão nem autenticação A3.
+
 ## Estado de validação
 Código gravado na branch, **sem execução confirmada de lint, testes ou build**. Não afirmar que a segurança foi certificada ou que o produto está pronto para produção.
 
