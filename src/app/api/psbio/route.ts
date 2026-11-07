@@ -110,6 +110,11 @@ export const POST = withAuth(async (req: NextRequest, { session, ip }) => {
       });
     }
 
+    // No biometric provider: production must fail closed, never generate approval evidence.
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: 'Serviço biométrico não configurado. Validação indisponível.' }, { status: 503 });
+    }
+
     // --- MODO DESENVOLVIMENTO (sem API key) ---
     console.log('--- PSBIO DEV MODE ---');
     console.log('CPF:', cpfDigits.slice(0, 3) + '***');
