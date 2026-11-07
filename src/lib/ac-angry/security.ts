@@ -37,6 +37,15 @@ export function verifyJWT(token: string): Record<string, unknown> {
   if (parts.length !== 3) throw new Error('JWT malformado');
 
   const [headerB64, payloadB64, signatureB64] = parts;
+  let header: Record<string, unknown>;
+  try {
+    header = JSON.parse(base64urlDecode(headerB64));
+  } catch {
+    throw new Error('Cabeçalho JWT inválido');
+  }
+  if (header.alg !== 'HS256' || header.typ !== 'JWT') {
+    throw new Error('Algoritmo ou tipo JWT não permitido');
+  }
   const expectedSig = createHmac('sha256', secret).update(`${headerB64}.${payloadB64}`).digest('base64url');
 
   const expectedBuf = Buffer.from(expectedSig);
@@ -46,7 +55,10 @@ export function verifyJWT(token: string): Record<string, unknown> {
   }
 
   const payload = JSON.parse(base64urlDecode(payloadB64)) as Record<string, unknown>;
-  if (typeof payload.exp === 'number' && payload.exp * 1000 < Date.now()) {
+  if (typeof payload.exp !== 'number' || !Number.isFinite(payload.exp)) {
+    throw new Error('JWT sem expiração válida');
+  }
+  if (payload.exp * 1000 <= Date.now()) {
     throw new Error('JWT expirado');
   }
   return payload;
