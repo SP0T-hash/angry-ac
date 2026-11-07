@@ -21,6 +21,9 @@ Analise somente os arquivos modificados e dependências diretas. Não use tokens
 
 - `lib/ac-angry/security.ts` (commit `dcfe1c84`): valida explicitamente cabeçalho JWT `HS256`/`JWT` e exige `exp` numérico válido; não substitui validação de revogação de sessão nem autenticação A3.
 
+- `lib/ac-angry/api-middleware.ts` (commit `ea311356`): verifica no banco se AGR está ativo e aplica `requireRole` quando solicitado; falha fechada se consulta de permissões falhar. **Atenção:** checar valores reais de `agr_users.role`, cobertura dos endpoints e custo da consulta por request; não implementa isolamento entre ARs.
+- `api/auth/pki/route.ts` permanece **insegura para autenticação ICP-Brasil em produção**: checagem por texto do emissor não valida cadeia de confiança, CRL/OCSP real nem prova de dispositivo A3. Exige arquitetura de validação confiável antes de liberar.
+
 ## Estado de validação
 Código gravado na branch, **sem execução confirmada de lint, testes ou build**. Não afirmar que a segurança foi certificada ou que o produto está pronto para produção.
 
