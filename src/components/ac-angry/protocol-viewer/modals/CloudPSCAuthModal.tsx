@@ -6,11 +6,10 @@ export const CloudPSCAuthModal = ({ isOpen, onClose, onConfirm }: any) => {
 
   if (!isOpen) return null;
 
+  // Fail closed: no PSC provider is connected to this modal yet.
+  // Never report a completed signature without verified cryptographic evidence.
   const handleStartPush = async () => {
-    setStatus('sending');
-    setTimeout(() => setStatus('waiting'), 1500);
-    setTimeout(() => setStatus('signed'), 5000);
-    setTimeout(() => onConfirm(), 6500);
+    setStatus('error');
   };
 
   return (
@@ -59,6 +58,11 @@ export const CloudPSCAuthModal = ({ isOpen, onClose, onConfirm }: any) => {
             </div>
           )}
 
+          {status === 'error' && (
+            <div role="alert" className="py-8 text-sm text-red-700">
+              Assinatura em nuvem indisponível: integração PSC ainda não validada. Nenhuma aprovação foi registrada.
+            </div>
+          )}
           {status === 'signed' && (
             <div className="py-8 flex flex-col items-center">
                <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mb-4 text-white shadow-lg shadow-emerald-100">
