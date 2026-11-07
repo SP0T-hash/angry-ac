@@ -4,9 +4,6 @@ import React from 'react';
 import {
   Building2, Users, FileText, Wallet,
 } from 'lucide-react';
-import {
-  Card, Text, Metric, Grid, ProgressBar, BadgeDelta, Flex,
-} from '@tremor/react';
 import GSLayout from "@/components/gs/GSLayout";
 import { buildGSNav } from "@/components/gs/GSLayout";
 
@@ -23,7 +20,7 @@ function formatBRL(v: number): string {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 }
 
-export default function GSDashboardClient({ usuario, nivelLabel, isAdmin, isAR, kpis, erro }: DashboardProps) {
+export default function GSDashboardClient({ usuario, nivelLabel, isAR, kpis, erro }: DashboardProps) {
   const cards = [
     { title: 'ARs Ativos', metric: String(kpis.ars), icon: Building2, delta: 'tempo real', deltaType: 'moderateIncrease' as const, progress: 80, color: 'emerald' as const },
     { title: 'Unidades', metric: String(kpis.unidades), icon: Users, delta: 'tempo real', deltaType: 'moderateIncrease' as const, progress: 90, color: 'indigo' as const },
@@ -50,29 +47,29 @@ export default function GSDashboardClient({ usuario, nivelLabel, isAdmin, isAR, 
         </div>
       )}
 
-      <Grid numItemsSm={2} numItemsLg={4} className="gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((k) => (
-          <Card key={k.title} decoration="top" decorationColor={k.color} className="bg-white border border-slate-100 rounded-2xl shadow-card">
-            <Flex alignItems="start">
+          <div key={k.title} className="p-6 bg-white border border-slate-100 rounded-2xl shadow-card">
+            <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
                 <div className={`p-2 rounded-lg ${iconWrap[k.color] ?? 'bg-slate-500/10 text-slate-600'}`}>
                   <k.icon size={20} />
                 </div>
-                <Text className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">{k.title}</Text>
+                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">{k.title}</p>
               </div>
-              <BadgeDelta deltaType={k.deltaType} size="xs">{k.delta}</BadgeDelta>
-            </Flex>
-            <Flex justifyContent="start" alignItems="baseline" className="space-x-3 truncate mt-4">
-              <Metric className="text-slate-900 font-black tracking-tight">{k.metric}</Metric>
-            </Flex>
-            <ProgressBar value={k.progress} color={k.color} className="mt-4" />
-          </Card>
+              <span className="inline-flex rounded-full px-2 py-0.5 text-xs bg-emerald-500/10 text-emerald-500">{k.delta}</span>
+            </div>
+            <div className="flex items-baseline justify-start space-x-3 truncate mt-4">
+              <p className="text-3xl text-slate-900 font-black tracking-tight">{k.metric}</p>
+            </div>
+            <progress aria-label={k.title} value={k.progress} max={100} className="mt-4 h-2 w-full accent-emerald-500" />
+          </div>
         ))}
-      </Grid>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        <Card className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl shadow-card p-6">
-          <Text className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Acesso Rápido</Text>
+        <div className="p-6 lg:col-span-2 bg-white border border-slate-100 rounded-2xl shadow-card">
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Acesso Rápido</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
             {buildGSNav(isAR).filter((n) => n.id !== 'dashboard').map((n) => (
               <button
@@ -85,9 +82,9 @@ export default function GSDashboardClient({ usuario, nivelLabel, isAdmin, isAR, 
               </button>
             ))}
           </div>
-        </Card>
-        <Card className="bg-white border border-slate-100 rounded-2xl shadow-card p-6">
-          <Text className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Status do Sistema</Text>
+        </div>
+        <div className="p-6 bg-white border border-slate-100 rounded-2xl shadow-card">
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Status do Sistema</p>
           <div className="space-y-3 mt-4">
             <div className="flex items-center justify-between text-sm">
               <span className="text-slate-500">Ambiente</span>
@@ -102,7 +99,7 @@ export default function GSDashboardClient({ usuario, nivelLabel, isAdmin, isAR, 
               <span className="text-indigo-600 font-bold">{nivelLabel}</span>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
     </GSLayout>
   );

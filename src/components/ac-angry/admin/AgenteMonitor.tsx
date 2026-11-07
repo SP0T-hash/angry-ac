@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Card, Flex, Badge, Text, Grid } from "@tremor/react";
+import React from 'react';
 import { Monitor, Smartphone, Terminal, SignalHigh, SignalLow } from "lucide-react";
 
 interface AgenteHardware {
@@ -27,13 +26,13 @@ export default function AgenteMonitor() {
         <h3 className="text-sm font-black uppercase tracking-widest text-blue-400 flex items-center gap-2">
           <Monitor size={16} /> Monitor de Hardware Local
         </h3>
-        <Badge size="xs" color="blue">4 ATIVOS</Badge>
+        <span className="inline-flex rounded-full px-2 py-0.5 text-xs bg-blue-500/10 text-blue-400">4 ATIVOS</span>
       </div>
 
-      <Grid numItemsSm={1} numItemsLg={2} className="gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4">
         {mockHardwares.map((h) => (
-          <Card key={h.id} className="bg-[#0f172a]/40 border-white/5 hover:border-blue-500/30 transition-all group p-4">
-            <Flex alignItems="center" justifyContent="between">
+          <div key={h.id} className="rounded-xl border bg-[#0f172a]/40 border-white/5 hover:border-blue-500/30 transition-all group p-4">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center border border-white/10 ${h.status === 'ONLINE' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-slate-800 text-slate-500'}`}>
                   {h.type === 'PC' && <Monitor size={18} />}
@@ -41,23 +40,23 @@ export default function AgenteMonitor() {
                   {h.type === 'TERMINAL' && <Terminal size={18} />}
                 </div>
                 <div className="flex flex-col">
-                  <Text className="text-xs font-black text-white uppercase tracking-tight">{h.name}</Text>
-                  <Text className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{h.location}</Text>
+                  <p className="text-xs font-black text-white uppercase tracking-tight">{h.name}</p>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{h.location}</p>
                 </div>
               </div>
               <div className="flex flex-col items-end">
-                <Badge color={h.status === 'ONLINE' ? 'emerald' : 'slate'} size="xs" className="mb-2">
+                <span className={`inline-flex rounded-full px-2 py-0.5 text-xs ${h.status === 'ONLINE' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-slate-500/10 text-slate-400'}`}>
                   {h.status}
-                </Badge>
+                </span>
                 <div className="flex items-center gap-1.5">
                    {h.status === 'ONLINE' ? <SignalHigh size={10} className="text-emerald-500" /> : <SignalLow size={10} className="text-slate-600" />}
                    <span className="text-[10px] font-mono text-slate-600">{h.lastPing}</span>
                 </div>
               </div>
-            </Flex>
-          </Card>
+            </div>
+          </div>
         ))}
-      </Grid>
+      </div>
     </div>
   );
 }

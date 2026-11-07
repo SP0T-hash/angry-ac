@@ -66,3 +66,14 @@ Sessões GS com is_active diferente de true serão negadas; falha ao persistir s
 2. A contenção GS não implementa permissões finas/isolamento por AR: bloqueia não administradores. AC_ADMIN ainda é global e a mutação genérica precisa política de campos e relacionamentos antes de ser reaberta a outros papéis.
 3. Protocolos estão isolados por AGR, não por equipe/AR completa. Consumidores do cookie JWT precisam revisão direcionada para revogação da sessão persistida. Compatibilidade do frontend com auditoria restrita e bearer opaque continua pendente.
 4. Próxima ação: corrigir o bloqueio de build/layout e a instalação React/Tremor; depois políticas GS por tabela e revisão dos consumidores de sessão. Não considerar esta branch pronta para produção.
+
+## Correção de build e dependências — 2026-11-07
+- Mordomo executou diretamente; nenhuma delegação adicional necessária. Escopo: bloqueios de instalação/build e quatro consumidores diretos do Tremor, sem ampliar a auditoria.
+- Removido Tremor (inclusive a versão atual 3.18.7 exige React 18). Os quatro consumidores usam HTML semântico, estilos Tailwind existentes, tabela nativa e progress com rótulo acessível. React permanece 19.2.3. A aparência dos componentes pode variar ligeiramente.
+- Removido `@supabase/ssr`, sem referências no código e com peer incompatível com o cliente bloqueado no lockfile. Cliente `@supabase/supabase-js` fixado na versão original 2.90.1; nenhuma mudança de banco/credenciais/contrato de autenticação. O lockfile também atualizou três dependências transitivas de tipos/WebSocket.
+- `/test-db` reutiliza o layout existente e retorna notFound em produção, evitando publicar diagnóstico de banco. Adicionado teste desse bloqueio.
+- `npm run build` usa `next build --webpack`, opção suportada pelo Next 16, em lugar do Turbopack que não avançava neste ambiente. Nenhum controle de segurança ou checagem TypeScript foi desabilitado.
+- Instalação limpa: `npm ci --ignore-scripts --no-audit --no-fund` passou, sem legacy-peer-deps. Scripts de instalação de terceiros não foram executados.
+- Testes: 79 aprovados em 6 arquivos após instalação limpa. Lint dos seis arquivos alterados/novos: zero erros, um aviso existente de compatibilidade de memoização no TanStack Table. `git diff --check` passou. Lint global permanece pendente; os erros fora deste escopo não foram suprimidos.
+- `npm run build` aprovado após instalação limpa, incluindo TypeScript e geração das 37 páginas. Smoke HTTP com `next start` somente em localhost: `/auth/login` 200, `/test-db` 404 e `/api/auth/pki` 503. Servidor de teste encerrado. Sem dados ou credenciais reais.
+- Permanecem as restrições e riscos PKI/GS da revisão anterior. Sem push, merge ou deploy. Próxima etapa: corrigir os erros de lint globais por módulo e implementar permissões GS por organização, mantendo a contenção até a homologação.
